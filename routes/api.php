@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\T_CIFcontroller;
+use App\Http\Controllers\T_ADDRESScontroller;
 use App\Http\Controllers\AuthController;
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
   return $request->user();
 });
 Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
+Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
