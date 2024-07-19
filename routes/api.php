@@ -26,5 +26,6 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
   return $request->user();
 });
-Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
-Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
+Route::get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
+// Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
+// Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
