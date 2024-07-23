@@ -33,7 +33,7 @@ class RegisterController extends Controller
             ->where('name3', $request->input('name3'))
             ->first();
 
-        if ($existingSqlsrvUser || $existingMysqlUser) {
+        if ($existingMysqlUser) {
             return response()->json(['message' => 'User already exists.'], 409);
         }
 
