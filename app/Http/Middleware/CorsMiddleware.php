@@ -18,8 +18,7 @@ class CorsMiddleware
     {
         // Allowed origins
         $allowedOrigins = [
-            'http://localhost:8080', // Add your frontend URL here
-            // Add more origins if needed
+            'http://localhost:8080',
         ];
 
         // Check if the request origin is allowed

@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\T_CIFcontroller;
 use App\Http\Controllers\T_ADDRESScontroller;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DataController;
 use App\Http\Controllers\RegisterController;
 
 /*
@@ -19,18 +18,13 @@ use App\Http\Controllers\RegisterController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-// Route::post('register', [AuthController::class, 'register']);
-// Route::post('login', [AuthController::class, 'login']);
-// Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+Route::post('admin-register', [AuthController::class, 'register']);
+Route::post('admin-login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //   return $request->user();
 // });
-Route::get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
-// Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
-// Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
 
-Route::post('/register', [RegisterController::class, 'register']);
+Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
+Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
+Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
