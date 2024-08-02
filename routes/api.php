@@ -6,6 +6,9 @@ use App\Http\Controllers\T_CIFcontroller;
 use App\Http\Controllers\T_ADDRESScontroller;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\TypesController;
+use App\Http\Controllers\TitlesController;
+use App\Http\Controllers\CustomerStatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +31,6 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
 Route::middleware('auth:sanctum')->get('customer-info', [T_CIFcontroller::class, 'getT_CIF']);
 Route::middleware('auth:sanctum')->get('customer-address', [T_ADDRESScontroller::class, 'getT_ADDRESS']);
+Route::get('types', [TypesController::class, 'getTypes']);
+Route::get('titles', [TitlesController::class, 'getTitles']);
+Route::get('customer_status', [CustomerStatusController::class, 'getCustomerStatus']);
