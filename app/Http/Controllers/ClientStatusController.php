@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 use App\Models\ClientStatusModel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ClientStatusController extends Controller
 {
-    public function getClientStatus(Request $request)
+    public function getClientStatus()
     {
-        Log::info('Authenticated User:', ['user' => $request->user()]);
         try {
             $data = ClientStatusModel::all();
             return response()->json($data);

@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\ClientInfoModel;
+use App\Models\UndefModel;
+use Illuminate\Http\Request;
 
-class ClientInfoController extends Controller
+class UndefController extends Controller
 {
-    public function getClientInfo()
+    public function getUndef()
     {
         try {
-            $data = ClientInfoModel::all();
+            $data = UndefModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

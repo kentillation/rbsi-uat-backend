@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\ClientInfoModel;
+use App\Models\TaxCodeModel;
+use Illuminate\Http\Request;
 
-class ClientInfoController extends Controller
+class TaxCodeController extends Controller
 {
-    public function getClientInfo()
+    public function getTaxCode()
     {
         try {
-            $data = ClientInfoModel::all();
+            $data = TaxCodeModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

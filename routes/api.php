@@ -11,20 +11,29 @@ use App\Http\Controllers\ClientStatusController;
 use App\Http\Controllers\NewClientController;
 use App\Http\Controllers\GendersController;
 use App\Http\Controllers\CivilStatusController;
+use App\Http\Controllers\UndefController;
+use App\Http\Controllers\EntityController;
+use App\Http\Controllers\EmploymentController;
+use App\Http\Controllers\AddressTypeController;
+use App\Http\Controllers\TaxCodeController;
 
 Route::post('admin-register', [AuthController::class, 'register']);
 Route::post('admin-login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/users', function (Request $request) {
+Route::middleware('auth:sanctum')->get('users', function (Request $request) {
   return $request->user();
 });
 Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
-
 Route::middleware('auth:sanctum')->get('types', [TypesController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [TitlesController::class, 'getTitles']);
 Route::middleware('auth:sanctum')->get('client_status', [ClientStatusController::class, 'getClientStatus']);
 Route::middleware('auth:sanctum')->get('genders', [GendersController::class, 'getGenders']);
 Route::middleware('auth:sanctum')->get('civil_status', [CivilStatusController::class, 'getCivilStatus']);
+Route::middleware('auth:sanctum')->get('undef', [UndefController::class, 'getUndef']);
+Route::middleware('auth:sanctum')->get('entity', [EntityController::class, 'getEntity']);
+Route::middleware('auth:sanctum')->get('employment', [EmploymentController::class, 'getEmployment']);
+Route::middleware('auth:sanctum')->get('address_type', [AddressTypeController::class, 'getAddressType']);
+Route::middleware('auth:sanctum')->get('tax_code', [TaxCodeController::class, 'getTaxCode']);
 
 Route::post('new_client_info', [NewClientController::class, 'add_new_client']);

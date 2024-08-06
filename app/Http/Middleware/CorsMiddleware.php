@@ -21,14 +21,23 @@ class CorsMiddleware
             'http://localhost:8080',
         ];
 
-        // Check if the request origin is allowed
         if (in_array($request->header('Origin'), $allowedOrigins)) {
-            // Set CORS headers
-            return $next($request)
-                ->header('Access-Control-Allow-Origin', $request->header('Origin'))
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With, Application')
-                ->header('Access-Control-Allow-Credentials', true);
+            $headers = [
+                'Access-Control-Allow-Origin' => $request->header('Origin'),
+                'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+            ];
+
+            if ($request->getMethod() == "OPTIONS") {
+                return response()->json('OK', 200, $headers);
+            }
+
+            $response = $next($request);
+            foreach ($headers as $key => $value) {
+                $response->header($key, $value);
+            }
+
+            return $response;
         }
 
         return $next($request);
