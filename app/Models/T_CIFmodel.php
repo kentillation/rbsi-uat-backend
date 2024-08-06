@@ -9,7 +9,7 @@ use App\Models\T_ADDRESSmodel;
 class T_CIFmodel extends Model
 {
     use HasFactory;
-    protected $table = 't_cif';
+    protected $table = 'T_CIF';
     protected $guarded = [];
-    protected $fillable = ['name1', 'name2', 'name3', 'created_at', 'updated_at'];
+    // protected $fillable = ['name1', 'name2', 'name3', 'created_at', 'updated_at'];
 }

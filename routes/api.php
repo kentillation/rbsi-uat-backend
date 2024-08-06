@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\T_CIFcontroller;
+use App\Http\Controllers\ClientInfoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\TypesController;
@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/users', function (Request $request) {
   return $request->user();
 });
 Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
-Route::middleware('auth:sanctum')->get('client_info', [T_CIFcontroller::class, 'getT_CIF']);
+Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
 
 Route::middleware('auth:sanctum')->get('types', [TypesController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [TitlesController::class, 'getTitles']);
