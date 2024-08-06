@@ -1,16 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\T_ADDRESSmodel;
-
+use App\Models\CivilStatusModel;
 use Illuminate\Http\Request;
 
-class T_ADDRESScontroller extends Controller
+class CivilStatusController extends Controller
 {
-    public function getT_ADDRESS()
+    public function getCivilStatus()
     {
         try {
-            $data = T_ADDRESSmodel::all();
+            $data = CivilStatusModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

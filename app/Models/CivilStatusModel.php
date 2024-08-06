@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CustomerStatusModel extends Model
+class CivilStatusModel extends Model
 {
     use HasFactory;
-    protected $table = 't_cif_customer_status';
+
+    protected $table = 't_cif_civil_status';
     protected $guarded = [];
-    protected $fillable = ['id', 'customer_status'];
+    protected $fillable = ['id', 'civil_status'];
 }

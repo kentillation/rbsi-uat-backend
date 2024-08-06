@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CustomerInfoModel;
+use App\Models\ClientInfoModel;
 
-class CustomerInfoController extends Controller
+class ClientInfoController extends Controller
 {
-    public function getCustomerInfo()
+    public function getClientInfo()
     {
         try {
-            $data = CustomerInfoModel::all();
+            $data = ClientInfoModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class NewClientController extends Controller
 {
-    public function register(Request $request)
+    public function add_new_client(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',

@@ -1,15 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\TitlesModel;
+use App\Models\GendersModel;
 use Illuminate\Http\Request;
 
-class TitlesController extends Controller
+class GendersController extends Controller
 {
-    public function getTitles()
+    public function getGenders()
     {
         try {
-            $data = TitlesModel::all();
+            $data = GendersModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
