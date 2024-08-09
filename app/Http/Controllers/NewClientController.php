@@ -20,7 +20,7 @@ class NewClientController extends Controller
             'last_name' => 'required|string',
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
-            'staff_or_not' => 'required|integer',
+            'staff_or_not' => 'required|integer|in:0,1',
             'tin' => 'nullable|string',
             'gender' => 'required|integer',
             'civil_status' => 'required|integer',
@@ -69,9 +69,17 @@ class NewClientController extends Controller
             return response()->json(['message' => 'Client already exists.'], 409);
         }
 
+        $lastCid = MysqlModel::orderBy('cid', 'desc')->value('cid');
+        if ($lastCid) {
+            $numericPart = intval($lastCid) + 1;
+            $newCid = str_pad($numericPart, 6, '0', STR_PAD_LEFT);
+        } else {
+            $newCid = '000001';
+        }
+
         // Save Client to MySQL
         $newClient = new MysqlModel();
-        $newClient->cid = 1;
+        $newClient->cid = $newCid;
         $newClient->type = $request->input('type');
         $newClient->title = $request->input('title');
         $newClient->client_status = $request->input('client_status');
