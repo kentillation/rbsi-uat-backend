@@ -11,5 +11,4 @@ class TypesModel extends Model
 
     protected $table = 't_cif_types';
     protected $guarded = [];
-    protected $fillable = ['id', 'type'];
 }

@@ -10,5 +10,4 @@ class ClientStatusModel extends Model
     use HasFactory;
     protected $table = 't_cif_client_status';
     protected $guarded = [];
-    protected $fillable = ['id', 'client_status'];
 }

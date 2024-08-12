@@ -10,5 +10,4 @@ class TitlesModel extends Model
     use HasFactory;
     protected $table = 't_cif_titles';
     protected $guarded = [];
-    protected $fillable = ['id', 'title'];
 }

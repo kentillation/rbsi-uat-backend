@@ -11,5 +11,4 @@ class CivilStatusModel extends Model
 
     protected $table = 't_cif_civil_status';
     protected $guarded = [];
-    protected $fillable = ['id', 'civil_status'];
 }
