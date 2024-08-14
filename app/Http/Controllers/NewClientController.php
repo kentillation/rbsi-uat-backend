@@ -55,9 +55,10 @@ class NewClientController extends Controller
         $filePath = null;
         if ($request->hasFile('image_file')) {
             $image = $request->file('image_file');
-            $destinationPath = 'uploads/images';
+            // $destinationPath = 'uploads/images';
+            $test = '';
             $filename = time() . '.' . $image->getClientOriginalExtension();
-            $filePath = $image->storeAs($destinationPath, $filename);
+            $filePath = $image->storeAs($test, $filename);
         }
 
         // Check if user exists in SQL Server
