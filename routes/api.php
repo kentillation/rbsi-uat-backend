@@ -16,7 +16,7 @@ use App\Http\Controllers\EntityController;
 use App\Http\Controllers\EmploymentController;
 use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\TaxCodeController;
-use App\Http\Controllers\CheckIdentityController;
+use App\Http\Controllers\WatchListController;
 
 Route::post('admin-register', [AuthController::class, 'register']);
 Route::post('admin-login', [AuthController::class, 'login']);
@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->get('entity', [EntityController::class, 'getE
 Route::middleware('auth:sanctum')->get('employment', [EmploymentController::class, 'getEmployment']);
 Route::middleware('auth:sanctum')->get('address_type', [AddressTypeController::class, 'getAddressType']);
 Route::middleware('auth:sanctum')->get('tax_code', [TaxCodeController::class, 'getTaxCode']);
-Route::middleware('auth:sanctum')->get('check_identity', [CheckIdentityController::class, 'checkIdentity']);
+Route::get('client_image/{filename}', [ClientInfoController::class, 'getClientImage']);
+
+Route::middleware('auth:sanctum')->get('watchlist', [WatchListController::class, 'watchList']);
 
 Route::post('new_client_info', [NewClientController::class, 'add_new_client']);

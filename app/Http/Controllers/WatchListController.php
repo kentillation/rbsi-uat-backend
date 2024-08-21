@@ -1,15 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\BlackListModel;
+use App\Models\WatchListModel;
 use Illuminate\Http\Request;
 
-class CheckIdentityController extends Controller
+class WatchListController extends Controller
 {
-    public function blackList(Request $request)
+    public function watchList(Request $request)
     {
         try {
-            $exists = BlackListModel::where('first_name', $request->input('first_name'))
+            $exists = WatchListModel::where('first_name', $request->input('first_name'))
                 ->where('middle_name', $request->input('middle_name'))
                 ->where('last_name', $request->input('last_name'))
                 ->exists();
