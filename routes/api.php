@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\T_CIFcontroller;
 use App\Http\Controllers\ClientInfoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
@@ -24,8 +25,11 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::middleware('auth:sanctum')->get('users', function (Request $request) {
   return $request->user();
 });
-Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
+// Route::middleware('auth:sanctum')->get('register', [RegisterController::class, 'register']);
+Route::middleware('auth:sanctum')->get('mbwin_client_info', [T_CIFcontroller::class, 'getMBWinClientInfo']);
+Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [T_CIFcontroller::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
+Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkNewDBClientInfo']);
 Route::middleware('auth:sanctum')->get('types', [TypesController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [TitlesController::class, 'getTitles']);
 Route::middleware('auth:sanctum')->get('client_status', [ClientStatusController::class, 'getClientStatus']);

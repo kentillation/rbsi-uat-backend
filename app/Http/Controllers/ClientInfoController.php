@@ -4,13 +4,30 @@ namespace App\Http\Controllers;
 use App\Models\ClientInfoModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Http\Request;
 class ClientInfoController extends Controller
 {
-    public function getClientInfo()
+    public function getClientInfo(Request $request)
     {
         try {
-            $data = ClientInfoModel::all();
-            return response()->json($data);
+            $search = $request->query('search');
+            $clients = ClientInfoModel::where('cid', 'LIKE', "%{$search}%")
+                ->orWhere('last_name', 'LIKE', "%{$search}%")
+                ->get();
+            return response()->json($clients);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function checkNewDBClientInfo(Request $request)
+    {
+        try {
+            $exists = ClientInfoModel::where('first_name', $request->input('first_name'))
+                ->where('middle_name', $request->input('middle_name'))
+                ->where('last_name', $request->input('last_name'))
+                ->exists();
+
+            return response()->json(['exists' => $exists]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

@@ -10,8 +10,5 @@ class SqlsrvModel extends Model
     use HasFactory;
     protected $connection = 'sqlsrv';
     protected $table = 'T_CIF';
-
-    protected $fillable = [
-        'Name1', 'Name2', 'Name3'
-    ];
+    protected $guarded = [];
 }
