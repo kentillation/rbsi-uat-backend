@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->get('users', function (Request $request) {
 Route::middleware('auth:sanctum')->get('mbwin_client_info', [T_CIFcontroller::class, 'getMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [T_CIFcontroller::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
+Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [ClientInfoController::class, 'show']);
 Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkNewDBClientInfo']);
 Route::middleware('auth:sanctum')->get('types', [TypesController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [TitlesController::class, 'getTitles']);
@@ -45,3 +46,4 @@ Route::get('client_image/{filename}', [ClientInfoController::class, 'getClientIm
 Route::middleware('auth:sanctum')->get('watchlist', [WatchListController::class, 'watchList']);
 
 Route::post('new_client_info', [NewClientController::class, 'add_new_client']);
+Route::post('update_client_info', [NewClientController::class, 'update_client']);
