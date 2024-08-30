@@ -222,7 +222,7 @@ class ClientInfoController extends Controller
             'undef' => 'required|integer',
             'entity' => 'required|integer',
             'employment' => 'required|integer',
-            // 'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+            'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
             'cus_lang_pref' => 'required|string',
             'tax_code' => 'required|integer',
         ]);
