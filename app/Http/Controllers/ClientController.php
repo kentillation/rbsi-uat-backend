@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
-class NewClientController extends Controller
+class ClientController extends Controller
 {
     public function add_new_client(Request $request)
     {
@@ -150,7 +150,7 @@ class NewClientController extends Controller
             'undef' => 'required|integer',
             'entity' => 'required|integer',
             'employment' => 'required|integer',
-            'image_file' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
             'cus_lang_pref' => 'required|string',
             'tax_code' => 'required|integer',
         ]);
@@ -159,9 +159,24 @@ class NewClientController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
+        // // Check if user exists in SQL Server
+        $existingSqlsrvClient = SqlsrvModel::where('Name1', $request->input('first_name'))
+            ->where('Name2', $request->input('middle_name'))
+            ->where('Name3', $request->input('last_name'))
+            ->first();
+
+        // // Check if Client exists in MySQL
+        $existingMysqlClient = MysqlModel::where('first_name', $request->input('first_name'))
+            ->where('middle_name', $request->input('middle_name'))
+            ->where('last_name', $request->input('last_name'))
+            ->first();
+
+        if ($existingSqlsrvClient || $existingMysqlClient) {
+            return response()->json(['message' => 'Client already exists.'], 409);
+        }
+
         // Find existing client
         $client = MysqlModel::where('cid', $cid)->first();
-
         if (!$client) {
             return response()->json(['message' => 'Client not found.'], 404);
         }
@@ -170,8 +185,9 @@ class NewClientController extends Controller
         $filePath = $client->image_file;
         if ($request->hasFile('image_file')) {
             $image = $request->file('image_file');
+            $test = '';
             $filename = time() . '.' . $image->getClientOriginalExtension();
-            $filePath = $image->storeAs('uploads/images', $filename);
+            $filePath = $image->storeAs($test, $filename);
         }
 
         // Update client details

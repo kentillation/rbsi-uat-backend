@@ -18,8 +18,8 @@ class CorsMiddleware
     {
         // Allowed origins
         $allowedOrigins = [
-            'http://localhost:8081',
-            'http://192.168.1.7:8081',
+            'http://localhost:8080',
+            'http://192.168.1.24:8080',
         ];
 
         if (in_array($request->header('Origin'), $allowedOrigins)) {
