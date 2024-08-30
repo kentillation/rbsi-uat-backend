@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\EmploymentModel;
-use Illuminate\Http\Request;
 
 class EmploymentController extends Controller
 {

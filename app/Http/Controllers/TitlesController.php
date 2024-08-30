@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\TitlesModel;
-use Illuminate\Http\Request;
 
 class TitlesController extends Controller
 {

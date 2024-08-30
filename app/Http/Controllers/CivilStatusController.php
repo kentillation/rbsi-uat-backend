@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\CivilStatusModel;
-use Illuminate\Http\Request;
 
 class CivilStatusController extends Controller
 {

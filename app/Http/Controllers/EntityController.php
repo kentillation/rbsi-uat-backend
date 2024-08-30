@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\EntityModel;
-use Illuminate\Http\Request;
 
 class EntityController extends Controller
 {

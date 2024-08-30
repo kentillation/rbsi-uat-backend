@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\TaxCodeModel;
-use Illuminate\Http\Request;
 
 class TaxCodeController extends Controller
 {

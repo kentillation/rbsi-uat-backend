@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\GendersModel;
-use Illuminate\Http\Request;
 
 class GendersController extends Controller
 {

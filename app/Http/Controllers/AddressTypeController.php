@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\AddressTypeModel;
-use Illuminate\Http\Request;
 
 class AddressTypeController extends Controller
 {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 use App\Models\UndefModel;
-use Illuminate\Http\Request;
 
 class UndefController extends Controller
 {
