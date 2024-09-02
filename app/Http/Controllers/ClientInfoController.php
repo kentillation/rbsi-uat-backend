@@ -202,7 +202,7 @@ class ClientInfoController extends Controller
             'last_name' => 'required|string',
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
-            'staff_or_not' => 'required|integer|in:0,1',
+            'staff_or_not' => 'required|integer',
             'tin' => 'nullable|string',
             'gender' => 'required|integer',
             'civil_status' => 'required|integer',
@@ -222,7 +222,7 @@ class ClientInfoController extends Controller
             'undef' => 'required|integer',
             'entity' => 'required|integer',
             'employment' => 'required|integer',
-            'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+            // 'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
             'cus_lang_pref' => 'required|string',
             'tax_code' => 'required|integer',
         ]);
@@ -241,6 +241,10 @@ class ClientInfoController extends Controller
         $existingMysqlClient = ClientInfoModel::where('first_name', $request->input('first_name'))
             ->where('middle_name', $request->input('middle_name'))
             ->where('last_name', $request->input('last_name'))
+            ->where('gender', $request->input('gender'))
+            ->where('birthdate', $request->input('birthdate'))
+            ->where('image_file', $request->input('image_file'))
+            ->where('staff_or_not', $request->input('staff_or_not'))
             ->first();
 
         if ($existingSqlsrvClient || $existingMysqlClient) {
