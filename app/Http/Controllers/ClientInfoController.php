@@ -223,7 +223,6 @@ class ClientInfoController extends Controller
             'undef' => 'required|integer',
             'entity' => 'required|integer',
             'employment' => 'required|integer',
-            // 'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
             'cus_lang_pref' => 'required|string',
             'tax_code' => 'required|integer',
         ]);
@@ -244,7 +243,6 @@ class ClientInfoController extends Controller
             ->where('last_name', $request->input('last_name'))
             ->where('gender', $request->input('gender'))
             ->where('birthdate', $request->input('birthdate'))
-            ->where('image_file', $request->input('image_file'))
             ->where('staff_or_not', $request->input('staff_or_not'))
             ->first();
 
@@ -258,17 +256,8 @@ class ClientInfoController extends Controller
             return response()->json(['message' => 'Client not found.'], 404);
         }
 
-        // Handle file upload securely
-        $filePath = $client->image_file;
-        if ($request->hasFile('image_file')) {
-            $image = $request->file('image_file');
-            $test = '';
-            $filename = time() . '.' . $image->getClientOriginalExtension();
-            $filePath = $image->storeAs($test, $filename);
-        }
-
         // Update client details
-        DB::transaction(function () use ($request, $filePath, $client) {
+        DB::transaction(function () use ($request, $client) {
             $client->update([
                 'type' => $request->input('type'),
                 'title' => $request->input('title'),
@@ -298,7 +287,6 @@ class ClientInfoController extends Controller
                 'undef' => $request->input('undef'),
                 'entity' => $request->input('entity'),
                 'employment' => $request->input('employment'),
-                'image_file' => $filePath,
                 'cus_lang_pref' => $request->input('cus_lang_pref'),
                 'tax_code' => $request->input('tax_code'),
             ]);
