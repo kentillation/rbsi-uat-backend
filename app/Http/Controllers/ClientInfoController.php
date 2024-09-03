@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClientInfoModel;
-use App\Models\SqlsrvModel;
+use App\Models\MBWinClientInfoModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\DB;
 class ClientInfoController extends Controller
 {
 
-    public function getMBWinClientInfo()
+    public function getMBWinClientInfo(Request $request)
     {
         try {
-            $data = SqlsrvModel::all();
+            $data = MBWinClientInfoModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -25,7 +25,7 @@ class ClientInfoController extends Controller
     public function checkMBWinClientInfo(Request $request)
     {
         try {
-            $exists = SqlsrvModel::where('Name2', $request->input('first_name'))
+            $exists = MBWinClientInfoModel::where('Name2', $request->input('first_name'))
                 ->where('Name3', $request->input('middle_name'))
                 ->where('Name1', $request->input('last_name'))
                 ->exists();
@@ -52,6 +52,7 @@ class ClientInfoController extends Controller
             $search = $request->query('search');
             $clients = ClientInfoModel::where('cid', 'LIKE', "%{$search}%")
                 ->orWhere('last_name', 'LIKE', "%{$search}%")
+                ->orderBy('cid')
                 ->get();
             return response()->json($clients);
         } catch (\Exception $e) {
@@ -133,7 +134,7 @@ class ClientInfoController extends Controller
         }
 
         // Check if user exists in SQL Server
-        $existingSqlsrvClient = SqlsrvModel::where('Name1', $request->input('first_name'))
+        $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
             ->where('Name2', $request->input('middle_name'))
             ->where('Name3', $request->input('last_name'))
             ->first();
@@ -232,7 +233,7 @@ class ClientInfoController extends Controller
         }
 
         // // Check if user exists in SQL Server
-        $existingSqlsrvClient = SqlsrvModel::where('Name1', $request->input('first_name'))
+        $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
             ->where('Name2', $request->input('middle_name'))
             ->where('Name3', $request->input('last_name'))
             ->first();

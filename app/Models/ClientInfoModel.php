@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ClientInfoModel extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $table = 't_cif';
     protected $guarded = [];
 }
