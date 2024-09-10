@@ -11,5 +11,4 @@ class GendersModel extends Model
 
     protected $table = 't_cif_gender';
     protected $guarded = [];
-    protected $fillable = ['id', 'gender'];
 }

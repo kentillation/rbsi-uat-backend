@@ -11,4 +11,5 @@ class MBWinClientInfoModel extends Model
     protected $connection = 'sqlsrv';
     protected $table = 'T_CIF';
     protected $guarded = [];
+    public $timestamps = false;
 }

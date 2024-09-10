@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SqlsrvModel;
+use App\Models\MBWinClientInfoModel;
 use App\Models\MysqlModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +22,7 @@ class RegisterController extends Controller
         }
 
         // Check if user exists in SQL Server
-        $existingSqlsrvUser = SqlsrvModel::where('Name1', $request->input('name1'))
+        $existingSqlsrvUser = MBWinClientInfoModel::where('Name1', $request->input('name1'))
             ->where('Name2', $request->input('name2'))
             ->where('Name3', $request->input('name3'))
             ->first();

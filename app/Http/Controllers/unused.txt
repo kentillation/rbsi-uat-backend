@@ -1,0 +1,6 @@
+$maxSize = 1 * 1024 * 1024; // 1 MB in bytes
+$imageFile = $request->file('image_file');
+if ($imageFile->getSize() > $maxSize) {
+    return response()->json(['message' => 'Image size exceeds the limit of 1 MB.'], 422);
+}
+$binaryImage = file_get_contents($imageFile->getRealPath());
