@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\ClientInfoModel;
 use App\Models\MBWinClientInfoModel;
+use App\Models\UndefModel;
+use App\Models\EntityModel;
+use App\Models\EmploymentModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
@@ -13,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 class ClientInfoController extends Controller
 {
 
-    public function getMBWinClientInfo(Request $request)
+    public function getMBWinClientInfo()
     {
         try {
             $data = MBWinClientInfoModel::all();
@@ -34,6 +37,7 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     public function checkNewDBClientInfo(Request $request)
     {
         try {
@@ -132,13 +136,11 @@ class ClientInfoController extends Controller
             $filePath = $image->storeAs($test, $filename);
         }
 
-        // Check if Client exists in SEQL Server
         $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
             ->where('Name2', $request->input('middle_name'))
             ->where('Name3', $request->input('last_name'))
             ->first();
 
-        // Check if Client exists in MySQL
         $existingMysqlClient = ClientInfoModel::where('first_name', $request->input('first_name'))
             ->where('middle_name', $request->input('middle_name'))
             ->where('last_name', $request->input('last_name'))
@@ -148,11 +150,27 @@ class ClientInfoController extends Controller
             return response()->json(['message' => 'Client already exists.'], 409);
         }
 
-        $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000001';
-        $newCid1 = MBWinClientInfoModel::max('CID') ? str_pad(intval(MBWinClientInfoModel::max('CID')) + 1, 6, '0', STR_PAD_LEFT) : '000001';
+        $undefId = $request->input('undef');
+        $entityId = $request->input('entity');
+        $employmentId = $request->input('employment');
+        $undef = UndefModel::where('id', $undefId)->first();
+        $entity = EntityModel::where('id', $entityId)->first();
+        $employment = EmploymentModel::where('id', $employmentId)->first();
+        if (!$undef) {
+            return response()->json(['message' => 'Invalid undef value.'], 422);
+        }
+        if (!$entity) {
+            return response()->json(['message' => 'Invalid undef value.'], 422);
+        }
+        if (!$employment) {
+            return response()->json(['message' => 'Invalid undef value.'], 422);
+        }
+
+        $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
+        $newCid1 = MBWinClientInfoModel::max('CID') ? str_pad(intval(MBWinClientInfoModel::max('CID')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
 
         try {
-            DB::transaction(function () use ($request, $filePath, $newCid) {
+            DB::transaction(function () use ($request, $filePath, $newCid, $undef, $entity, $employment) {
                 ClientInfoModel::create([
                     'cid' => $newCid,
                     'type' => $request->input('type'),
@@ -180,93 +198,94 @@ class ClientInfoController extends Controller
                     'address_type' => $request->input('address_type'),
                     'telephone' => $request->input('telephone'),
                     'fax' => $request->input('fax'),
-                    'undef' => $request->input('undef'),
-                    'entity' => $request->input('entity'),
-                    'employment' => $request->input('employment'),
+                    'undef' => $undef->undef_id,
+                    'entity' => $entity->entity_id,
+                    'employment' => $employment->employment_id,
                     'image_file' => $filePath,
                     'cus_lang_pref' => $request->input('cus_lang_pref'),
                     'tax_code' => $request->input('tax_code'),
                 ]);
             });
 
-            // DB::transaction(function () use ($request, $newCid1) {
-            //     $client_status = $request->input('client_status');
-            //     if ($client_status == 1) {
-            //         $client_status = '000';
-            //     }
-            //     if ($client_status == 2) {
-            //         $client_status = '9RE';
-            //     }
+            DB::transaction(function () use ($request, $newCid1, $undef, $entity, $employment) {
+                $client_status = $request->input('client_status');
+                if ($client_status == 1) {
+                    $client_status = '000';
+                }
+                if ($client_status == 2) {
+                    $client_status = '9RE';
+                }
 
-            //     $civil_status = $request->input('civil_status');
-            //     if ($civil_status == 1) {
-            //         $civil_status = 'D00';
-            //     }
-            //     if ($civil_status == 2) {
-            //         $civil_status = 'M00';
-            //     }
-            //     if ($civil_status == 3) {
-            //         $civil_status = 'S00';
-            //     }
-            //     if ($civil_status == 4) {
-            //         $civil_status = 'W00';
-            //     }
+                $civil_status = $request->input('civil_status');
+                if ($civil_status == 1) {
+                    $civil_status = 'D00';
+                }
+                if ($civil_status == 2) {
+                    $civil_status = 'M00';
+                }
+                if ($civil_status == 3) {
+                    $civil_status = 'S00';
+                }
+                if ($civil_status == 4) {
+                    $civil_status = 'W00';
+                }
 
-            //     function generateHash($length = 10) {
-            //         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            //         $charactersLength = strlen($characters);
-            //         $randomString = '';
-            //         for ($i = 0; $i < $length; $i++) {
-            //             $randomString .= $characters[random_int(0, $charactersLength - 1)];
-            //         }
-            //         return $randomString;
-            //     }
+                function generateHash($length = 10) {
+                    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    $charactersLength = strlen($characters);
+                    $randomString = '';
+                    for ($i = 0; $i < $length; $i++) {
+                        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+                    }
+                    return $randomString;
+                }
 
-            //     MBWinClientInfoModel::create([
-            //         'CID' => $newCid1, // 6 chars
-            //         'AccSerial' => '0000000000', // 10 chars
-            //         'Type' => '00' . $request->input('type'), // 3 chars
-            //         'Nid' => null, // 24 chars
-            //         'Name1' => $request->input('last_name'), // 24 chars
-            //         'Name2' => $request->input('first_name'), // 24 chars
-            //         'Name3' => $request->input('middle_name'), // 24 chars
-            //         'Name4' => null, // 24 chars
-            //         'TitleCode' => '00' . $request->input('title'), // 3 chars
-            //         'Initials' => $request->input('initial'), // 6 chars
-            //         'GenderType' => '00' . $request->input('gender'), // 3 chars
-            //         'BirthDate' => $request->input('birthdate') . ' 00:00:00.000',
-            //         'RegNumber' => null, // 24 chars
-            //         'ContactPerson' => null, // 24 chars
-            //         'Mobile1' => $request->input('mobile1'), // 15 chars
-            //         'Mobile2' => $request->input('mobile2'), // 15 chars
-            //         'Email1' => $request->input('email'), //  40 chars
-            //         'Email2' => null, //  40 chars
-            //         'RegisterDate' => now(), // Date and time
-            //         'CIFCode1' => null, // 10 chars
-            //         'CIFCode2' => null, // 10 chars
-            //         'CIFCode3' => null, // 10 chars
-            //         'CIFCode4' => null, // 10 chars
-            //         'CIFCode5' => null, // 10 chars
-            //         'CIFCode6' => null, // 10 chars
-            //         'CIFCode7' => null, // 10 chars
-            //         'CIFCode8' => null, // 10 chars
-            //         'CIFCode9' => null, // 10 chars
-            //         'TaxCode' => '00' . $request->input('tax_code'), // 3 chars
-            //         'LnHist' => '0', // (8, 0)
-            //         'LnMaxAmt' => null, // (8, 0)
-            //         'LastChangeDate' => now(), // Date and time
-            //         'CivilStatusCode' => $civil_status, // 3 chars
-            //         'DosriTF' => 'F', // 1 chars
-            //         'DisplayName' => $request->input('display_name'), // 24 chars
-            //         'LangType' => '001', // 3 chars
-            //         'StatusType' => $client_status, // 3 chars
-            //         'HASH' => generateHash(10), // 10 chars
-            //         'LocationCode' => $request->input('postal_code'), // 11 chars
-            //         'NextCmDate' => null, // Date and time
-            //         'cmFreqType' => null, // 3 chars
-            //         'BR' => '000000', // 6 chars
-            //     ]);
-            // });
+                MBWinClientInfoModel::create([
+                    'CID' => $newCid1, // 6 chars
+                    'AccSerial' => '0000000000', // 10 chars
+                    'Type' => '00' . $request->input('type'), // 3 chars
+                    'Nid' => null, // 24 chars
+                    'Name1' => $request->input('last_name'), // 24 chars
+                    'Name2' => $request->input('first_name'), // 24 chars
+                    'Name3' => $request->input('middle_name'), // 24 chars
+                    'Name4' => null, // 24 chars
+                    'TitleCode' => '00' . $request->input('title'), // 3 chars
+                    'Initials' => $request->input('initial'), // 6 chars
+                    'GenderType' => '00' . $request->input('gender'), // 3 chars
+                    'BirthDate' => $request->input('birthdate') . ' 00:00:00.000',
+                    'RegNumber' => null, // 24 chars
+                    'ContactPerson' => null, // 24 chars
+                    'Mobile1' => $request->input('mobile1'), // 15 chars
+                    'Mobile2' => $request->input('mobile2'), // 15 chars
+                    'Email1' => $request->input('email'), //  40 chars
+                    'Email2' => null, //  40 chars
+                    'RegisterDate' => now(), // Date and time
+                    'CIFCode1' => $undef->undef_id, // 10 chars
+                    'CIFCode2' => $entity->entity_id, // 10 chars
+                    'CIFCode3' => $employment->employment_id, // 10 chars
+                    'CIFCode4' => null, // 10 chars
+                    'CIFCode5' => null, // 10 chars
+                    'CIFCode6' => null, // 10 chars
+                    'CIFCode7' => null, // 10 chars
+                    'CIFCode8' => null, // 10 chars
+                    'CIFCode9' => null, // 10 chars
+                    'TaxCode' => '00' . $request->input('tax_code'), // 3 chars
+                    'LnHist' => '0', // (8, 0)
+                    'LnMaxAmt' => null, // (8, 0)
+                    'LastChangeDate' => now(), // Date and time
+                    'CivilStatusCode' => $civil_status, // 3 chars
+                    'DosriTF' => 'F', // 1 chars
+                    'DisplayName' => $request->input('display_name'), // 24 chars
+                    'LangType' => '001', // 3 chars
+                    'StatusType' => $client_status, // 3 chars
+                    'HASH' => generateHash(10), // 10 chars
+                    'LocationCode' => $request->input('postal_code'), // 11 chars
+                    'NextCmDate' => null, // Date and time
+                    'cmFreqType' => null, // 3 chars
+                    'BR' => '000000', // 6 chars
+                ]);
+            });
+            
             return response()->json(['message' => 'Client has been saved successfully.'], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -304,9 +323,9 @@ class ClientInfoController extends Controller
             'address_type' => 'required|integer',
             'telephone' => 'nullable|string',
             'fax' => 'nullable|string',
-            'undef' => 'required|integer',
-            'entity' => 'required|integer',
-            'employment' => 'required|integer',
+            'undef' => 'required|string',
+            'entity' => 'required|string',
+            'employment' => 'required|string',
             'cus_lang_pref' => 'required|string',
             'tax_code' => 'required|integer',
         ]);
