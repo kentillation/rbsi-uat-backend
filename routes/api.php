@@ -16,12 +16,12 @@ use App\Http\Controllers\AddressTypeController;
 use App\Http\Controllers\TaxCodeController;
 use App\Http\Controllers\WatchListController;
 
-Route::post('admin-register', [AuthController::class, 'register']);
-Route::post('admin-login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('users', function (Request $request) {
   return $request->user();
 });
+Route::post('admin-register', [AuthController::class, 'register']);
+Route::post('admin-login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
