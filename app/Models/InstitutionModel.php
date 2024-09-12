@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UndefModel extends Model
+class InstitutionModel extends Model
 {
     use HasFactory;
-    protected $table = 't_cif_undef';
+    protected $table = 't_cif_institution';
     protected $guarded = [];
     
 }
