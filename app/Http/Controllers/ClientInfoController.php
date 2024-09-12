@@ -243,7 +243,7 @@ class ClientInfoController extends Controller
             //     ]);
             // });
 
-            // DB::transaction(function () use ($request, $newCid, $address_type) {
+            // DB::transaction(function () use ($request, $newCid, $address_type, $hash) {
             //     AddressModel::create([
             //         'cid' => $newCid,
             //         'address_type' => $address_type->address_code,
@@ -306,30 +306,30 @@ class ClientInfoController extends Controller
                 ]);
             });
 
-            DB::transaction(function () use ($request, $newCid1, $address_type, $hash) {
-                MBWinAddressModel::create([
-                    'Cid' => $newCid1,
-                    'AddressType' => $address_type->address_code,
-                    'Line1' => $request->input('address_line1'),
-                    'Line2' => $request->input('address_line2'),
-                    'Line3' => $request->input('address_line3'),
-                    'Line4' => $request->input('address_line4'),
-                    'PostalCode' => $request->input('postal_code'),
-                    'Phone1' => $request->input('telephone'),
-                    'Phone2' => null,
-                    'Phone3' => null,
-                    'Fax1' => $request->input('fax'),
-                    'Fax2' => null,
-                    'PrimaryTF' => 'T',
-                    'MailingTF' => 'F',
-                    'TempMailTF' => 'F',
-                    'StartDate' => null,
-                    'EndDate' => null,
-                    'MailCode' => null,
-                    'HASH' => $hash,
-                    'BR' => '000000'
-                ]);
-            });
+            // DB::transaction(function () use ($request, $newCid1, $address_type, $hash) {
+            //     MBWinAddressModel::create([
+            //         'Cid' => $newCid1,
+            //         'AddressType' => $address_type->address_code,
+            //         'Line1' => $request->input('address_line1'),
+            //         'Line2' => $request->input('address_line2'),
+            //         'Line3' => $request->input('address_line3'),
+            //         'Line4' => $request->input('address_line4'),
+            //         'PostalCode' => $request->input('postal_code'),
+            //         'Phone1' => $request->input('telephone'),
+            //         'Phone2' => null,
+            //         'Phone3' => null,
+            //         'Fax1' => $request->input('fax'),
+            //         'Fax2' => null,
+            //         'PrimaryTF' => 'T',
+            //         'MailingTF' => 'F',
+            //         'TempMailTF' => 'F',
+            //         'StartDate' => null,
+            //         'EndDate' => null,
+            //         'MailCode' => null,
+            //         'HASH' => $hash,
+            //         'BR' => '000000'
+            //     ]);
+            // });
 
             return response()->json(['message' => 'Client has been saved successfully.'], 200);
         } catch (\Exception $e) {
