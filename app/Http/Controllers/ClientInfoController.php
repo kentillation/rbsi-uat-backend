@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class ClientInfoController extends Controller
 {
@@ -259,52 +260,52 @@ class ClientInfoController extends Controller
             //     ]);
             // });
 
-            DB::transaction(function () use ($request, $newCid1, $type, $title, $client_status, $gender, $civil_status, $institution, $entity, $employment, $tax_code, $hash) {
-                MBWinClientInfoModel::create([
-                    'CID' => $newCid1, // 6 chars
-                    'AccSerial' => '0000000000', // 10 chars
-                    'Type' => $type->type_code, // 3 chars
-                    'Nid' => null, // 24 chars
-                    'Name1' => $request->input('last_name'), // 24 chars
-                    'Name2' => $request->input('first_name'), // 24 chars
-                    'Name3' => $request->input('middle_name'), // 24 chars
-                    'Name4' => null, // 24 chars
-                    'TitleCode' => $title->title_code, // 3 chars
-                    'Initials' => $request->input('initial'), // 6 chars
-                    'GenderType' => $gender->gender_code, // 3 chars
-                    'BirthDate' => $request->input('birthdate') . ' 00:00:00.000',
-                    'RegNumber' => null, // 24 chars
-                    'ContactPerson' => null, // 24 chars
-                    'Mobile1' => $request->input('mobile1'), // 15 chars
-                    'Mobile2' => $request->input('mobile2'), // 15 chars
-                    'Email1' => $request->input('email'), //  40 chars
-                    'Email2' => null, //  40 chars
-                    'RegisterDate' => now(), // Date and time
-                    'CIFCode1' => $institution->institution_id, // 10 chars
-                    'CIFCode2' => $entity->entity_id, // 10 chars
-                    'CIFCode3' => $employment->employment_id, // 10 chars
-                    'CIFCode4' => null, // 10 chars
-                    'CIFCode5' => null, // 10 chars
-                    'CIFCode6' => null, // 10 chars
-                    'CIFCode7' => null, // 10 chars
-                    'CIFCode8' => null, // 10 chars
-                    'CIFCode9' => null, // 10 chars
-                    'TaxCode' => $tax_code->taxx_code, // 3 chars
-                    'LnHist' => '0', // (8, 0)
-                    'LnMaxAmt' => null, // (8, 0)
-                    'LastChangeDate' => now(), // Date and time
-                    'CivilStatusCode' => $civil_status->civil_status_code, // 3 chars
-                    'DosriTF' => 'F', // 1 chars
-                    'DisplayName' => $request->input('display_name'), // 24 chars
-                    'LangType' => '001', // 3 chars
-                    'StatusType' => $client_status->client_status_code, // 3 chars
-                    'HASH' => $hash, // 10 chars
-                    'LocationCode' => $request->input('postal_code'), // 11 chars
-                    'NextCmDate' => null, // Date and time
-                    'cmFreqType' => null, // 3 chars
-                    'BR' => '000000', // 6 chars
-                ]);
-            });
+            // DB::transaction(function () use ($request, $newCid1, $type, $title, $client_status, $gender, $civil_status, $institution, $entity, $employment, $tax_code, $hash) {
+            //     MBWinClientInfoModel::create([
+            //         'CID' => $newCid1, // 6 chars
+            //         'AccSerial' => '0000000000', // 10 chars
+            //         'Type' => $type->type_code, // 3 chars
+            //         'Nid' => null, // 24 chars
+            //         'Name1' => $request->input('last_name'), // 24 chars
+            //         'Name2' => $request->input('first_name'), // 24 chars
+            //         'Name3' => $request->input('middle_name'), // 24 chars
+            //         'Name4' => null, // 24 chars
+            //         'TitleCode' => $title->title_code, // 3 chars
+            //         'Initials' => $request->input('initial'), // 6 chars
+            //         'GenderType' => $gender->gender_code, // 3 chars
+            //         'BirthDate' => $request->input('birthdate') . ' 00:00:00.000',
+            //         'RegNumber' => null, // 24 chars
+            //         'ContactPerson' => null, // 24 chars
+            //         'Mobile1' => $request->input('mobile1'), // 15 chars
+            //         'Mobile2' => $request->input('mobile2'), // 15 chars
+            //         'Email1' => $request->input('email'), //  40 chars
+            //         'Email2' => null, //  40 chars
+            //         'RegisterDate' => now(), // Date and time
+            //         'CIFCode1' => $institution->institution_id, // 10 chars
+            //         'CIFCode2' => $entity->entity_id, // 10 chars
+            //         'CIFCode3' => $employment->employment_id, // 10 chars
+            //         'CIFCode4' => null, // 10 chars
+            //         'CIFCode5' => null, // 10 chars
+            //         'CIFCode6' => null, // 10 chars
+            //         'CIFCode7' => null, // 10 chars
+            //         'CIFCode8' => null, // 10 chars
+            //         'CIFCode9' => null, // 10 chars
+            //         'TaxCode' => $tax_code->taxx_code, // 3 chars
+            //         'LnHist' => '0', // (8, 0)
+            //         'LnMaxAmt' => null, // (8, 0)
+            //         'LastChangeDate' => now(), // Date and time
+            //         'CivilStatusCode' => $civil_status->civil_status_code, // 3 chars
+            //         'DosriTF' => 'F', // 1 chars
+            //         'DisplayName' => $request->input('display_name'), // 24 chars
+            //         'LangType' => '001', // 3 chars
+            //         'StatusType' => $client_status->client_status_code, // 3 chars
+            //         'HASH' => $hash, // 10 chars
+            //         'LocationCode' => $request->input('postal_code'), // 11 chars
+            //         'NextCmDate' => null, // Date and time
+            //         'cmFreqType' => null, // 3 chars
+            //         'BR' => '000000', // 6 chars
+            //     ]);
+            // });
 
             // DB::transaction(function () use ($request, $newCid1, $address_type, $hash) {
             //     MBWinAddressModel::create([
@@ -337,6 +338,48 @@ class ClientInfoController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ], 500);
+        }
+    }
+
+    public function create(Request $request)
+    {
+        // Validation for request data
+        $validatedData = $request->validate([
+            'messageId' => 'required|string',
+            'token' => 'required|string',
+            'br' => 'required|string',
+            'cidType' => 'required|string',
+            'title' => 'required|string',
+            'name1' => 'required|string',
+            'gender' => 'required|string',
+            'civilStatus' => 'required|string',
+            'dob' => 'required|date',
+            'langType' => 'required|string',
+            'appType' => 'required|string',
+            'prType' => 'required|string',
+            'glCode' => 'required|string',
+            'ownershipType' => 'required|string',
+            'cid' => 'required|string',
+            'staff' => 'required|string',
+            'taxCode' => 'required|string',
+            'address' => 'required|array',
+            'ccCode1' => 'required|string',
+            'ccCode2' => 'required|string',
+            'ccCode3' => 'required|string',
+            'regDate' => 'required|date',
+            'relation' => 'required|array',
+        ]);
+
+        // Make API request to Core Banking System
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $request->token,
+        ])->post('http://localhost:6500/datasnap/rest/client/createCustomer', $validatedData);
+
+        // Handle response
+        if ($response->successful()) {
+            return response()->json(['message' => 'Customer created successfully'], 200);
+        } else {
+            return response()->json(['error' => 'Failed to create customer'], $response->status());
         }
     }
 
