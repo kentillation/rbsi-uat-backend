@@ -343,10 +343,9 @@ class ClientInfoController extends Controller
 
     public function create(Request $request)
     {
-        // Validation for request data
         $validatedData = $request->validate([
-            'messageId' => 'required|string',
-            'token' => 'required|string',
+            // 'messageId' => 'required|string',
+            // 'token' => 'required|string',
             'br' => 'required|string',
             'cidType' => 'required|string',
             'title' => 'required|string',
@@ -359,7 +358,7 @@ class ClientInfoController extends Controller
             'prType' => 'required|string',
             'glCode' => 'required|string',
             'ownershipType' => 'required|string',
-            'cid' => 'required|string',
+            // 'cid' => 'required|string',
             'staff' => 'required|string',
             'taxCode' => 'required|string',
             'address' => 'required|array',
@@ -369,17 +368,27 @@ class ClientInfoController extends Controller
             'regDate' => 'required|date',
             'relation' => 'required|array',
         ]);
-
-        // Make API request to Core Banking System
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $request->token,
-        ])->post('http://localhost:6500/datasnap/rest/client/createCustomer', $validatedData);
-
-        // Handle response
-        if ($response->successful()) {
-            return response()->json(['message' => 'Customer created successfully'], 200);
+        $validatedData['messageId'] = "41fd135a3fd1addbe9d2f589814d535384dc82f8";
+        $validatedData['token'] = "d3c096b46b80e917ffe88cf18b358f5aa95c063a";
+        $validatedData['dob'] = date('Y-m-d', strtotime($validatedData['dob']));
+        $validatedData['regDate'] = date('Y-m-d', strtotime($validatedData['regDate']));
+        $authResponse = Http::withHeaders([
+            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
+            'Content-Type' => 'text/plain',
+        ])->post('http://localhost:7000/api/v1/token/generate', [
+            'message_id' => '4c74bbc4281a477b81e6e1a7c15341b9a5a5aak'
+        ]);
+        if ($authResponse->successful()) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
+            ])->post('http://localhost:6500/datasnap/rest/client/createCustomer', $validatedData);
+            if ($response->successful()) {
+                return response()->json(['message' => 'Customer created successfully'], 200);
+            } else {
+                return response()->json(['error' => 'Failed to create customer', 'details' => $response->body()], $response->status());
+            }
         } else {
-            return response()->json(['error' => 'Failed to create customer'], $response->status());
+            return response()->json(['error' => 'Failed to authenticate', 'details' => $authResponse->body()], $authResponse->status());
         }
     }
 
