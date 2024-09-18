@@ -13,10 +13,12 @@ Route::middleware('auth:sanctum')->get('users', function (Request $request) {
 Route::post('admin-register', [AuthController::class, 'register']);
 Route::post('admin-login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->post('create_customer', [ClientInfoController::class, 'create']);
-// Route::middleware('auth:sanctum')->post('new_client_info', [ClientInfoController::class, 'addNewClient']);
+// Route::middleware('auth:sanctum')->post('create_customer', [ClientInfoController::class, 'create']);
+Route::middleware('auth:sanctum')->post('new_client_info', [ClientInfoController::class, 'addNewClient']);
 Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
 Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
+Route::middleware('auth:sanctum')->get('show_mbwin_client_info/{cid}', [ClientInfoController::class, 'showMBWinClientInfo']);
+Route::middleware('auth:sanctum')->post('add_mbwin_client_info', [ClientInfoController::class, 'addMBWinClientInfo']); // new
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
 Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [ClientInfoController::class, 'showClientInfo']);

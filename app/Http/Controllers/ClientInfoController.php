@@ -86,6 +86,113 @@ class ClientInfoController extends Controller
         }
     }
 
+    public function showMBWinClientInfo($cid)
+    {
+        $clientInfo = MBWinClientInfoModel::with('address', 'relation')->find($cid);
+        if (!$clientInfo) {
+            return response()->json(['error' => 'Client not found'], 404);
+        }
+        return response()->json($clientInfo);
+    }
+
+    public function addMBWinClientInfo(Request $request)
+    {
+        function generateHash($length = 10)
+        {
+            $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $charactersLength = strlen($characters);
+            $randomString = '';
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
+            }
+            return $randomString;
+        }
+        $hash = generateHash(10);
+
+        $validatedData = $request->validate([
+            'br' => 'required|string|max:6',
+            // 'cidType' => 'required|string|max:3',
+            'type' => 'required|string|max:3',
+            'title' => 'required|string|max:3',
+            'name1' => 'required|string|max:255',
+            'gender' => 'required|string|max:3',
+            'civilStatus' => 'required|string|max:3',
+            'displayName' => 'required|string|max:20',
+            'dob' => 'required|date',
+            'langType' => 'required|string|max:3',
+            // 'appType' => 'required|string|max:1', // T_REALACC
+            // 'prType' => 'required|string|max:2', // T_PRPARMS
+            // 'glCode' => 'required|string|max:2', // T_GLLINK
+            // 'ownershipType' => 'required|string|max:3',
+            // 'staff' => 'required|string|max:1',
+            'taxCode' => 'required|string|max:3',
+            'address' => 'required|array',
+            'address.*.addressType' => 'required|string|max:3',
+            'address.*.line1' => 'required|string|max:255',
+            'address.*.primary' => 'required|string|max:1',
+            'address.*.mailing' => 'required|string|max:1',
+            'address.*.tempMailing' => 'required|string|max:1',
+            'address.*.startDate' => 'required|date',
+            'ccCode1' => 'required|string|max:3',
+            'ccCode2' => 'required|string|max:3',
+            'ccCode3' => 'required|string|max:3',
+            'regDate' => 'required|date',
+            'relation' => 'nullable|array',
+            'relation.*.cid' => 'required|string|max:6',
+            'relation.*.relationType' => 'required|string|max:3',
+        ]);
+        $newCid1 = MBWinClientInfoModel::max('CID') ? str_pad(intval(MBWinClientInfoModel::max('CID')) + 1, 6, '0', STR_PAD_LEFT) : null;
+        $clientInfo = MBWinClientInfoModel::create([
+            'CID' => $newCid1,
+            'AccSerial' => '0000000000',
+            'BR' => '000000',
+            // 'cidType' => $validatedData['cidType'], //
+            'Type' => $validatedData['type'],
+            'TitleCode' => $validatedData['title'],
+            'Name1' => $validatedData['name1'],
+            'GenderType' => $validatedData['gender'],
+            'CivilStatusCode' => $validatedData['civilStatus'],
+            'DisplayName' => $validatedData['displayName'],
+            'BirthDate' => $validatedData['dob'],
+            'LangType' => $validatedData['langType'],
+            // 'appType' => $validatedData['appType'], //
+            // 'prType' => $validatedData['prType'], //
+            // 'glCode' => $validatedData['glCode'], //
+            // 'ownershipType' => $validatedData['ownershipType'], //
+            // 'staff' => $validatedData['staff'], //
+            'TaxCode' => $validatedData['taxCode'],
+            'CIFCode1' => $validatedData['ccCode1'],
+            'CIFCode2' => $validatedData['ccCode2'],
+            'CIFCode3' => $validatedData['ccCode3'],
+            'RegisterDate' => $validatedData['regDate'],
+            'HASH' => $hash,
+        ]);
+        foreach ($validatedData['address'] as $addressData) {
+            $clientInfo->address()->create([
+                'Cid' => $newCid1,
+                'BR' => '000000',
+                'AddressType' => $addressData['addressType'],
+                'Line1' => $addressData['line1'],
+                'PrimaryTF' => $addressData['primary'],
+                'MailingTF' => $addressData['mailing'],
+                'TempMailTF' => $addressData['tempMailing'],
+                'StartDate' => $addressData['startDate'],
+                'HASH' => $hash,
+            ]);
+        }
+        if (isset($validatedData['relation'])) {
+            foreach ($validatedData['relation'] as $relationData) {
+                $clientInfo->relations()->create([
+                    'CID' => $relationData['cid'],
+                    'relationType' => $relationData['relationType'],
+                    'HASH' => $hash,
+                ]);
+            }
+        }
+        return response()->json(['message' => 'Client created successfully', 'client' => $clientInfo], 201);
+    }
+
+
     public function getClientImage($filename)
     {
         $path = storage_path('app/' . $filename);
@@ -199,18 +306,6 @@ class ClientInfoController extends Controller
             return response()->json(['message' => 'Invalid tax code value.'], 422);
         }
 
-        function generateHash($length = 10)
-        {
-            $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $charactersLength = strlen($characters);
-            $randomString = '';
-            for ($i = 0; $i < $length; $i++) {
-                $randomString .= $characters[random_int(0, $charactersLength - 1)];
-            }
-            return $randomString;
-        }
-        $hash = generateHash(10);
-
         $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
         $newCid1 = MBWinClientInfoModel::max('CID') ? str_pad(intval(MBWinClientInfoModel::max('CID')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
 
@@ -307,30 +402,30 @@ class ClientInfoController extends Controller
             //     ]);
             // });
 
-            // DB::transaction(function () use ($request, $newCid1, $address_type, $hash) {
-            //     MBWinAddressModel::create([
-            //         'Cid' => $newCid1,
-            //         'AddressType' => $address_type->address_code,
-            //         'Line1' => $request->input('address_line1'),
-            //         'Line2' => $request->input('address_line2'),
-            //         'Line3' => $request->input('address_line3'),
-            //         'Line4' => $request->input('address_line4'),
-            //         'PostalCode' => $request->input('postal_code'),
-            //         'Phone1' => $request->input('telephone'),
-            //         'Phone2' => null,
-            //         'Phone3' => null,
-            //         'Fax1' => $request->input('fax'),
-            //         'Fax2' => null,
-            //         'PrimaryTF' => 'T',
-            //         'MailingTF' => 'F',
-            //         'TempMailTF' => 'F',
-            //         'StartDate' => null,
-            //         'EndDate' => null,
-            //         'MailCode' => null,
-            //         'HASH' => $hash,
-            //         'BR' => '000000'
-            //     ]);
-            // });
+            DB::transaction(function () use ($request, $newCid1, $address_type) {
+                MBWinAddressModel::create([
+                    'Cid' => $newCid1,
+                    'AddressType' => $address_type->address_code,
+                    'Line1' => $request->input('address_line1'),
+                    'Line2' => $request->input('address_line2'),
+                    'Line3' => $request->input('address_line3'),
+                    'Line4' => $request->input('address_line4'),
+                    'PostalCode' => $request->input('postal_code'),
+                    'Phone1' => $request->input('telephone'),
+                    'Phone2' => null,
+                    'Phone3' => null,
+                    'Fax1' => $request->input('fax'),
+                    'Fax2' => null,
+                    'PrimaryTF' => 'T',
+                    'MailingTF' => 'F',
+                    'TempMailTF' => 'F',
+                    'StartDate' => null,
+                    'EndDate' => null,
+                    'MailCode' => null,
+                    'HASH' => '',
+                    'BR' => '000000'
+                ]);
+            });
 
             return response()->json(['message' => 'Client has been saved successfully.'], 200);
         } catch (\Exception $e) {
@@ -341,56 +436,63 @@ class ClientInfoController extends Controller
         }
     }
 
-    public function create(Request $request)
-    {
-        $validatedData = $request->validate([
-            // 'messageId' => 'required|string',
-            // 'token' => 'required|string',
-            'br' => 'required|string',
-            'cidType' => 'required|string',
-            'title' => 'required|string',
-            'name1' => 'required|string',
-            'gender' => 'required|string',
-            'civilStatus' => 'required|string',
-            'dob' => 'required|date',
-            'langType' => 'required|string',
-            'appType' => 'required|string',
-            'prType' => 'required|string',
-            'glCode' => 'required|string',
-            'ownershipType' => 'required|string',
-            // 'cid' => 'required|string',
-            'staff' => 'required|string',
-            'taxCode' => 'required|string',
-            'address' => 'required|array',
-            'ccCode1' => 'required|string',
-            'ccCode2' => 'required|string',
-            'ccCode3' => 'required|string',
-            'regDate' => 'required|date',
-            'relation' => 'required|array',
-        ]);
-        $validatedData['messageId'] = "41fd135a3fd1addbe9d2f589814d535384dc82f8";
-        $validatedData['token'] = "d3c096b46b80e917ffe88cf18b358f5aa95c063a";
-        $validatedData['dob'] = date('Y-m-d', strtotime($validatedData['dob']));
-        $validatedData['regDate'] = date('Y-m-d', strtotime($validatedData['regDate']));
-        $authResponse = Http::withHeaders([
-            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
-            'Content-Type' => 'text/plain',
-        ])->post('http://localhost:7000/api/v1/token/generate', [
-            'message_id' => '4c74bbc4281a477b81e6e1a7c15341b9a5a5aak'
-        ]);
-        if ($authResponse->successful()) {
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
-            ])->post('http://localhost:6500/datasnap/rest/client/createCustomer', $validatedData);
-            if ($response->successful()) {
-                return response()->json(['message' => 'Customer created successfully'], 200);
-            } else {
-                return response()->json(['error' => 'Failed to create customer', 'details' => $response->body()], $response->status());
-            }
-        } else {
-            return response()->json(['error' => 'Failed to authenticate', 'details' => $authResponse->body()], $authResponse->status());
-        }
-    }
+    // public function create(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'br' => 'required|string',
+    //         'cidType' => 'required|string',
+    //         'title' => 'required|string',
+    //         'name1' => 'required|string',
+    //         'gender' => 'required|string',
+    //         'civilStatus' => 'required|string',
+    //         'dob' => 'required|date',
+    //         'langType' => 'required|string',
+    //         'appType' => 'required|string',
+    //         'prType' => 'required|string',
+    //         'glCode' => 'required|string',
+    //         'ownershipType' => 'required|string',
+    //         'staff' => 'required|string',
+    //         'taxCode' => 'required|string',
+    //         'address' => 'required|array|min:1',
+    //         'address.*.addressType' => 'required|string',
+    //         'address.*.line1' => 'required|string',
+    //         'address.*.primary' => 'required|string',
+    //         'address.*.mailing' => 'required|string',
+    //         'address.*.tempMailing' => 'required|string',
+    //         'address.*.startDate' => 'required|date',
+    //         'ccCode1' => 'required|string',
+    //         'ccCode2' => 'required|string',
+    //         'ccCode3' => 'required|string',
+    //         'regDate' => 'required|date',
+    //         'relation' => 'required|array|min:1',
+    //         'relation.*.cid' => 'required|string',
+    //         'relation.*.relationType' => 'required|string',
+    //     ]);
+    //     $validatedData['messageId'] = "a3f72ae8a0f920520c117f3094cf430095149103";
+    //     $validatedData['token'] = "19f250f04a48c9a03ee4d8dab50d5d6838d8d242";
+    //     $validatedData['dob'] = date('Y-m-d', strtotime($validatedData['dob']));
+    //     $validatedData['regDate'] = date('Y-m-d', strtotime($validatedData['regDate']));
+    //     $authResponse = Http::withHeaders([
+    //         'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
+    //         'Content-Type' => 'text/plain',
+    //     ])->post("http://localhost:7000/api/v1/token/generate", [
+    //         'message_id' => "4c74bbc4281a477b81e6e1a7c15341b9a5a5aak"
+    //     ]);
+    //     if ($authResponse->successful()) {
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
+    //             'Content-Type' => 'application/json',
+    //         ])->post("http://localhost:6500/datasnap/rest/client/createCustomer", $validatedData);
+
+    //         if ($response->successful()) {
+    //             return response()->json(['message' => 'Customer created successfully', 'data' => $response->json()], 200);
+    //         } else {
+    //             return response()->json(['error' => 'Failed to create customer', 'details' => $response->body()], $response->status());
+    //         }
+    //     } else {
+    //         return response()->json(['error' => 'Failed to authenticate', 'details' => $authResponse->body()], $authResponse->status());
+    //     }
+    // }
 
     public function updateClient(Request $request, $cid)
     {
