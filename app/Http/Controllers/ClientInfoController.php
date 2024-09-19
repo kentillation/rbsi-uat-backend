@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class ClientInfoController extends Controller
 {
@@ -436,63 +437,107 @@ class ClientInfoController extends Controller
         }
     }
 
-    // public function create(Request $request)
-    // {
-    //     $validatedData = $request->validate([
-    //         'br' => 'required|string',
-    //         'cidType' => 'required|string',
-    //         'title' => 'required|string',
-    //         'name1' => 'required|string',
-    //         'gender' => 'required|string',
-    //         'civilStatus' => 'required|string',
-    //         'dob' => 'required|date',
-    //         'langType' => 'required|string',
-    //         'appType' => 'required|string',
-    //         'prType' => 'required|string',
-    //         'glCode' => 'required|string',
-    //         'ownershipType' => 'required|string',
-    //         'staff' => 'required|string',
-    //         'taxCode' => 'required|string',
-    //         'address' => 'required|array|min:1',
-    //         'address.*.addressType' => 'required|string',
-    //         'address.*.line1' => 'required|string',
-    //         'address.*.primary' => 'required|string',
-    //         'address.*.mailing' => 'required|string',
-    //         'address.*.tempMailing' => 'required|string',
-    //         'address.*.startDate' => 'required|date',
-    //         'ccCode1' => 'required|string',
-    //         'ccCode2' => 'required|string',
-    //         'ccCode3' => 'required|string',
-    //         'regDate' => 'required|date',
-    //         'relation' => 'required|array|min:1',
-    //         'relation.*.cid' => 'required|string',
-    //         'relation.*.relationType' => 'required|string',
-    //     ]);
-    //     $validatedData['messageId'] = "a3f72ae8a0f920520c117f3094cf430095149103";
-    //     $validatedData['token'] = "19f250f04a48c9a03ee4d8dab50d5d6838d8d242";
-    //     $validatedData['dob'] = date('Y-m-d', strtotime($validatedData['dob']));
-    //     $validatedData['regDate'] = date('Y-m-d', strtotime($validatedData['regDate']));
-    //     $authResponse = Http::withHeaders([
-    //         'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
-    //         'Content-Type' => 'text/plain',
-    //     ])->post("http://localhost:7000/api/v1/token/generate", [
-    //         'message_id' => "4c74bbc4281a477b81e6e1a7c15341b9a5a5aak"
-    //     ]);
-    //     if ($authResponse->successful()) {
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
-    //             'Content-Type' => 'application/json',
-    //         ])->post("http://localhost:6500/datasnap/rest/client/createCustomer", $validatedData);
+    public function generateMessageId()
+    {
+        $uuid = Str::uuid(); // Generate UUID
+        return str_replace('-', '', $uuid->toString()) . 'a5a5aak'; // Remove dashes and add suffix
+    }
 
-    //         if ($response->successful()) {
-    //             return response()->json(['message' => 'Customer created successfully', 'data' => $response->json()], 200);
-    //         } else {
-    //             return response()->json(['error' => 'Failed to create customer', 'details' => $response->body()], $response->status());
-    //         }
-    //     } else {
-    //         return response()->json(['error' => 'Failed to authenticate', 'details' => $authResponse->body()], $authResponse->status());
-    //     }
-    // }
+    public function generateToken()
+    {
+        return Str::random(40); // Generate a random string as token
+    }
+
+    public function checkMessageIdAndToken($messageId, $token)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
+            'Content-Type' => 'application/json',
+        ])->withoutVerifying()
+        ->post("http://localhost:7000/api/v1/token/generate", [
+            'message_id' => $messageId,
+            'token' => $token,
+        ]);
+
+        return $response->successful() && $response->json('exists'); // Adjust the response check as needed
+    }
+
+
+    public function createNewCustomer(Request $request)
+    {
+        $validatedData = $request->validate([
+            'br' => 'required|string',
+            'cidType' => 'required|string',
+            'title' => 'required|string',
+            'name1' => 'required|string',
+            'gender' => 'required|string',
+            'civilStatus' => 'required|string',
+            'dob' => 'required|date',
+            'langType' => 'required|string',
+            'appType' => 'required|string',
+            'prType' => 'required|string',
+            'glCode' => 'required|string',
+            'ownershipType' => 'required|string',
+            'staff' => 'required|string',
+            'taxCode' => 'required|string',
+            'address' => 'required|array|min:1',
+            'address.*.addressType' => 'required|string',
+            'address.*.line1' => 'required|string',
+            'address.*.primary' => 'required|string',
+            'address.*.mailing' => 'required|string',
+            'address.*.tempMailing' => 'required|string',
+            'address.*.startDate' => 'required|date',
+            'ccCode1' => 'required|string',
+            'ccCode2' => 'required|string',
+            'ccCode3' => 'required|string',
+            'regDate' => 'required|date',
+            'relation' => 'required|array|min:1',
+            'relation.*.cid' => 'required|string',
+            'relation.*.relationType' => 'required|string',
+        ]);
+
+        $validatedData['dob'] = date('Y-m-d', strtotime($validatedData['dob']));
+        $validatedData['regDate'] = date('Y-m-d', strtotime($validatedData['regDate']));
+
+        do {
+            $messageId = $this->generateMessageId();
+            $token = $this->generateToken();
+        } while ($this->checkMessageIdAndToken($messageId, $token));
+
+        $authResponse = Http::withHeaders([
+            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
+            'Content-Type' => 'application/json',
+        ])->withoutVerifying()
+        ->post("http://localhost:7000/api/v1/token/generate", [
+            'message_id' => $messageId,
+            'token' => $token,
+        ]);
+
+        // $authResponse = Http::withOptions([
+        //     'verify' => '../../../key/auth_server.crt',
+        // ])->withHeaders([
+        //     'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R',
+        //     'Content-Type' => 'application/json',
+        // ])->post("http://localhost:7000/api/v1/token/generate", [
+        //     'message_id' => '4c74bbc4281a477b81e6e1a7c15341b9a5a5aak',
+        //     'token' => '44f6d6f845d554dfc5df8e172800db828d53c4c6',
+        // ]);
+    
+        if ($authResponse->successful()) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
+                'Content-Type' => 'application/json',
+            ])->post("https://localhost:6501/datasnap/rest/client/createCustomer", $validatedData);
+    
+            if ($response->successful()) {
+                return response()->json(['message' => 'Customer created successfully', 'data' => $response->json()], 200);
+            } else {
+                return response()->json(['error' => 'Failed to create customer', 'details' => $response->body()], $response->status());
+            }
+        } else {
+            return response()->json(['error' => 'Failed to authenticate', 'details' => $authResponse->body()], $authResponse->status());
+        }
+    }
 
     public function updateClient(Request $request, $cid)
     {
