@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http; // For making HTTP requests
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Models\AuthModel;
 
 class CustomerController extends Controller
 {
@@ -21,12 +24,12 @@ class CustomerController extends Controller
     ];
 
     protected $customerTemplate = [
-        "messageId" => "e2949879a4caf8190435d457ad81bafeadd28502",
-        "token" => "fa0b2424c6e8880c5294996183cf077d477f8f46",
+        "messageId" => "8f96c894d16d6fd4c52b43766ef1ec657bac636b",
+        "token" => "a5a3ae8fdd90ef759e56cac491e84034544a99fd",
         "br" => "000000",
         "cidType" => "001",
         "title" => "000",
-        "name1" => "Bukoykoy",
+        "name1" => "Sky",
         "gender" => "002",
         "civilStatus" => "S00",
         "dob" => "2020-09-15",
@@ -41,7 +44,7 @@ class CustomerController extends Controller
         "address" => [
             [
                 "addressType" => "001",
-                "line1" => "Prk. Paghidaet",
+                "line1" => "Prk. Mahirup",
                 "primary" => "T",
                 "mailing" => "T",
                 "tempMailing" => "F",
@@ -71,12 +74,11 @@ class CustomerController extends Controller
         ])->withHeaders([
             'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R'
         ])->post($this->config['authenServer'], [
-            'message_id' => '4c74bbc4281a477b81e6e1a7c15341b9a5a5aak'
+            'message_id' => 'b5efbb98793a4c4cbd363ed6f18b95b4fs5LVuxF'
         ]);
         Log::info('Token generation response', ['response' => $response->json()]);
-        // Ang ma generate nga message_id kag token amo ang gamiton para sa next nga data
         if ($response->successful() && isset($response->json()['data']['token'])) {
-            return $response->json()['data']['token']; // Access the token correctly
+            return $response->json()['data']['token'];
         }
         Log::error('Token generation failed', [
             'response' => $response->json(),
@@ -85,10 +87,22 @@ class CustomerController extends Controller
         return null;
     }
 
+    public function generateMessageId()
+    {
+        $uuid = Str::uuid()->toString();
+        $messageId = str_replace('-', '', $uuid);
+        if (strlen($messageId) < 40) {
+            $randomString = strtolower(Str::random(40 - strlen($messageId)));
+            $messageId .= $randomString;
+        }
+        return substr($messageId, 0, 40);
+    }
+
     public function createCustomer(Request $request)
     {
         Log::info('Request Headers:', $request->headers->all());
         $token = $this->generateAuthToken();
+        $messageId = $this->generateMessageId();
         if (!$token) {
             Log::error('Authentication failed: No token received', [
                 'headers' => $request->headers->all(),
@@ -101,10 +115,33 @@ class CustomerController extends Controller
             'Content-Type' => $this->config['contentType'],
             'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
         ])->post($apiUrl, $this->customerTemplate);
+
         if ($response->successful()) {
-            return response()->json(['message' => 'Customer created successfully', 'data' => $response->json()]);
+            $responseData = $response->json();
+            if (isset($responseData['messageId'])) {
+                $responseData['messageId'] = $messageId;
+            } else {
+                $responseData['messageId'] = $messageId;
+            }
+            Log::info('Generated messageId:', ['messageId' => $messageId]);
+            Log::info('Customer created successfully:', ['data' => $responseData]);
+            
+            DB::transaction(function () use ($messageId, $token) {
+                AuthModel::create([
+                    'generated_message_id' => $messageId,
+                    'generated_token' => $token,
+                ]);
+            });
+
+            return response()->json([
+                'message' => 'Customer created successfully',
+                'data' => $responseData,
+            ]);
+
         } else {
+            Log::error('Failed to create customer:', ['error' => $response->json()]);
             return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
         }
+
     }
 }

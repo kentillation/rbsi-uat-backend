@@ -18,8 +18,6 @@ Route::middleware('auth:sanctum')->post('new_client_info', [ClientInfoController
 Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
 Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('show_mbwin_client_info/{cid}', [ClientInfoController::class, 'showMBWinClientInfo']);
-// Route::middleware('auth:sanctum')->post('create_customer', [ClientInfoController::class, 'create']);
-Route::middleware('auth:sanctum')->post('add_mbwin_client_info', [ClientInfoController::class, 'createNewCustomer']); // new
 Route::post('create-customer', [CustomerController::class, 'createCustomer']); //testing
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
