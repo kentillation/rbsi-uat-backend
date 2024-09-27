@@ -29,10 +29,10 @@ class CustomerController extends Controller
         "br" => "000000",
         "cidType" => "001",
         "title" => "000",
-        "name1" => "Sky",
-        "gender" => "002",
-        "civilStatus" => "S00",
-        "dob" => "2020-09-15",
+        "name1" => "",
+        "gender" => "",
+        "civilStatus" => "",
+        "dob" => "",
         "langType" => "001",
         "appType" => "1",
         "prType" => "51",
@@ -66,6 +66,17 @@ class CustomerController extends Controller
             ]
         ]
     ];
+
+    // $customerData = array_merge($this->customerTemplate, [
+    //     'name1' => $request->input('last_name', $this->customerTemplate['name1']),
+    //     'gender' => $request->input('gender', $this->customerTemplate['gender']),
+    //     'civilStatus' => $request->input('civil_status', $this->customerTemplate['civilStatus']),
+    //     'dob' => $request->input('birthdate', $this->customerTemplate['dob']),
+    //     'address' => $request->input('address', $this->customerTemplate['address']),
+    //     'relation' => $request->input('relation', $this->customerTemplate['relation']),
+    //     'messageId' => $messageId,
+    //     'token' => $token,
+    // ]);
 
     protected function generateAuthToken()
     {
@@ -110,6 +121,9 @@ class CustomerController extends Controller
             ]);
             return response()->json(['message' => 'Authentication failed'], 401);
         }
+
+        // CUSTOMER DATA
+
         $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
         $response = Http::withHeaders([
             'Content-Type' => $this->config['contentType'],
