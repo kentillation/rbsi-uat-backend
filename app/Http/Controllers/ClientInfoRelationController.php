@@ -11,8 +11,6 @@ use App\Models\EntityModel;
 use App\Models\EmploymentModel;
 use App\Models\AddressTypeModel;
 use App\Models\TaxCodeModel;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 
 class ClientInfoRelationController extends Controller
 {
