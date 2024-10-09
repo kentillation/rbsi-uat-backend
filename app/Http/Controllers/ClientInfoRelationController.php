@@ -20,10 +20,7 @@ class ClientInfoRelationController extends Controller
     public function getTypes()
     {
         try {
-            $data = DB::table('t_cif_types')
-                ->select('t_cif_types.id', 't_cif_types.type_code', 't_cif_types.type')
-                ->get();
-
+            $data = TypesModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
