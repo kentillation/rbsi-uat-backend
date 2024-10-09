@@ -76,10 +76,23 @@ class ClientInfoController extends Controller
     }
     public function showClientInfo($cid, $last_name)
     {
-        $client = ClientInfoModel::select('t_cif.*')
-            ->where('cid', $cid)
-            ->where('last_name', $last_name)
+        $client = ClientInfoModel::select('t_cif.*',
+            't_cif_types.type', 't_cif_titles.title', 't_cif_client_status.client_status', 
+            't_cif_gender.gender', 't_cif_civil_status.civil_status', 't_cif_institution.institution',
+            't_cif_entity.entity', 't_cif_employment.employment', 't_cif_tax_code.tax_code')
+            ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
+            ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
+            ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
+            ->leftJoin('t_cif_gender', 't_cif.gender', '=', 't_cif_gender.id')
+            ->leftJoin('t_cif_civil_status', 't_cif.civil_status', '=', 't_cif_civil_status.id')
+            ->leftJoin('t_cif_institution', 't_cif.institution', '=', 't_cif_institution.id')
+            ->leftJoin('t_cif_entity', 't_cif.entity', '=', 't_cif_entity.id')
+            ->leftJoin('t_cif_employment', 't_cif.employment', '=', 't_cif_employment.id')
+            ->leftJoin('t_cif_tax_code', 't_cif.tax_code', '=', 't_cif_tax_code.id')
+            ->where('t_cif.cid', $cid)
+            ->where('t_cif.last_name', $last_name)
             ->first();
+
         if ($client) {
             return response()->json($client);
         } else {

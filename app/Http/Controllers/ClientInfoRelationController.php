@@ -11,7 +11,7 @@ use App\Models\EntityModel;
 use App\Models\EmploymentModel;
 use App\Models\AddressTypeModel;
 use App\Models\TaxCodeModel;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class ClientInfoRelationController extends Controller
@@ -20,12 +20,16 @@ class ClientInfoRelationController extends Controller
     public function getTypes()
     {
         try {
-            $data = TypesModel::all();
+            $data = DB::table('t_cif_types')
+                ->select('t_cif_types.id', 't_cif_types.type_code', 't_cif_types.type')
+                ->get();
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     public function getTitles()
     {
         try {
