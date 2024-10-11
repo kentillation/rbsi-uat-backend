@@ -24,38 +24,44 @@ class CustomerController extends Controller
     ];
 
     protected $customerTemplate = [
-        "messageId" => "8f96c894d16d6fd4c52b43766ef1ec657bac636b",
-        "token" => "a5a3ae8fdd90ef759e56cac491e84034544a99fd",
+        "messageId" => "54cd366e07ad4e3c5f29acd9424bfcd09caded42",
+        "token" => "a7ebc3df2c7e161c5ea8880ac93abcf8e72d69d1",
         "br" => "000000",
-        "cidType" => "001",
+        "cidType" => "001", // need also to save in new database
         "title" => "000",
-        "name1" => "",
-        "gender" => "",
-        "civilStatus" => "",
-        "dob" => "",
+        "name1" => "Bibor",
+        "name2" => "Causing", //
+        "name3" => "Engbino", //
+        "name4" => "Jr.", //
+        "initials" => "Borbor", //
+        "mobile1" => "+639453145499", //
+        "email1" => "timmy@gmail.com", //
+        "gender" => "001",
+        "civilStatus" => "S00",
+        "dob" => "2020-09-15",
         "langType" => "001",
-        "appType" => "1",
-        "prType" => "51",
-        "glCode" => "01",
-        "ownershipType" => "010",
+        "appType" => "1", // need also to save in new database
+        "prType" => "51", // need also to save in new database
+        "glCode" => "01", // need also to save in new database
+        "ownershipType" => "010", // need also to save in new database
         "cid" => "",
         "staff" => "F",
         "taxCode" => "001",
-        "address" => [
+        "address" => [  // need also to save in new database
             [
                 "addressType" => "001",
-                "line1" => "Prk. Mahirup",
+                "line1" => "Prk. Paghidaet",
                 "primary" => "T",
                 "mailing" => "T",
                 "tempMailing" => "F",
                 "startDate" => "2024-09-17"
             ]
         ],
-        "ccCode1" => "000",
-        "ccCode2" => "000",
-        "ccCode3" => "030",
+        "ccCode1" => "000", // institution
+        "ccCode2" => "000", // entity
+        "ccCode3" => "070", // employment
         "regDate" => "2024-09-20",
-        "relation" => [
+        "relation" => [  // need also to save in new database
             [
                 "cid" => "000281",
                 "relationType" => "051"
