@@ -118,6 +118,10 @@ class CustomerController extends Controller
     public function createCustomer(Request $request)
     {
         Log::info('Request Headers:', $request->headers->all());
+
+        // Capture the customer data sent from Vue.js
+        $customerData = $request->all();
+
         $token = $this->generateAuthToken();
         $messageId = $this->generateMessageId();
         if (!$token) {
@@ -131,18 +135,23 @@ class CustomerController extends Controller
         // CUSTOMER DATA
 
         $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
+
+        $customerData['messageId'] = $messageId;
+        $customerData['token'] = $token;
+
         $response = Http::withHeaders([
             'Content-Type' => $this->config['contentType'],
             'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
-        ])->post($apiUrl, $this->customerTemplate);
+        // ])->post($apiUrl, $this->customerTemplate);
+        ])->post($apiUrl, $customerData);
 
         if ($response->successful()) {
             $responseData = $response->json();
-            if (isset($responseData['messageId'])) {
-                $responseData['messageId'] = $messageId;
-            } else {
-                $responseData['messageId'] = $messageId;
-            }
+            // if (isset($responseData['messageId'])) {
+            //     $responseData['messageId'] = $messageId;
+            // } else {
+            //     $responseData['messageId'] = $messageId;
+            // }
             Log::info('Generated messageId:', ['messageId' => $messageId]);
             Log::info('Customer created successfully:', ['data' => $responseData]);
             
