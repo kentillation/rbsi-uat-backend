@@ -14,6 +14,7 @@ use App\Models\EntityModel;
 use App\Models\EmploymentModel;
 use App\Models\TaxCodeModel;
 use App\Models\AddressModel;
+use App\Models\AddressTypeModel;
 use App\Models\AuthModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -38,36 +39,36 @@ class ClientInfoController extends Controller
         'authenPass' => 'a3pp3QNQ',
     ];
 
-    protected function generateAuthToken()
-    {
-        $response = Http::withOptions([
-            'verify' => false,
-        ])->withHeaders([
-            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R'
-        ])->post($this->config['authenServer'], [
-            'message_id' => 'b5efbb98793a4c4cbd363ed6f18b95b4fs5LVuxF'
-        ]);
-        Log::info('Token generation response', ['response' => $response->json()]);
-        if ($response->successful() && isset($response->json()['data']['token'])) {
-            return $response->json()['data']['token'];
-        }
-        Log::error('Token generation failed', [
-            'response' => $response->json(),
-            'status' => $response->status(),
-        ]);
-        return null;
-    }
+    // protected function generateAuthToken()
+    // {
+    //     $response = Http::withOptions([
+    //         'verify' => false,
+    //     ])->withHeaders([
+    //         'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R'
+    //     ])->post($this->config['authenServer'], [
+    //         'message_id' => 'b5efbb98793a4c4cbd363ed6f18b95b4fs5LVuxF'
+    //     ]);
+    //     Log::info('Token generation response', ['response' => $response->json()]);
+    //     if ($response->successful() && isset($response->json()['data']['token'])) {
+    //         return $response->json()['data']['token'];
+    //     }
+    //     Log::error('Token generation failed', [
+    //         'response' => $response->json(),
+    //         'status' => $response->status(),
+    //     ]);
+    //     return null;
+    // }
 
-    public function generateMessageId()
-    {
-        $uuid = Str::uuid()->toString();
-        $messageId = str_replace('-', '', $uuid);
-        if (strlen($messageId) < 40) {
-            $randomString = strtolower(Str::random(40 - strlen($messageId)));
-            $messageId .= $randomString;
-        }
-        return substr($messageId, 0, 40);
-    }
+    // public function generateMessageId()
+    // {
+    //     $uuid = Str::uuid()->toString();
+    //     $messageId = str_replace('-', '', $uuid);
+    //     if (strlen($messageId) < 40) {
+    //         $randomString = strtolower(Str::random(40 - strlen($messageId)));
+    //         $messageId .= $randomString;
+    //     }
+    //     return substr($messageId, 0, 40);
+    // }
 
     public function getMBWinClientInfo()
     {
@@ -241,7 +242,7 @@ class ClientInfoController extends Controller
         $client_status = ClientStatusModel::where('id', $client_statusId)->first();
         $gender = GendersModel::where('id', $genderId)->first();
         $civil_status = CivilStatusModel::where('id', $civil_statusId)->first();
-        $address_type = AddressModel::where('id', $address_typeId)->first();
+        $address_type = AddressTypeModel::where('id', $address_typeId)->first();
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
@@ -277,160 +278,141 @@ class ClientInfoController extends Controller
             return response()->json(['message' => 'Invalid tax code value.'], 422);
         }
 
-
-
-        function generateHash($length = 10)
-        {
-            $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $charactersLength = strlen($characters);
-            $randomString = '';
-            for ($i = 0; $i < $length; $i++) {
-                $randomString .= $characters[random_int(0, $charactersLength - 1)];
-            }
-            return $randomString;
-        }
-        $hash = generateHash(10);
-        $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
-        try {
-            DB::transaction(function () use ($request, $filePath, $newCid, $type, $title, $client_status, $gender, $civil_status, $institution, $entity, $employment, $tax_code, $hash) {
-                ClientInfoModel::create([
-                    'cid' => $newCid,
-                    'type' => $type->type_code,
-                    'title' => $title->title_code,
-                    'client_status' => $client_status->client_status_code,
-                    'first_name' => $request->input('first_name'),
-                    'middle_name' => $request->input('middle_name'),
-                    'last_name' => $request->input('last_name'),
-                    'initial' => $request->input('initial'),
-                    'display_name' => $request->input('display_name'),
-                    'staff_or_not' => $request->input('staff_or_not'),
-                    'tin' => $request->input('tin'),
-                    'gender' => $gender->gender_code,
-                    'civil_status' => $civil_status->civil_status_code,
-                    'birthdate' => $request->input('birthdate'),
-                    'mobile1' => $request->input('mobile1'),
-                    'mobile2' => $request->input('mobile2'),
-                    'email' => $request->input('email'),
-                    'nationality' => $request->input('nationality'),
-                    'institution' => $institution->institution_id,
-                    'entity' => $entity->entity_id,
-                    'employment' => $employment->employment_id,
-                    'tax_code' => $tax_code->taxx_code,
-                    'image_file' => $filePath,
-                    'branch' => '000000',
-                    'hash' => $hash,
-                ]);
-            });
-
-            DB::transaction(function () use ($request, $newCid, $address_type, $hash) {
-                AddressModel::create([
-                    'cid' => $newCid,
-                    'address_type' => $address_type->address_code,
-                    'line1' => $request->input('address_line1'),
-                    'line2' => $request->input('address_line2'),
-                    'line3' => $request->input('address_line3'),
-                    'line4' => $request->input('address_line4'),
-                    'postal_code' => $request->input('postal_code'),
-                    'telephone' => $request->input('telephone'),
-                    'fax' => $request->input('fax'),
-                    'hash' => $hash,
-                    'branch' => '000000',
-                ]);
-            });
-
-            Log::info('Request Headers:', $request->headers->all());
-            $customerData = $request->all();
-            $token = $this->generateAuthToken();
-            $messageId = $this->generateMessageId();
-            if (!$token) {
-                Log::error('Authentication failed: No token received', [
-                    'headers' => $request->headers->all(),
-                    'payload' => $request->all(),
-                ]);
-                return response()->json(['message' => 'Authentication failed'], 401);
-            }
-
-            $customerData = [
-                "messageId" => "63741e0eb5f97579f66cc667e87a0abfc4e97a4b",
-                "token" => "565589b84d8542a67cc5e31decf55fe577964748",
-                "br" => "000000",
-                "cidType" => "001",
-                "title" => $title->title_code,
-                "name1" => $request->input('last_name'),
-                "name2" => "Causing",
-                "name3" => "Engbino",
-                "name4" => "Jr.",
-                "initials" => "Borbor",
-                "mobile1" => "+639453145499",
-                "email1" => "timmy@gmail.com",
-                "gender" => "001",
-                "civilStatus" => "S00",
-                "dob" => "2020-09-15",
-                "langType" => "001",
-                "appType" => "1",
-                "prType" => "51",
-                "glCode" => "01",
-                "ownershipType" => "010",
-                "cid" => "",
-                "staff" => "F",
-                "taxCode" => "001",
-                "address" => [
-                    [
-                        "addressType" => "001",
-                        "line1" => "Prk. Paghidaet",
-                        "primary" => "T",
-                        "mailing" => "T",
-                        "tempMailing" => "F",
-                        "startDate" => "2024-09-17"
-                    ]
-                ],
-                "ccCode1" => "000",
-                "ccCode2" => "000",
-                "ccCode3" => "070",
-                "regDate" => "2024-09-20",
-                "relation" => [
-                    [
-                        "cid" => "000281",
-                        "relationType" => "051"
-                    ],
-                    [
-                        "cid" => "000282",
-                        "relationType" => "051"
-                    ]
+        $customerData = $request->all();
+        $customerData = [
+            "messageId" => "af246cf2d14018d2bf81220e24c46ec9f5ede4c1",
+            "token" => "677df007a30adb8a263bffd4ca60678e335c3dc4",
+            "br" => "000000",
+            "cid" => "",
+            "cidType" => "001",
+            "title" => $title->title_code,
+            "name3" => $request->input('first_name'),
+            "name2" => $request->input('middle_name'),
+            "name1" => $request->input('last_name'),
+            "initials" => $request->input('initial'),
+            "mobile1" => $request->input('mobile1'),
+            "email1" => $request->input('email'),
+            "gender" => $gender->gender_code,
+            "civilStatus" => $civil_status->civil_status_code,
+            "dob" => $request->input('birthdate'),
+            "langType" => "001",
+            "appType" => "1",
+            "prType" => "51",
+            "glCode" => "01",
+            "ownershipType" => "010",
+            "staff" => "F",
+            "taxCode" => $tax_code->taxx_code,
+            "address" => [
+                [
+                    "addressType" => $address_type->address_code,
+                    "line1" => $request->input('address_line1'),
+                    "primary" => "T",
+                    "mailing" => "T",
+                    "tempMailing" => "F",
+                    "startDate" => "2024-09-17" // ?
                 ]
-            ];
+            ],
+            "ccCode1" => $institution->institution_id,
+            "ccCode2" => $entity->entity_id,
+            "ccCode3" => $employment->employment_id,
+            "regDate" => "2024-09-20", // ?
+            "relation" => [
+                [
+                    "cid" => "000281", // to add
+                    "relationType" => "051" // to add
+                ],
+                [
+                    "cid" => "000282", // to add
+                    "relationType" => "051" // to add
+                ]
+            ]
+        ];
+        $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->config['contentType'],
+            'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
+        ])->post($apiUrl, $customerData);
+        if ($response->successful()) {
+            // $responseData = $response->json();
+            function generateHash($length = 10)
+            {
+                $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                $charactersLength = strlen($characters);
+                $randomString = '';
+                for ($i = 0; $i < $length; $i++) {
+                    $randomString .= $characters[random_int(0, $charactersLength - 1)];
+                }
+                return $randomString;
+            }
 
-            $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
-            $response = Http::withHeaders([
-                'Content-Type' => $this->config['contentType'],
-                'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
-            ])->post($apiUrl, $customerData);
-
-            if ($response->successful()) {
-                $responseData = $response->json();
-                Log::info('Generated messageId:', ['messageId' => $messageId]);
-                Log::info('Customer created successfully:', ['data' => $responseData]);
-                DB::transaction(function () use ($messageId, $token) {
-                    AuthModel::create([
-                        'generated_message_id' => $messageId,
-                        'generated_token' => $token,
+            $hash = generateHash(10);
+            $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
+            $newAddr_recid = AddressModel::max('addr_recid') ? intval(AddressModel::max('addr_recid')) + 1 : '295';
+            try {
+                DB::transaction(function () use ($request, $filePath, $newCid, $type, $title, $client_status, $gender, $civil_status, $institution, $entity, $employment, $tax_code, $hash) {
+                    ClientInfoModel::create([
+                        'cid' => $newCid,
+                        'type' => $type->type_code,
+                        'title' => $title->title_code,
+                        'client_status' => $client_status->client_status_code,
+                        'first_name' => $request->input('first_name'),
+                        'middle_name' => $request->input('middle_name'),
+                        'last_name' => $request->input('last_name'),
+                        'initial' => $request->input('initial'),
+                        'display_name' => $request->input('display_name'),
+                        'staff_or_not' => $request->input('staff_or_not'),
+                        'tin' => $request->input('tin'),
+                        'gender' => $gender->gender_code,
+                        'civil_status' => $civil_status->civil_status_code,
+                        'birthdate' => $request->input('birthdate'),
+                        'mobile1' => $request->input('mobile1'),
+                        'mobile2' => $request->input('mobile2'),
+                        'email' => $request->input('email'),
+                        'nationality' => $request->input('nationality'),
+                        'institution' => $institution->institution_id,
+                        'entity' => $entity->entity_id,
+                        'employment' => $employment->employment_id,
+                        'tax_code' => $tax_code->taxx_code,
+                        'image_file' => $filePath,
+                        'branch' => '000000',
+                        'hash' => $hash,
                     ]);
                 });
+
+                DB::transaction(function () use ($request, $newCid, $address_type, $hash, $newAddr_recid) {
+                    AddressModel::create([
+                        'cid' => $newCid,
+                        'address_type' => $address_type->address_code,
+                        'line1' => $request->input('address_line1'),
+                        'line2' => $request->input('address_line2'),
+                        'line3' => $request->input('address_line3'),
+                        'line4' => $request->input('address_line4'),
+                        'postal_code' => $request->input('postal_code'),
+                        'telephone' => $request->input('telephone'),
+                        'fax' => $request->input('fax'),
+                        'hash' => $hash,
+                        'branch' => '000000',
+                        'addr_recid' => $newAddr_recid,
+
+                    ]);
+                });
+            } catch (\Exception $e) {
                 return response()->json([
-                    'message' => 'Client has been saved successfully',
-                    'data' => $responseData,
-                ], 200);
-            } else {
-                Log::error('Failed to create customer:', ['error' => $response->json()]);
-                return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
+                    'message' => 'Error: ' . $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ], 500);
             }
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ], 500);
+            // DB::transaction(function () use ($messageId, $token) {
+            //     AuthModel::create([
+            //         'generated_message_id' => $messageId,
+            //         'generated_token' => $token,
+            //     ]);
+            // });
+
+            return response()->json(['message' => 'Client has been saved successfully.'], 200);
+        } else {
+            return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
         }
-        // return response()->json(['message' => 'Client has been saved successfully.'], 200);
     }
 
     public function updateClient(Request $request, $cid)
