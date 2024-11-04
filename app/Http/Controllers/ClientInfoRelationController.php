@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\SuffixesModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
@@ -15,6 +16,16 @@ use App\Models\TaxCodeModel;
 class ClientInfoRelationController extends Controller
 {
     //
+    public function getSuffixes()
+    {
+        try {
+            $data = SuffixesModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function getTypes()
     {
         try {

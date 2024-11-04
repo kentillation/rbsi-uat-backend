@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ClientInfoModel;
 use App\Models\MBWinClientInfoModel;
+use App\Models\MBWinAddressModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
+use App\Models\SuffixesModel;
 use App\Models\GendersModel;
 use App\Models\CivilStatusModel;
 use App\Models\InstitutionModel;
@@ -181,6 +183,7 @@ class ClientInfoController extends Controller
             'first_name' => 'required|string',
             'middle_name' => 'required|string',
             'last_name' => 'required|string',
+            'suffix' => 'nullable|string',
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
             'staff_or_not' => 'required|integer|in:0,1',
@@ -230,6 +233,7 @@ class ClientInfoController extends Controller
         $typeId = $request->input('type');
         $titleId = $request->input('title');
         $client_statusId = $request->input('client_status');
+        $suffixesId = $request->input('suffix');
         $genderId = $request->input('gender');
         $civil_statusId = $request->input('civil_status');
         $address_typeId = $request->input('address_type');
@@ -239,6 +243,7 @@ class ClientInfoController extends Controller
         $tax_codeId = $request->input('tax_code');
         $type = TypesModel::where('id', $typeId)->first();
         $title = TitlesModel::where('id', $titleId)->first();
+        $sufFix = SuffixesModel::where('id', $suffixesId)->first();
         $client_status = ClientStatusModel::where('id', $client_statusId)->first();
         $gender = GendersModel::where('id', $genderId)->first();
         $civil_status = CivilStatusModel::where('id', $civil_statusId)->first();
@@ -255,6 +260,9 @@ class ClientInfoController extends Controller
         }
         if (!$client_status) {
             return response()->json(['message' => 'Invalid client status value.'], 422);
+        }
+        if (!$sufFix) {
+            return response()->json(['message' => 'Invalid suffix value.'], 422);
         }
         if (!$gender) {
             return response()->json(['message' => 'Invalid gender value.'], 422);
@@ -280,15 +288,17 @@ class ClientInfoController extends Controller
 
         $customerData = $request->all();
         $customerData = [
-            "messageId" => "af246cf2d14018d2bf81220e24c46ec9f5ede4c1",
-            "token" => "677df007a30adb8a263bffd4ca60678e335c3dc4",
+            "messageId" => $request->input('message_id'),
+            "token" => $request->input('token'),
             "br" => "000000",
             "cid" => "",
             "cidType" => "001",
             "title" => $title->title_code,
-            "name3" => $request->input('first_name'),
-            "name2" => $request->input('middle_name'),
             "name1" => $request->input('last_name'),
+            "name2" => $request->input('middle_name'),
+            "name3" => $request->input('first_name'),
+            "name4" => $sufFix->suffix,
+            "displayName" => $request->input('display_name'),
             "initials" => $request->input('initial'),
             "mobile1" => $request->input('mobile1'),
             "email1" => $request->input('email'),
@@ -306,6 +316,7 @@ class ClientInfoController extends Controller
                 [
                     "addressType" => $address_type->address_code,
                     "line1" => $request->input('address_line1'),
+                    "line2" => $request->input('address_line3'),
                     "primary" => "T",
                     "mailing" => "T",
                     "tempMailing" => "F",
@@ -334,55 +345,45 @@ class ClientInfoController extends Controller
         ])->post($apiUrl, $customerData);
         if ($response->successful()) {
             // $responseData = $response->json();
-            function generateHash($length = 10)
-            {
-                $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                $charactersLength = strlen($characters);
-                $randomString = '';
-                for ($i = 0; $i < $length; $i++) {
-                    $randomString .= $characters[random_int(0, $charactersLength - 1)];
-                }
-                return $randomString;
-            }
-
-            $hash = generateHash(10);
-            $newCid = ClientInfoModel::max('cid') ? str_pad(intval(ClientInfoModel::max('cid')) + 1, 6, '0', STR_PAD_LEFT) : '000295';
-            $newAddr_recid = AddressModel::max('addr_recid') ? intval(AddressModel::max('addr_recid')) + 1 : '295';
             try {
-                DB::transaction(function () use ($request, $filePath, $newCid, $type, $title, $client_status, $gender, $civil_status, $institution, $entity, $employment, $tax_code, $hash) {
+                $newCID = MBWinClientInfoModel::max('CID');
+                $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
+
+                DB::transaction(function () use ($request, $newCID, $filePath) {
                     ClientInfoModel::create([
-                        'cid' => $newCid,
-                        'type' => $type->type_code,
-                        'title' => $title->title_code,
-                        'client_status' => $client_status->client_status_code,
+                        'cid' => $newCID,
+                        'type' => $request->input('type'),
+                        'title' => $request->input('title'),
+                        'client_status' => $request->input('client_status'),
                         'first_name' => $request->input('first_name'),
                         'middle_name' => $request->input('middle_name'),
                         'last_name' => $request->input('last_name'),
+                        'suffix' => $request->input('suffix'),
                         'initial' => $request->input('initial'),
                         'display_name' => $request->input('display_name'),
                         'staff_or_not' => $request->input('staff_or_not'),
                         'tin' => $request->input('tin'),
-                        'gender' => $gender->gender_code,
-                        'civil_status' => $civil_status->civil_status_code,
+                        'gender' => $request->input('gender'),
+                        'civil_status' => $request->input('civil_status'),
                         'birthdate' => $request->input('birthdate'),
                         'mobile1' => $request->input('mobile1'),
                         'mobile2' => $request->input('mobile2'),
                         'email' => $request->input('email'),
                         'nationality' => $request->input('nationality'),
-                        'institution' => $institution->institution_id,
-                        'entity' => $entity->entity_id,
-                        'employment' => $employment->employment_id,
-                        'tax_code' => $tax_code->taxx_code,
+                        'institution' => $request->input('institution'),
+                        'entity' => $request->input('entity'),
+                        'employment' => $request->input('employment'),
+                        'tax_code' => $request->input('tax_code'),
                         'image_file' => $filePath,
                         'branch' => '000000',
-                        'hash' => $hash,
+                        'message_id' => $request->input('message_id'),
+                        'token' => $request->input('token'),
                     ]);
                 });
-
-                DB::transaction(function () use ($request, $newCid, $address_type, $hash, $newAddr_recid) {
+                DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {
                     AddressModel::create([
-                        'cid' => $newCid,
-                        'address_type' => $address_type->address_code,
+                        'cid' => $newCID,
+                        'address_type' => $request->input('address_type'),
                         'line1' => $request->input('address_line1'),
                         'line2' => $request->input('address_line2'),
                         'line3' => $request->input('address_line3'),
@@ -390,26 +391,25 @@ class ClientInfoController extends Controller
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
                         'fax' => $request->input('fax'),
-                        'hash' => $hash,
                         'branch' => '000000',
-                        'addr_recid' => $newAddr_recid,
-
+                        'addr_recid' => $newAddr_Recid,
+                        'message_id' => $request->input('message_id'),
+                        'token' => $request->input('token'),
                     ]);
                 });
+                // DB::transaction(function () use ($messageId, $token) {
+                //     AuthModel::create([
+                //         'generated_message_id' => $messageId,
+                //         'generated_token' => $token,
+                //     ]);
+                // });
+                return response()->json(['message' => 'Client has been saved successfully.'], 200);
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => 'Error: ' . $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ], 500);
             }
-            // DB::transaction(function () use ($messageId, $token) {
-            //     AuthModel::create([
-            //         'generated_message_id' => $messageId,
-            //         'generated_token' => $token,
-            //     ]);
-            // });
-
-            return response()->json(['message' => 'Client has been saved successfully.'], 200);
         } else {
             return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
         }
@@ -424,6 +424,7 @@ class ClientInfoController extends Controller
             'first_name' => 'required|string',
             'middle_name' => 'required|string',
             'last_name' => 'required|string',
+            'suffix' => 'nullable|string',
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
             'staff_or_not' => 'required|integer',

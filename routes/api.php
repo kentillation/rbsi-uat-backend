@@ -18,12 +18,13 @@ Route::middleware('auth:sanctum')->post('new_client_info', [ClientInfoController
 Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
 Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('show_mbwin_client_info/{cid}', [ClientInfoController::class, 'showMBWinClientInfo']);
-Route::post('create-customer', [CustomerController::class, 'createCustomer']); //testing
+// Route::post('create-customer', [CustomerController::class, 'createCustomer']); //testing
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo']);
 Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [ClientInfoController::class, 'showClientInfo']);
 Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkNewDBClientInfo']);
 Route::middleware('auth:sanctum')->get('client_image/{filename}', [ClientInfoController::class, 'getClientImage']);
+Route::middleware('auth:sanctum')->get('suffixes', [ClientInfoRelationController::class, 'getSuffixes']);
 Route::middleware('auth:sanctum')->get('types', [ClientInfoRelationController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [ClientInfoRelationController::class, 'getTitles']);
 Route::middleware('auth:sanctum')->get('client_status', [ClientInfoRelationController::class, 'getClientStatus']);
