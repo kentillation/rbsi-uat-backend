@@ -24,8 +24,8 @@ class CustomerController extends Controller
     ];
 
     protected $customerTemplate = [
-        "messageId" => "54cd366e07ad4e3c5f29acd9424bfcd09caded42",
-        "token" => "a7ebc3df2c7e161c5ea8880ac93abcf8e72d69d1",
+        "messageId" => "a765f849e543a7cee882d6b84ab2729b724c4bc1",
+        "token" => "031a92cb2e1cee8746ec1bedb05d44a93cf0fef8",
         "br" => "000000",
         "cidType" => "001", // need also to save in new database
         "title" => "000",
@@ -119,11 +119,12 @@ class CustomerController extends Controller
     {
         Log::info('Request Headers:', $request->headers->all());
 
-        // Capture the customer data sent from Vue.js
-        $customerData = $request->all();
-
         $token = $this->generateAuthToken();
         $messageId = $this->generateMessageId();
+        // $customerData = $request->all();
+        // $customerData['messageId'] = $messageId;
+        // $customerData['token'] = $token;
+
         if (!$token) {
             Log::error('Authentication failed: No token received', [
                 'headers' => $request->headers->all(),
@@ -133,25 +134,16 @@ class CustomerController extends Controller
         }
 
         // CUSTOMER DATA
-
         $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
-
-        $customerData['messageId'] = $messageId;
-        $customerData['token'] = $token;
 
         $response = Http::withHeaders([
             'Content-Type' => $this->config['contentType'],
             'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
-        // ])->post($apiUrl, $this->customerTemplate);
-        ])->post($apiUrl, $customerData);
+        ])->post($apiUrl, $this->customerTemplate);
+        // ])->post($apiUrl, $customerData);
 
         if ($response->successful()) {
             $responseData = $response->json();
-            // if (isset($responseData['messageId'])) {
-            //     $responseData['messageId'] = $messageId;
-            // } else {
-            //     $responseData['messageId'] = $messageId;
-            // }
             Log::info('Generated messageId:', ['messageId' => $messageId]);
             Log::info('Customer created successfully:', ['data' => $responseData]);
             

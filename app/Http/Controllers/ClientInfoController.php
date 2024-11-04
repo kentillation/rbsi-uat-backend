@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ClientInfoModel;
 use App\Models\MBWinClientInfoModel;
-use App\Models\MBWinAddressModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
@@ -14,11 +13,12 @@ use App\Models\InstitutionModel;
 use App\Models\EntityModel;
 use App\Models\EmploymentModel;
 use App\Models\TaxCodeModel;
-use App\Models\AddressTypeModel;
 use App\Models\AddressModel;
+use App\Models\AuthModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -26,6 +26,97 @@ use Illuminate\Support\Str;
 
 class ClientInfoController extends Controller
 {
+    protected $config = [
+        'apiHttpType' => 'https',
+        'apiServer' => 'localhost',
+        'apiPort' => '6501',
+        'apiUser' => 'ibclient',
+        'apiPass' => '1234',
+        'contentType' => 'application/json',
+        'authenServer' => 'http://localhost:7000/api/v1/token/generate',
+        'authenUser' => 'magnum',
+        'authenPass' => 'a3pp3QNQ',
+    ];
+
+    protected $customerTemplate = [
+        "messageId" => "8d1362a35fa6d213c453b24386b34078b1941628",
+        "token" => "0743231ce20d5dc6d9899cd60a24527b7cedb6c3",
+        "br" => "000000",
+        "cidType" => "001", // need also to save in new database
+        "title" => "",
+        "name1" => "",
+        "name2" => "",
+        "name3" => "",
+        "initials" => "",
+        "mobile1" => "",
+        "email1" => "",
+        "gender" => "",
+        "civilStatus" => "",
+        "dob" => "",
+        "langType" => "001",
+        "appType" => "1", // need also to save in new database
+        "prType" => "51", // need also to save in new database
+        "glCode" => "01", // need also to save in new database
+        "ownershipType" => "010", // need also to save in new database
+        "cid" => "",
+        "staff" => "",
+        "taxCode" => "",
+        "address" => [  // need also to save in new database
+            [
+                "addressType" => "",
+                "line1" => "SECRET",
+                "primary" => "F",
+                "mailing" => "F",
+                "tempMailing" => "F",
+                "startDate" => "2024-09-17"
+            ]
+        ],
+        "ccCode1" => "", // institution
+        "ccCode2" => "", // entity
+        "ccCode3" => "", // employment
+        "regDate" => "2024-09-20",
+        "relation" => [  // need also to save in new database
+            [
+                "cid" => "000281",
+                "relationType" => "051"
+            ],
+            [
+                "cid" => "000282",
+                "relationType" => "051"
+            ]
+        ]
+    ];
+
+    protected function generateAuthToken()
+    {
+        $response = Http::withOptions([
+            'verify' => false,
+        ])->withHeaders([
+            'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R'
+        ])->post($this->config['authenServer'], [
+            'message_id' => 'b5efbb98793a4c4cbd363ed6f18b95b4fs5LVuxF'
+        ]);
+        Log::info('Token generation response', ['response' => $response->json()]);
+        if ($response->successful() && isset($response->json()['data']['token'])) {
+            return $response->json()['data']['token'];
+        }
+        Log::error('Token generation failed', [
+            'response' => $response->json(),
+            'status' => $response->status(),
+        ]);
+        return null;
+    }
+
+    public function generateMessageId()
+    {
+        $uuid = Str::uuid()->toString();
+        $messageId = str_replace('-', '', $uuid);
+        if (strlen($messageId) < 40) {
+            $randomString = strtolower(Str::random(40 - strlen($messageId)));
+            $messageId .= $randomString;
+        }
+        return substr($messageId, 0, 40);
+    }
 
     public function getMBWinClientInfo()
     {
@@ -76,10 +167,18 @@ class ClientInfoController extends Controller
     }
     public function showClientInfo($cid, $last_name)
     {
-        $client = ClientInfoModel::select('t_cif.*',
-            't_cif_types.type', 't_cif_titles.title', 't_cif_client_status.client_status', 
-            't_cif_gender.gender', 't_cif_civil_status.civil_status', 't_cif_institution.institution',
-            't_cif_entity.entity', 't_cif_employment.employment', 't_cif_tax_code.tax_code')
+        $client = ClientInfoModel::select(
+            't_cif.*',
+            't_cif_types.type',
+            't_cif_titles.title',
+            't_cif_client_status.client_status',
+            't_cif_gender.gender',
+            't_cif_civil_status.civil_status',
+            't_cif_institution.institution',
+            't_cif_entity.entity',
+            't_cif_employment.employment',
+            't_cif_tax_code.tax_code'
+        )
             ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
             ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
             ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
@@ -181,6 +280,7 @@ class ClientInfoController extends Controller
         $client_statusId = $request->input('client_status');
         $genderId = $request->input('gender');
         $civil_statusId = $request->input('civil_status');
+        $address_typeId = $request->input('address_type');
         $institutionId = $request->input('institution');
         $entityId = $request->input('entity');
         $employmentId = $request->input('employment');
@@ -190,6 +290,7 @@ class ClientInfoController extends Controller
         $client_status = ClientStatusModel::where('id', $client_statusId)->first();
         $gender = GendersModel::where('id', $genderId)->first();
         $civil_status = CivilStatusModel::where('id', $civil_statusId)->first();
+        $address_type = AddressModel::where('id', $address_typeId)->first();
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
@@ -208,6 +309,9 @@ class ClientInfoController extends Controller
         }
         if (!$civil_status) {
             return response()->json(['message' => 'Invalid civil status value.'], 422);
+        }
+        if (!$address_type) {
+            return response()->json(['message' => 'Invalid address type value.'], 422);
         }
         if (!$institution) {
             return response()->json(['message' => 'Invalid institution value.'], 422);
@@ -280,13 +384,100 @@ class ClientInfoController extends Controller
             //     ]);
             // });
 
-            return response()->json(['message' => 'Client has been saved successfully.'], 200);
+            Log::info('Request Headers:', $request->headers->all());
+            $customerData = $request->all();
+            $token = $this->generateAuthToken();
+            $messageId = $this->generateMessageId();
+            if (!$token) {
+                Log::error('Authentication failed: No token received', [
+                    'headers' => $request->headers->all(),
+                    'payload' => $request->all(),
+                ]);
+                return response()->json(['message' => 'Authentication failed'], 401);
+            }
+
+            $customerData = array_merge($this->customerTemplate, [
+                "messageId" => "44506237a05a6070180a914da0f66d6013782fb7",
+                "token" => "0d2553dfc1b99f859566f5161677301949b06c36",
+                "br" => "000000",
+                "cidType" => "001",
+                "title" => $request->input("title", $this->customerTemplate["title"]),
+                "name1" => $request->input("last_name", $this->customerTemplate["name1"]),
+                // "name2" => $request->input("first_name", $this->customerTemplate["name2"]),
+                // "name3" => $request->input("middle_name", $this->customerTemplate["name3"]),
+                // "initials" => $request->input("initial", $this->customerTemplate["initials"]),
+                // "mobile1" => $request->input("mobile1", $this->customerTemplate["mobile1"]),
+                // "email1" => $request->input("email1", $this->customerTemplate["email1"]),
+                "gender" => $request->input("gender", $this->customerTemplate["gender"]),
+                "civilStatus" => $request->input("civil_status", $this->customerTemplate["civilStatus"]),
+                "dob" => $request->input("birthdate", $this->customerTemplate["dob"]),
+                "langType" => "001",
+                "appType" => "1", // need also to save in new database
+                "prType" => "51", // need also to save in new database
+                "glCode" => "01", // need also to save in new database
+                "ownershipType" => "010", // need also to save in new database
+                "cid" => "",
+                "staff" => $request->input("staff_or_not", $this->customerTemplate["staff"]),
+                "taxCode" => $request->input("tax_code", $this->customerTemplate["taxCode"]),
+                "address" => [
+                    [
+                        "addressType" => "001",
+                        "line1" => "SECRET",
+                        "primary" => "F",
+                        "mailing" => "F",
+                        "tempMailing" => "F",
+                        "startDate" => "2024-09-17"
+                    ]
+                ],
+                "ccCode1" => $request->input("institution", $this->customerTemplate["ccCode1"]),
+                "ccCode2" => $request->input("entity", $this->customerTemplate["ccCode2"]),
+                "ccCode3" => $request->input("employment", $this->customerTemplate["ccCode3"]),
+                "regDate" => "2024-09-20",
+                "relation" => [  // need also to save in new database
+                    [
+                        "cid" => "000281",
+                        "relationType" => "051"
+                    ],
+                    [
+                        "cid" => "000282",
+                        "relationType" => "051"
+                    ]
+                ]
+            ]);
+
+            $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
+            // $customerData['messageId'] = $messageId;
+            // $customerData['token'] = $token;
+            $response = Http::withHeaders([
+                'Content-Type' => $this->config['contentType'],
+                'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
+            ])->post($apiUrl, $customerData);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                Log::info('Generated messageId:', ['messageId' => $messageId]);
+                Log::info('Customer created successfully:', ['data' => $responseData]);
+                DB::transaction(function () use ($messageId, $token) {
+                    AuthModel::create([
+                        'generated_message_id' => $messageId,
+                        'generated_token' => $token,
+                    ]);
+                });
+                return response()->json([
+                    'message' => 'Client has been saved successfully',
+                    'data' => $responseData,
+                ], 200);
+            } else {
+                Log::error('Failed to create customer:', ['error' => $response->json()]);
+                return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error: ' . $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ], 500);
         }
+        // return response()->json(['message' => 'Client has been saved successfully.'], 200);
     }
 
     public function updateClient(Request $request, $cid)
