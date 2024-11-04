@@ -38,55 +38,6 @@ class ClientInfoController extends Controller
         'authenPass' => 'a3pp3QNQ',
     ];
 
-    protected $customerTemplate = [
-        "messageId" => "8d1362a35fa6d213c453b24386b34078b1941628",
-        "token" => "0743231ce20d5dc6d9899cd60a24527b7cedb6c3",
-        "br" => "000000",
-        "cidType" => "001", // need also to save in new database
-        "title" => "",
-        "name1" => "",
-        "name2" => "",
-        "name3" => "",
-        "initials" => "",
-        "mobile1" => "",
-        "email1" => "",
-        "gender" => "",
-        "civilStatus" => "",
-        "dob" => "",
-        "langType" => "001",
-        "appType" => "1", // need also to save in new database
-        "prType" => "51", // need also to save in new database
-        "glCode" => "01", // need also to save in new database
-        "ownershipType" => "010", // need also to save in new database
-        "cid" => "",
-        "staff" => "",
-        "taxCode" => "",
-        "address" => [  // need also to save in new database
-            [
-                "addressType" => "",
-                "line1" => "SECRET",
-                "primary" => "F",
-                "mailing" => "F",
-                "tempMailing" => "F",
-                "startDate" => "2024-09-17"
-            ]
-        ],
-        "ccCode1" => "", // institution
-        "ccCode2" => "", // entity
-        "ccCode3" => "", // employment
-        "regDate" => "2024-09-20",
-        "relation" => [  // need also to save in new database
-            [
-                "cid" => "000281",
-                "relationType" => "051"
-            ],
-            [
-                "cid" => "000282",
-                "relationType" => "051"
-            ]
-        ]
-    ];
-
     protected function generateAuthToken()
     {
         $response = Http::withOptions([
@@ -325,6 +276,9 @@ class ClientInfoController extends Controller
         if (!$tax_code) {
             return response()->json(['message' => 'Invalid tax code value.'], 422);
         }
+
+
+
         function generateHash($length = 10)
         {
             $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -368,21 +322,21 @@ class ClientInfoController extends Controller
                 ]);
             });
 
-            // DB::transaction(function () use ($request, $newCid, $address_type, $hash) {
-            //     AddressModel::create([
-            //         'cid' => $newCid,
-            //         'address_type' => $address_type->address_code,
-            //         'line1' => $request->input('address_line1'),
-            //         'line2' => $request->input('address_line2'),
-            //         'line3' => $request->input('address_line3'),
-            //         'line4' => $request->input('address_line4'),
-            //         'postal_code' => $request->input('postal_code'),
-            //         'telephone' => $request->input('telephone'),
-            //         'fax' => $request->input('fax'),
-            //         'hash' => $hash,
-            //         'branch' => '000000',
-            //     ]);
-            // });
+            DB::transaction(function () use ($request, $newCid, $address_type, $hash) {
+                AddressModel::create([
+                    'cid' => $newCid,
+                    'address_type' => $address_type->address_code,
+                    'line1' => $request->input('address_line1'),
+                    'line2' => $request->input('address_line2'),
+                    'line3' => $request->input('address_line3'),
+                    'line4' => $request->input('address_line4'),
+                    'postal_code' => $request->input('postal_code'),
+                    'telephone' => $request->input('telephone'),
+                    'fax' => $request->input('fax'),
+                    'hash' => $hash,
+                    'branch' => '000000',
+                ]);
+            });
 
             Log::info('Request Headers:', $request->headers->all());
             $customerData = $request->all();
@@ -396,44 +350,45 @@ class ClientInfoController extends Controller
                 return response()->json(['message' => 'Authentication failed'], 401);
             }
 
-            $customerData = array_merge($this->customerTemplate, [
-                "messageId" => "44506237a05a6070180a914da0f66d6013782fb7",
-                "token" => "0d2553dfc1b99f859566f5161677301949b06c36",
+            $customerData = [
+                "messageId" => "63741e0eb5f97579f66cc667e87a0abfc4e97a4b",
+                "token" => "565589b84d8542a67cc5e31decf55fe577964748",
                 "br" => "000000",
                 "cidType" => "001",
-                "title" => $request->input("title", $this->customerTemplate["title"]),
-                "name1" => $request->input("last_name", $this->customerTemplate["name1"]),
-                // "name2" => $request->input("first_name", $this->customerTemplate["name2"]),
-                // "name3" => $request->input("middle_name", $this->customerTemplate["name3"]),
-                // "initials" => $request->input("initial", $this->customerTemplate["initials"]),
-                // "mobile1" => $request->input("mobile1", $this->customerTemplate["mobile1"]),
-                // "email1" => $request->input("email1", $this->customerTemplate["email1"]),
-                "gender" => $request->input("gender", $this->customerTemplate["gender"]),
-                "civilStatus" => $request->input("civil_status", $this->customerTemplate["civilStatus"]),
-                "dob" => $request->input("birthdate", $this->customerTemplate["dob"]),
+                "title" => $title->title_code,
+                "name1" => $request->input('last_name'),
+                "name2" => "Causing",
+                "name3" => "Engbino",
+                "name4" => "Jr.",
+                "initials" => "Borbor",
+                "mobile1" => "+639453145499",
+                "email1" => "timmy@gmail.com",
+                "gender" => "001",
+                "civilStatus" => "S00",
+                "dob" => "2020-09-15",
                 "langType" => "001",
-                "appType" => "1", // need also to save in new database
-                "prType" => "51", // need also to save in new database
-                "glCode" => "01", // need also to save in new database
-                "ownershipType" => "010", // need also to save in new database
+                "appType" => "1",
+                "prType" => "51",
+                "glCode" => "01",
+                "ownershipType" => "010",
                 "cid" => "",
-                "staff" => $request->input("staff_or_not", $this->customerTemplate["staff"]),
-                "taxCode" => $request->input("tax_code", $this->customerTemplate["taxCode"]),
+                "staff" => "F",
+                "taxCode" => "001",
                 "address" => [
                     [
                         "addressType" => "001",
-                        "line1" => "SECRET",
-                        "primary" => "F",
-                        "mailing" => "F",
+                        "line1" => "Prk. Paghidaet",
+                        "primary" => "T",
+                        "mailing" => "T",
                         "tempMailing" => "F",
                         "startDate" => "2024-09-17"
                     ]
                 ],
-                "ccCode1" => $request->input("institution", $this->customerTemplate["ccCode1"]),
-                "ccCode2" => $request->input("entity", $this->customerTemplate["ccCode2"]),
-                "ccCode3" => $request->input("employment", $this->customerTemplate["ccCode3"]),
+                "ccCode1" => "000",
+                "ccCode2" => "000",
+                "ccCode3" => "070",
                 "regDate" => "2024-09-20",
-                "relation" => [  // need also to save in new database
+                "relation" => [
                     [
                         "cid" => "000281",
                         "relationType" => "051"
@@ -443,11 +398,9 @@ class ClientInfoController extends Controller
                         "relationType" => "051"
                     ]
                 ]
-            ]);
+            ];
 
             $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
-            // $customerData['messageId'] = $messageId;
-            // $customerData['token'] = $token;
             $response = Http::withHeaders([
                 'Content-Type' => $this->config['contentType'],
                 'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="

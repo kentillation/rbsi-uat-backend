@@ -27,27 +27,27 @@ class CustomerController extends Controller
         "messageId" => "a765f849e543a7cee882d6b84ab2729b724c4bc1",
         "token" => "031a92cb2e1cee8746ec1bedb05d44a93cf0fef8",
         "br" => "000000",
-        "cidType" => "001", // need also to save in new database
+        "cidType" => "001",
         "title" => "000",
         "name1" => "Bibor",
-        "name2" => "Causing", //
-        "name3" => "Engbino", //
-        "name4" => "Jr.", //
-        "initials" => "Borbor", //
-        "mobile1" => "+639453145499", //
-        "email1" => "timmy@gmail.com", //
+        "name2" => "Causing",
+        "name3" => "Engbino",
+        "name4" => "Jr.",
+        "initials" => "Borbor",
+        "mobile1" => "+639453145499",
+        "email1" => "timmy@gmail.com",
         "gender" => "001",
         "civilStatus" => "S00",
         "dob" => "2020-09-15",
         "langType" => "001",
-        "appType" => "1", // need also to save in new database
-        "prType" => "51", // need also to save in new database
-        "glCode" => "01", // need also to save in new database
-        "ownershipType" => "010", // need also to save in new database
+        "appType" => "1",
+        "prType" => "51",
+        "glCode" => "01",
+        "ownershipType" => "010",
         "cid" => "",
         "staff" => "F",
         "taxCode" => "001",
-        "address" => [  // need also to save in new database
+        "address" => [ 
             [
                 "addressType" => "001",
                 "line1" => "Prk. Paghidaet",
@@ -57,11 +57,11 @@ class CustomerController extends Controller
                 "startDate" => "2024-09-17"
             ]
         ],
-        "ccCode1" => "000", // institution
-        "ccCode2" => "000", // entity
-        "ccCode3" => "070", // employment
+        "ccCode1" => "000",
+        "ccCode2" => "000",
+        "ccCode3" => "070",
         "regDate" => "2024-09-20",
-        "relation" => [  // need also to save in new database
+        "relation" => [ 
             [
                 "cid" => "000281",
                 "relationType" => "051"
