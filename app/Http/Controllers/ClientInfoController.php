@@ -286,13 +286,15 @@ class ClientInfoController extends Controller
             return response()->json(['message' => 'Invalid tax code value.'], 422);
         }
 
+        date_default_timezone_set('Asia/Manila');
+        $currentDate = date("Y-m-d");
         $customerData = $request->all();
         $customerData = [
             "messageId" => $request->input('message_id'),
             "token" => $request->input('token'),
             "br" => "000000",
             "cid" => "",
-            "cidType" => "001",
+            "cidType" => "001", // Individual, Company, Group
             "title" => $title->title_code,
             "name1" => $request->input('last_name'),
             "name2" => $request->input('middle_name'),
@@ -301,7 +303,9 @@ class ClientInfoController extends Controller
             "displayName" => $request->input('display_name'),
             "initials" => $request->input('initial'),
             "mobile1" => $request->input('mobile1'),
+            "mobile2" => $request->input('mobile2'),
             "email1" => $request->input('email'),
+            "email2" => $request->input('nationality'), //MBWin bug
             "gender" => $gender->gender_code,
             "civilStatus" => $civil_status->civil_status_code,
             "dob" => $request->input('birthdate'),
@@ -316,27 +320,21 @@ class ClientInfoController extends Controller
                 [
                     "addressType" => $address_type->address_code,
                     "line1" => $request->input('address_line1'),
-                    "line2" => $request->input('address_line3'),
+                    "line2" => $request->input('address_line2'),
+                    "line3" => $request->input('address_line3'),
+                    "line4" => $request->input('address_line4'),
+                    "postalCode" => $request->input('postal_code'),
+                    "phone1" => $request->input('telephone'),
                     "primary" => "T",
                     "mailing" => "T",
                     "tempMailing" => "F",
-                    "startDate" => "2024-09-17" // ?
+                    "startDate" => $currentDate // ?
                 ]
             ],
             "ccCode1" => $institution->institution_id,
             "ccCode2" => $entity->entity_id,
             "ccCode3" => $employment->employment_id,
-            "regDate" => "2024-09-20", // ?
-            "relation" => [
-                [
-                    "cid" => "000281", // to add
-                    "relationType" => "051" // to add
-                ],
-                [
-                    "cid" => "000282", // to add
-                    "relationType" => "051" // to add
-                ]
-            ]
+            "locationCode" => "OthrR00001",
         ];
         $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
         $response = Http::withHeaders([
