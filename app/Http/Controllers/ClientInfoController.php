@@ -149,7 +149,7 @@ class ClientInfoController extends Controller
         if ($client) {
             return response()->json($client);
         } else {
-            return response()->json(['error' => 'OMG! Client not found.'], 404);
+            return response()->json(['error' => 'Client not found.'], 404);
         }
     }
 
@@ -198,7 +198,7 @@ class ClientInfoController extends Controller
             'address_line1' => 'required|string',
             'address_line2' => 'required|string',
             'address_line3' => 'required|string',
-            'address_line4' => 'required|string',
+            'address_line4' => 'nullable|string',
             'postal_code' => 'required|string',
             'address_type' => 'required|string',
             'telephone' => 'nullable|string',
@@ -297,8 +297,8 @@ class ClientInfoController extends Controller
             "cidType" => "001", // Individual, Company, Group
             "title" => $title->title_code,
             "name1" => $request->input('last_name'),
-            "name2" => $request->input('middle_name'),
-            "name3" => $request->input('first_name'),
+            "name2" => $request->input('first_name'),
+            "name3" => $request->input('middle_name'),
             "name4" => $sufFix->suffix,
             "displayName" => $request->input('display_name'),
             "initials" => $request->input('initial'),
@@ -319,10 +319,10 @@ class ClientInfoController extends Controller
             "address" => [
                 [
                     "addressType" => $address_type->address_code,
-                    "line1" => $request->input('address_line1'),
-                    "line2" => $request->input('address_line2'),
+                    "line1" => "Brgy. " . $request->input('address_line1'),
+                    "line2" => $request->input('address_line2') . " City",
                     "line3" => $request->input('address_line3'),
-                    "line4" => $request->input('address_line4'),
+                    "line4" => "Philippines",
                     "postalCode" => $request->input('postal_code'),
                     "phone1" => $request->input('telephone'),
                     "primary" => "T",
@@ -342,9 +342,9 @@ class ClientInfoController extends Controller
             'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
         ])->post($apiUrl, $customerData);
         if ($response->successful()) {
-            // $responseData = $response->json();
+            $responseData = $response->json();
             try {
-                $newCID = MBWinClientInfoModel::max('CID');
+                $newCID = $responseData['cid'];
                 $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
 
                 DB::transaction(function () use ($request, $newCID, $filePath) {
@@ -385,7 +385,7 @@ class ClientInfoController extends Controller
                         'line1' => $request->input('address_line1'),
                         'line2' => $request->input('address_line2'),
                         'line3' => $request->input('address_line3'),
-                        'line4' => $request->input('address_line4'),
+                        'line4' => "Philippines",
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
                         'fax' => $request->input('fax'),
@@ -401,7 +401,10 @@ class ClientInfoController extends Controller
                 //         'generated_token' => $token,
                 //     ]);
                 // });
-                return response()->json(['message' => 'Client has been saved successfully.'], 200);
+                return response()->json([
+                    'message' => 'Client has been saved successfully.',
+                    'data' => $responseData
+                ], 200);
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => 'Error: ' . $e->getMessage(),
@@ -437,7 +440,7 @@ class ClientInfoController extends Controller
             'address_line1' => 'required|string',
             'address_line2' => 'required|string',
             'address_line3' => 'required|string',
-            'address_line4' => 'required|string',
+            'address_line4' => 'nullable|string',
             'postal_code' => 'required|string',
             'address_type' => 'required|integer',
             'telephone' => 'nullable|string',
@@ -500,7 +503,6 @@ class ClientInfoController extends Controller
                 'address_line1' => $request->input('address_line1'),
                 'address_line2' => $request->input('address_line2'),
                 'address_line3' => $request->input('address_line3'),
-                'address_line4' => $request->input('address_line4'),
                 'postal_code' => $request->input('postal_code'),
                 'address_type' => $request->input('address_type'),
                 'telephone' => $request->input('telephone'),
