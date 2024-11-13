@@ -207,7 +207,7 @@ class ClientInfoController extends Controller
             'entity' => 'required|string',
             'employment' => 'required|string',
             'image_file' => 'required|image|mimes:jpg,png,jpeg|max:2048',
-            'tax_code' => 'required|string',
+            'tax_code' => 'nullable|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 422);
@@ -240,7 +240,6 @@ class ClientInfoController extends Controller
         $institutionId = $request->input('institution');
         $entityId = $request->input('entity');
         $employmentId = $request->input('employment');
-        $tax_codeId = $request->input('tax_code');
         $type = TypesModel::where('id', $typeId)->first();
         $title = TitlesModel::where('id', $titleId)->first();
         $sufFix = SuffixesModel::where('id', $suffixesId)->first();
@@ -251,7 +250,6 @@ class ClientInfoController extends Controller
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
-        $tax_code = TaxCodeModel::where('id', $tax_codeId)->first();
         if (!$type) {
             return response()->json(['message' => 'Invalid type value.'], 422);
         }
@@ -282,9 +280,6 @@ class ClientInfoController extends Controller
         if (!$employment) {
             return response()->json(['message' => 'Invalid employment value.'], 422);
         }
-        if (!$tax_code) {
-            return response()->json(['message' => 'Invalid tax code value.'], 422);
-        }
 
         date_default_timezone_set('Asia/Manila');
         $currentDate = date("Y-m-d");
@@ -294,7 +289,7 @@ class ClientInfoController extends Controller
             "token" => $request->input('token'),
             "br" => "000000",
             "cid" => "",
-            "cidType" => "001", // Individual, Company, Group
+            "cidType" => $type->type_code, // Individual, Company, Group
             "title" => $title->title_code,
             "name1" => $request->input('last_name'),
             "name2" => $request->input('first_name'),
@@ -310,12 +305,12 @@ class ClientInfoController extends Controller
             "civilStatus" => $civil_status->civil_status_code,
             "dob" => $request->input('birthdate'),
             "langType" => "001",
-            "appType" => "1",
-            "prType" => "51",
-            "glCode" => "01",
-            "ownershipType" => "010",
+            "appType" => "1", //Put it to createAccount
+            "prType" => "51", //Put it to createAccount
+            "glCode" => "01", //Put it to createAccount
+            "ownershipType" => "010", //Put it to createAccount
             "staff" => "F",
-            "taxCode" => $tax_code->taxx_code,
+            "taxCode" => "001",
             "address" => [
                 [
                     "addressType" => $address_type->address_code,
@@ -371,7 +366,7 @@ class ClientInfoController extends Controller
                         'institution' => $request->input('institution'),
                         'entity' => $request->input('entity'),
                         'employment' => $request->input('employment'),
-                        'tax_code' => $request->input('tax_code'),
+                        'tax_code' => "001",
                         'image_file' => $filePath,
                         'branch' => '000000',
                         'message_id' => $request->input('message_id'),
