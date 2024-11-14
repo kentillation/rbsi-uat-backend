@@ -19,6 +19,7 @@ class CorsMiddleware
         // Allowed origins
         $allowedOrigins = [
             'http://localhost:8080',
+            'http://localhost:8081',
             'http://192.168.1.24:8080',
         ];
 
