@@ -250,6 +250,13 @@ class ClientInfoController extends Controller
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
+        $staffValue = $request->input('staff_or_not');
+        if ($staffValue == 1) {
+            $staffValue = 'T';
+        }
+        if ($staffValue == 2) {
+            $staffValue = 'F';
+        }
         if (!$type) {
             return response()->json(['message' => 'Invalid type value.'], 422);
         }
@@ -305,11 +312,11 @@ class ClientInfoController extends Controller
             "civilStatus" => $civil_status->civil_status_code,
             "dob" => $request->input('birthdate'),
             "langType" => "001",
-            "appType" => "1", //Put it to createAccount
-            "prType" => "51", //Put it to createAccount
-            "glCode" => "01", //Put it to createAccount
-            "ownershipType" => "010", //Put it to createAccount
-            "staff" => "F",
+            //"appType" => "1", //Put it to createAccount
+            //"prType" => "51", //Put it to createAccount
+            //"glCode" => "01", //Put it to createAccount
+            //"ownershipType" => "010", //Put it to createAccount
+            "staff" => $staffValue, // DosriTF in MBWin Database
             "taxCode" => "001",
             "address" => [
                 [
