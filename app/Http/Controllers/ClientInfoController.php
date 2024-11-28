@@ -14,10 +14,12 @@ use App\Models\CivilStatusModel;
 use App\Models\InstitutionModel;
 use App\Models\EntityModel;
 use App\Models\EmploymentModel;
-use App\Models\TaxCodeModel;
+use App\Models\RelationshipModel;
+use App\Models\RelatedCIDModel;
+// use App\Models\TaxCodeModel;
 use App\Models\AddressModel;
 use App\Models\AddressTypeModel;
-use App\Models\AuthModel;
+// use App\Models\AuthModel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
@@ -240,6 +242,7 @@ class ClientInfoController extends Controller
         $institutionId = $request->input('institution');
         $entityId = $request->input('entity');
         $employmentId = $request->input('employment');
+        $relationshipId = $request->input('relationship');
         $type = TypesModel::where('id', $typeId)->first();
         $title = TitlesModel::where('id', $titleId)->first();
         $sufFix = SuffixesModel::where('id', $suffixesId)->first();
@@ -250,6 +253,7 @@ class ClientInfoController extends Controller
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
+        $relationship = RelationshipModel::where('id', $relationshipId)->first();
         $staffValue = $request->input('staff_or_not');
         if ($staffValue == 1) {
             $staffValue = 'T';
@@ -286,6 +290,9 @@ class ClientInfoController extends Controller
         }
         if (!$employment) {
             return response()->json(['message' => 'Invalid employment value.'], 422);
+        }
+        if (!$relationship) {
+            return response()->json(['message' => 'Invalid relationship value.'], 422);
         }
 
         date_default_timezone_set('Asia/Manila');
@@ -337,6 +344,13 @@ class ClientInfoController extends Controller
             "ccCode2" => $entity->entity_id,
             "ccCode3" => $employment->employment_id,
             "locationCode" => "OthrR00001",
+            "regDate" => $currentDate,
+            "relation" => [
+                [
+                    "cid" => $request->input('rel_cid'),
+                    "relationType" => $relationship->relationship_id,
+                ]
+            ],
         ];
         $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
         $response = Http::withHeaders([
@@ -393,16 +407,15 @@ class ClientInfoController extends Controller
                         'fax' => $request->input('fax'),
                         'branch' => '000000',
                         'addr_recid' => $newAddr_Recid,
-                        'message_id' => $request->input('message_id'),
-                        'token' => $request->input('token'),
                     ]);
                 });
-                // DB::transaction(function () use ($messageId, $token) {
-                //     AuthModel::create([
-                //         'generated_message_id' => $messageId,
-                //         'generated_token' => $token,
-                //     ]);
-                // });
+                DB::transaction(function () use ($request, $newCID) {
+                    RelatedCIDModel::create([
+                        'cid' => $newCID,
+                        'rel_cid' => $request->input('rel_cid'),
+                        'relationship_id' => $request->input('relationship'),
+                    ]);
+                });
                 return response()->json([
                     'message' => 'Client has been saved successfully.',
                     'data' => $responseData
