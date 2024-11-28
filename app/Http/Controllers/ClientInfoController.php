@@ -238,6 +238,7 @@ class ClientInfoController extends Controller
         $suffixesId = $request->input('suffix');
         $genderId = $request->input('gender');
         $civil_statusId = $request->input('civil_status');
+        $staff_or_not = $request->input('staff_or_not');
         $address_typeId = $request->input('address_type');
         $institutionId = $request->input('institution');
         $entityId = $request->input('entity');
@@ -254,12 +255,11 @@ class ClientInfoController extends Controller
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
         $relationship = RelationshipModel::where('id', $relationshipId)->first();
-        $staffValue = $request->input('staff_or_not');
-        if ($staffValue == 1) {
-            $staffValue = 'T';
+        if ($staff_or_not == 1) {
+            $staff = 'T';
         }
-        if ($staffValue == 2) {
-            $staffValue = 'F';
+        if ($staff_or_not == 2) {
+            $staff = 'F';
         }
         if (!$type) {
             return response()->json(['message' => 'Invalid type value.'], 422);
@@ -323,7 +323,7 @@ class ClientInfoController extends Controller
             //"prType" => "51", //Put it to createAccount
             //"glCode" => "01", //Put it to createAccount
             //"ownershipType" => "010", //Put it to createAccount
-            "staff" => $staffValue, // DosriTF in MBWin Database
+            "staff" => $staff, // DosriTF in MBWin Database
             "taxCode" => "001",
             "address" => [
                 [
@@ -507,12 +507,12 @@ class ClientInfoController extends Controller
         $institution = InstitutionModel::where('id', $institutionId)->first();
         $entity = EntityModel::where('id', $entityId)->first();
         $employment = EmploymentModel::where('id', $employmentId)->first();
-        $staffValue = $request->input('staff_or_not');
-        if ($staffValue == 1) {
-            $staffValue = 'T';
+        $staff_or_not = $request->input('staff_or_not');
+        if ($staff_or_not == 1) {
+            $staff = 'T';
         }
-        if ($staffValue == 2) {
-            $staffValue = 'F';
+        if ($staff_or_not == 2) {
+            $staff = 'F';
         }
         if (!$type) {
             return response()->json(['message' => 'Invalid type value.'], 422);
@@ -573,7 +573,7 @@ class ClientInfoController extends Controller
             //"prType" => "51", //Put it to createAccount
             //"glCode" => "01", //Put it to createAccount
             //"ownershipType" => "010", //Put it to createAccount
-            "staff" => $staffValue, // DosriTF in MBWin Database
+            "staff" => $staff, // DosriTF in MBWin Database
             "taxCode" => "001",
             "address" => [
                 [
