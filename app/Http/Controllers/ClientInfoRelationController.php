@@ -12,6 +12,7 @@ use App\Models\EntityModel;
 use App\Models\EmploymentModel;
 use App\Models\AddressTypeModel;
 use App\Models\TaxCodeModel;
+use App\Models\RelationshipModel;
 
 class ClientInfoRelationController extends Controller
 {
@@ -103,6 +104,16 @@ class ClientInfoRelationController extends Controller
     {
         try {
             $data = AddressTypeModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRelationship()
+    {
+        try {
+            $data = RelationshipModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

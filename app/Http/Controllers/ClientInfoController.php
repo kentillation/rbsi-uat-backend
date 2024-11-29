@@ -188,7 +188,7 @@ class ClientInfoController extends Controller
             'suffix' => 'nullable|string',
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
-            'staff_or_not' => 'required|integer|in:0,1',
+            'staff_or_not' => 'required|in:1,2',
             'tin' => 'nullable|string',
             'gender' => 'required|string',
             'civil_status' => 'required|string',
