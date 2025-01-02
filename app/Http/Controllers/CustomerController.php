@@ -23,52 +23,79 @@ class CustomerController extends Controller
         'authenPass' => 'a3pp3QNQ',
     ];
 
+    // protected $customerTemplate = [
+    //     "messageId" => "a765f849e543a7cee882d6b84ab2729b724c4bc1",
+    //     "token" => "031a92cb2e1cee8746ec1bedb05d44a93cf0fef8",
+    //     "br" => "000000",
+    //     "cidType" => "001",
+    //     "title" => "000",
+    //     "name1" => "Bibor",
+    //     "name2" => "Causing",
+    //     "name3" => "Engbino",
+    //     "name4" => "Jr.",
+    //     "initials" => "Borbor",
+    //     "mobile1" => "+639453145499",
+    //     "email1" => "timmy@gmail.com",
+    //     "gender" => "001",
+    //     "civilStatus" => "S00",
+    //     "dob" => "2020-09-15",
+    //     "langType" => "001",
+    //     "appType" => "1",
+    //     "prType" => "51",
+    //     "glCode" => "01",
+    //     "ownershipType" => "010",
+    //     "cid" => "",
+    //     "staff" => "F",
+    //     "taxCode" => "001",
+    //     "address" => [ 
+    //         [
+    //             "addressType" => "001",
+    //             "line1" => "Prk. Paghidaet",
+    //             "primary" => "T",
+    //             "mailing" => "T",
+    //             "tempMailing" => "F",
+    //             "startDate" => "2024-09-17"
+    //         ]
+    //     ],
+    //     "ccCode1" => "000",
+    //     "ccCode2" => "000",
+    //     "ccCode3" => "070",
+    //     "regDate" => "2024-09-20",
+    //     "relation" => [ 
+    //         [
+    //             "cid" => "000281",
+    //             "relationType" => "051"
+    //         ],
+    //         [
+    //             "cid" => "000282",
+    //             "relationType" => "051"
+    //         ]
+    //     ]
+    // ];
+
     protected $customerTemplate = [
         "messageId" => "a765f849e543a7cee882d6b84ab2729b724c4bc1",
         "token" => "031a92cb2e1cee8746ec1bedb05d44a93cf0fef8",
         "br" => "000000",
-        "cidType" => "001",
-        "title" => "000",
-        "name1" => "Bibor",
-        "name2" => "Causing",
-        "name3" => "Engbino",
-        "name4" => "Jr.",
-        "initials" => "Borbor",
-        "mobile1" => "+639453145499",
-        "email1" => "timmy@gmail.com",
-        "gender" => "001",
-        "civilStatus" => "S00",
-        "dob" => "2020-09-15",
-        "langType" => "001",
-        "appType" => "1",
+        "cid" => "010101",
+        "appType" => "1", //Savings and 2 Current
         "prType" => "51",
-        "glCode" => "01",
         "ownershipType" => "010",
-        "cid" => "",
-        "staff" => "F",
-        "taxCode" => "001",
-        "address" => [ 
+        "remark" => "test remark",
+        "contractAmt" => 12,
+        "maturityDate" => "2099-01-01",
+        "glCode" => "01",
+        "mailTF" => "T",
+        "accCode1" => "001",
+        "accCode2" => "002",
+        "accCode3" => "003",
+        "signCode" => "001",
+        "signRule" => "testsignrule",
+        "nextCapDate" => "2099-01-01",
+        "relAccCID" => [ 
             [
-                "addressType" => "001",
-                "line1" => "Prk. Paghidaet",
-                "primary" => "T",
-                "mailing" => "T",
-                "tempMailing" => "F",
-                "startDate" => "2024-09-17"
-            ]
-        ],
-        "ccCode1" => "000",
-        "ccCode2" => "000",
-        "ccCode3" => "070",
-        "regDate" => "2024-09-20",
-        "relation" => [ 
-            [
-                "cid" => "000281",
-                "relationType" => "051"
-            ],
-            [
-                "cid" => "000282",
-                "relationType" => "051"
+                "cid" => "001",
+                "relType" => "010" //AND
             ]
         ]
     ];
@@ -104,61 +131,56 @@ class CustomerController extends Controller
         return null;
     }
 
-    public function generateMessageId()
-    {
-        $uuid = Str::uuid()->toString();
-        $messageId = str_replace('-', '', $uuid);
-        if (strlen($messageId) < 40) {
-            $randomString = strtolower(Str::random(40 - strlen($messageId)));
-            $messageId .= $randomString;
-        }
-        return substr($messageId, 0, 40);
-    }
+    // public function generateMessageId()
+    // {
+    //     $uuid = Str::uuid()->toString();
+    //     $messageId = str_replace('-', '', $uuid);
+    //     if (strlen($messageId) < 40) {
+    //         $randomString = strtolower(Str::random(40 - strlen($messageId)));
+    //         $messageId .= $randomString;
+    //     }
+    //     return substr($messageId, 0, 40);
+    // }
 
     public function createCustomer(Request $request)
     {
-        Log::info('Request Headers:', $request->headers->all());
-
-        $token = $this->generateAuthToken();
-        $messageId = $this->generateMessageId();
+        // Log::info('Request Headers:', $request->headers->all());
+        // $token = $this->generateAuthToken();
+        // $messageId = $this->generateMessageId();
         // $customerData = $request->all();
         // $customerData['messageId'] = $messageId;
         // $customerData['token'] = $token;
-
-        if (!$token) {
-            Log::error('Authentication failed: No token received', [
-                'headers' => $request->headers->all(),
-                'payload' => $request->all(),
-            ]);
-            return response()->json(['message' => 'Authentication failed'], 401);
-        }
+        // if (!$token) {
+        //     // Log::error('Authentication failed: No token received', [
+        //     //     'headers' => $request->headers->all(),
+        //     //     'payload' => $request->all(),
+        //     // ]);
+        //     return response()->json(['message' => 'Authentication failed'], 401);
+        // }
 
         // CUSTOMER DATA
-        $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
+        // $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
 
+        $apiUrl = "http://localhost:6500/datasnap/rest/client/createAccount";
         $response = Http::withHeaders([
             'Content-Type' => $this->config['contentType'],
             'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
         ])->post($apiUrl, $this->customerTemplate);
         // ])->post($apiUrl, $customerData);
-
         if ($response->successful()) {
             $responseData = $response->json();
-            Log::info('Generated messageId:', ['messageId' => $messageId]);
-            Log::info('Customer created successfully:', ['data' => $responseData]);
-            
-            DB::transaction(function () use ($messageId, $token) {
-                AuthModel::create([
-                    'generated_message_id' => $messageId,
-                    'generated_token' => $token,
-                ]);
-            });
-
+            // Log::info('Generated messageId:', ['messageId' => $messageId]);
+            // Log::info('Customer created successfully:', ['data' => $responseData]);
+            // DB::transaction(function () use ($messageId, $token) {
+            //     AuthModel::create([
+            //         'generated_message_id' => $messageId,
+            //         'generated_token' => $token,
+            //     ]);
+            // });
             return response()->json([
                 'message' => 'Customer created successfully',
                 'data' => $responseData,
             ]);
-
         } else {
             Log::error('Failed to create customer:', ['error' => $response->json()]);
             return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
