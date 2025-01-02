@@ -34,4 +34,5 @@ Route::middleware('auth:sanctum')->get('institution', [ClientInfoRelationControl
 Route::middleware('auth:sanctum')->get('entity', [ClientInfoRelationController::class, 'getEntity']);
 Route::middleware('auth:sanctum')->get('employment', [ClientInfoRelationController::class, 'getEmployment']);
 Route::middleware('auth:sanctum')->get('address_type', [ClientInfoRelationController::class, 'getAddressType']);
+Route::middleware('auth:sanctum')->get('relationship', [ClientInfoRelationController::class, 'getRelationship']);
 Route::middleware('auth:sanctum')->get('watchlist', [WatchListController::class, 'watchList']);
