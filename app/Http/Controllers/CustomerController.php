@@ -74,11 +74,11 @@ class CustomerController extends Controller
     // ];
 
     protected $customerTemplate = [
-        "messageId" => "a765f849e543a7cee882d6b84ab2729b724c4bc1",
-        "token" => "031a92cb2e1cee8746ec1bedb05d44a93cf0fef8",
+        "messageId" => "4c74bbc4281a477b81e6e1a7c15341b9a5a5aak",
+        "token" => "457cb8f38fcc437f5bee692ba4e823f5c47fd8e5",
         "br" => "000000",
-        "cid" => "010101",
-        "appType" => "1", //Savings and 2 Current
+        "cid" => "000001",
+        "appType" => "1",
         "prType" => "51",
         "ownershipType" => "010",
         "remark" => "test remark",
@@ -92,12 +92,13 @@ class CustomerController extends Controller
         "signCode" => "001",
         "signRule" => "testsignrule",
         "nextCapDate" => "2099-01-01",
-        "relAccCID" => [ 
-            [
-                "cid" => "001",
-                "relType" => "010" //AND
-            ]
-        ]
+        // "relAccCID" => [ 
+        //     [
+        //         "cid" => "000001",
+        //         "relType" => "010", //SINGLE
+        //         "br" => "000000",
+        //     ]
+        // ]
     ];
 
     // $customerData = array_merge($this->customerTemplate, [

@@ -303,7 +303,7 @@ class ClientInfoController extends Controller
             "token" => $request->input('token'),
             "br" => "000000",
             "cid" => "",
-            "cidType" => $type->type_code, // Individual, Company, Group
+            "cidType" => $type->type_code,
             "title" => $title->title_code,
             "name1" => $request->input('last_name'),
             "name2" => $request->input('first_name'),
@@ -319,11 +319,7 @@ class ClientInfoController extends Controller
             "civilStatus" => $civil_status->civil_status_code,
             "dob" => $request->input('birthdate'),
             "langType" => "001",
-            //"appType" => "1", //Put it to createAccount
-            //"prType" => "51", //Put it to createAccount
-            //"glCode" => "01", //Put it to createAccount
-            //"ownershipType" => "010", //Put it to createAccount
-            "staff" => $staff, // DosriTF in MBWin Database
+            "staff" => $staff,
             "taxCode" => "001",
             "address" => [
                 [
@@ -337,7 +333,7 @@ class ClientInfoController extends Controller
                     "primary" => "T",
                     "mailing" => "T",
                     "tempMailing" => "F",
-                    "startDate" => $currentDate // ?
+                    "startDate" => $currentDate
                 ]
             ],
             "ccCode1" => $institution->institution_id,
