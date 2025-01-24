@@ -75,7 +75,7 @@ class CustomerController extends Controller
 
     protected $customerTemplate = [
         "messageId" => "4c74bbc4281a477b81e6e1a7c15341b9a5a5aak",
-        "token" => "457cb8f38fcc437f5bee692ba4e823f5c47fd8e5",
+        "token" => "38191ac6d87d0e050eeb20c9f3c738b8009fb8ba",
         "br" => "000000",
         "cid" => "000001",
         "appType" => "1",
@@ -84,7 +84,7 @@ class CustomerController extends Controller
         "remark" => "test remark",
         "contractAmt" => 12,
         "maturityDate" => "2099-01-01",
-        "glCode" => "01",
+        "glCode" => "L7",
         "mailTF" => "T",
         "accCode1" => "001",
         "accCode2" => "002",
