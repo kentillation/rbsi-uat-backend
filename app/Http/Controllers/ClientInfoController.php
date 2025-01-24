@@ -31,49 +31,61 @@ use Illuminate\Support\Str;
 
 class ClientInfoController extends Controller
 {
-    protected $config = [
-        'apiHttpType' => 'https',
-        'apiServer' => 'localhost',
-        'apiPort' => '6501',
-        'apiUser' => 'ibclient',
-        'apiPass' => '1234',
+    protected $partOf = [
+        'branch' => '000000',
         'contentType' => 'application/json',
-        'authenServer' => 'http://localhost:7000/api/v1/token/generate',
-        'authenUser' => 'magnum',
-        'authenPass' => 'a3pp3QNQ',
+        'langType' => '001',
+        'taxCode' => '001',
+        'primary' => 'T',
+        'mailing' => 'T',
+        'tempMailing' => 'F',
+        'locationCode' => 'OthrR00001',
+        'apiURL' => 'http://localhost:6500/datasnap/rest/client',
+        'authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
     ];
 
-    // protected function generateAuthToken()
-    // {
-    //     $response = Http::withOptions([
-    //         'verify' => false,
-    //     ])->withHeaders([
-    //         'Authorization' => 'Basic bWFnbnVtOmEzcHAzUU5R'
-    //     ])->post($this->config['authenServer'], [
-    //         'message_id' => 'b5efbb98793a4c4cbd363ed6f18b95b4fs5LVuxF'
-    //     ]);
-    //     Log::info('Token generation response', ['response' => $response->json()]);
-    //     if ($response->successful() && isset($response->json()['data']['token'])) {
-    //         return $response->json()['data']['token'];
-    //     }
-    //     Log::error('Token generation failed', [
-    //         'response' => $response->json(),
-    //         'status' => $response->status(),
-    //     ]);
-    //     return null;
-    // }
-
-    // public function generateMessageId()
-    // {
-    //     $uuid = Str::uuid()->toString();
-    //     $messageId = str_replace('-', '', $uuid);
-    //     if (strlen($messageId) < 40) {
-    //         $randomString = strtolower(Str::random(40 - strlen($messageId)));
-    //         $messageId .= $randomString;
-    //     }
-    //     return substr($messageId, 0, 40);
-    // }
-
+    private $messageId;
+    private $token;
+    
+    public function generateToken()
+    {
+        try {
+            $authKey = config('services.mbwin.auth_key');
+            $authURL = config('services.mbwin.auth_url');
+            $authPort = config('services.mbwin.auth_port');
+            $authLastRepo = config('services.mbwin.auth_last_repo');
+            $messageId = Str::uuid()->toString();
+            $headers = [
+                'Authorization' => $this->partOf['authorization'],
+                'Content-Type'  => $this->partOf['contentType'],
+            ];
+            $payload = [
+                'message_id' => $messageId,
+            ];
+            $response = Http::withHeaders($headers)->post(
+                $authURL . ':' . $authPort . $authLastRepo,
+                $payload
+            );
+            if ($response->successful()) {
+                $this->messageId = $messageId;
+                $this->token = $response->json('data.token');
+                return response()->json([
+                    'success'    => true,
+                    'token'      => $response->json('data.token'),
+                    'messageId'  => $messageId,
+                ]);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message', 'Failed to generate token'),
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function getMBWinClientInfo()
     {
         try {
@@ -95,7 +107,6 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function checkNewDBClientInfo(Request $request)
     {
         try {
@@ -154,7 +165,6 @@ class ClientInfoController extends Controller
             return response()->json(['error' => 'Client not found.'], 404);
         }
     }
-
     public function showMBWinClientInfo($cid)
     {
         $clientInfo = MBWinClientInfoModel::with('address', 'relation')->find($cid);
@@ -163,7 +173,6 @@ class ClientInfoController extends Controller
         }
         return response()->json($clientInfo);
     }
-
     public function getClientImage($filename)
     {
         $path = storage_path('app/' . $filename);
@@ -294,14 +303,13 @@ class ClientInfoController extends Controller
         if (!$relationship) {
             return response()->json(['message' => 'Invalid relationship value.'], 422);
         }
-
         date_default_timezone_set('Asia/Manila');
         $currentDate = date("Y-m-d");
         $customerData = $request->all();
         $customerData = [
-            "messageId" => $request->input('message_id'),
-            "token" => $request->input('token'),
-            "br" => "000000",
+            "messageId" => $this->messageId,
+            "token" => $this->token,
+            "br" => $this->partOf['branch'],
             "cid" => "",
             "cidType" => $type->type_code,
             "title" => $title->title_code,
@@ -318,9 +326,9 @@ class ClientInfoController extends Controller
             "gender" => $gender->gender_code,
             "civilStatus" => $civil_status->civil_status_code,
             "dob" => $request->input('birthdate'),
-            "langType" => "001",
+            "langType" => $this->partOf['langType'],
             "staff" => $staff,
-            "taxCode" => "001",
+            "taxCode" => $this->partOf['taxCode'],
             "address" => [
                 [
                     "addressType" => $address_type->address_code,
@@ -330,16 +338,16 @@ class ClientInfoController extends Controller
                     "line4" => "Philippines",
                     "postalCode" => $request->input('postal_code'),
                     "phone1" => $request->input('telephone'),
-                    "primary" => "T",
-                    "mailing" => "T",
-                    "tempMailing" => "F",
+                    "primary" => $this->partOf['primary'],
+                    "mailing" => $this->partOf['mailing'],
+                    "tempMailing" => $this->partOf['tempMailing'],
                     "startDate" => $currentDate
                 ]
             ],
             "ccCode1" => $institution->institution_id,
             "ccCode2" => $entity->entity_id,
             "ccCode3" => $employment->employment_id,
-            "locationCode" => "OthrR00001",
+            "locationCode" => $this->partOf['locationCode'],
             "regDate" => $currentDate,
             "relation" => [
                 [
@@ -348,10 +356,10 @@ class ClientInfoController extends Controller
                 ]
             ],
         ];
-        $apiUrl = "http://localhost:6500/datasnap/rest/client/createCustomer";
+        $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
         $response = Http::withHeaders([
-            'Content-Type' => $this->config['contentType'],
-            'Authorization' => "Basic aWJjbGllbnQ6MTIzNA=="
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['authorization'],
         ])->post($apiUrl, $customerData);
         if ($response->successful()) {
             $responseData = $response->json();
@@ -383,11 +391,11 @@ class ClientInfoController extends Controller
                         'institution' => $request->input('institution'),
                         'entity' => $request->input('entity'),
                         'employment' => $request->input('employment'),
-                        'tax_code' => "001",
+                        'tax_code' => $this->partOf['taxCode'],
                         'image_file' => $filePath,
-                        'branch' => '000000',
-                        'message_id' => $request->input('message_id'),
-                        'token' => $request->input('token'),
+                        'branch' => $this->partOf['branch'],
+                        'message_id' => $this->messageId,
+                        'token' => $this->token,
                     ]);
                 });
                 DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {

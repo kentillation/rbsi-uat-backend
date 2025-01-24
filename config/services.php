@@ -14,6 +14,15 @@ return [
     |
     */
 
+    'mbwin' => [
+        'auth_key' => env('MBWIN_AUTH_KEY'),
+        'auth_url' => env('MBWIN_AUTH_URL'),
+        'auth_port' => env('MBWIN_AUTH_PORT'),
+        'auth_last_repo' => env('MBWIN_AUTH_LAST_REPO'),
+        'branch' => env('MBWIN_BRANCH'),
+        'api_content_type' => env('MBWIN_API_CONTENT_TYPE'),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
