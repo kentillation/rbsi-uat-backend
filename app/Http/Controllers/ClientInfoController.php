@@ -6,6 +6,7 @@ use App\Models\ClientInfoModel;
 use App\Models\MBWinClientInfoModel;
 use App\Models\MBWinAddressModel;
 use App\Models\TypesModel;
+use App\Models\AppTypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
 use App\Models\SuffixesModel;
@@ -40,23 +41,22 @@ class ClientInfoController extends Controller
         'mailing' => 'T',
         'tempMailing' => 'F',
         'locationCode' => 'OthrR00001',
+        'line4' => 'Philippines',
         'apiURL' => 'http://localhost:6500/datasnap/rest/client',
-        'authorization' => 'Basic aWJjbGllbnQ6MTIzNA==',
+        'auth_data' => 'Basic aWJjbGllbnQ6MTIzNA==',
+        
     ];
-
-    private $messageId;
-    private $token;
-    
+    // for APIs
     public function generateToken()
     {
         try {
-            $authKey = config('services.mbwin.auth_key');
+            $authkey = config('services.mbwin.auth_key');
             $authURL = config('services.mbwin.auth_url');
             $authPort = config('services.mbwin.auth_port');
             $authLastRepo = config('services.mbwin.auth_last_repo');
-            $messageId = Str::uuid()->toString();
+            $messageId = str_replace('-', '', Str::uuid()->toString());
             $headers = [
-                'Authorization' => $this->partOf['authorization'],
+                'Authorization' => 'Basic ' . $authkey,
                 'Content-Type'  => $this->partOf['contentType'],
             ];
             $payload = [
@@ -67,18 +67,15 @@ class ClientInfoController extends Controller
                 $payload
             );
             if ($response->successful()) {
-                $this->messageId = $messageId;
-                $this->token = $response->json('data.token');
-                return response()->json([
+                return[
                     'success'    => true,
                     'token'      => $response->json('data.token'),
                     'messageId'  => $messageId,
-                ]);
+                ];
+            } else {
+                throw new \Exception($response->json('message', 'Failed to generate token'));
             }
-            return response()->json([
-                'success' => false,
-                'message' => $response->json('message', 'Failed to generate token'),
-            ], $response->status());
+            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -86,104 +83,65 @@ class ClientInfoController extends Controller
             ], 500);
         }
     }
-    public function getMBWinClientInfo()
-    {
-        try {
-            $data = MBWinClientInfoModel::all();
-            return response()->json($data);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-    public function checkMBWinClientInfo(Request $request)
-    {
-        try {
-            $exists = MBWinClientInfoModel::where('Name2', $request->input('first_name'))
-                ->where('Name3', $request->input('middle_name'))
-                ->where('Name1', $request->input('last_name'))
-                ->exists();
-            return response()->json(['exists' => $exists]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-    public function checkNewDBClientInfo(Request $request)
-    {
-        try {
-            $exists = ClientInfoModel::where('first_name', $request->input('first_name'))
-                ->where('middle_name', $request->input('middle_name'))
-                ->where('last_name', $request->input('last_name'))
-                ->exists();
-            return response()->json(['exists' => $exists]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-    public function getClientInfo(Request $request)
-    {
-        try {
-            $search = $request->query('search');
-            $clients = ClientInfoModel::where('cid', 'LIKE', "%{$search}%")
-                ->orWhere('last_name', 'LIKE', "%{$search}%")
-                ->orderBy('cid')
-                ->get();
-            return response()->json($clients);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-    public function showClientInfo($cid, $last_name)
-    {
-        $client = ClientInfoModel::select(
-            't_cif.*',
-            't_cif_types.type',
-            't_cif_titles.title',
-            't_cif_client_status.client_status',
-            't_cif_gender.gender',
-            't_cif_civil_status.civil_status',
-            't_cif_institution.institution',
-            't_cif_entity.entity',
-            't_cif_employment.employment',
-            't_cif_tax_code.tax_code'
-        )
-            ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
-            ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
-            ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
-            ->leftJoin('t_cif_gender', 't_cif.gender', '=', 't_cif_gender.id')
-            ->leftJoin('t_cif_civil_status', 't_cif.civil_status', '=', 't_cif_civil_status.id')
-            ->leftJoin('t_cif_institution', 't_cif.institution', '=', 't_cif_institution.id')
-            ->leftJoin('t_cif_entity', 't_cif.entity', '=', 't_cif_entity.id')
-            ->leftJoin('t_cif_employment', 't_cif.employment', '=', 't_cif_employment.id')
-            ->leftJoin('t_cif_tax_code', 't_cif.tax_code', '=', 't_cif_tax_code.id')
-            ->where('t_cif.cid', $cid)
-            ->where('t_cif.last_name', $last_name)
-            ->first();
-
-        if ($client) {
-            return response()->json($client);
+    public function accountEnquiry (Request $request) {
+        // $appTypeId = $request->input('appType');
+        // $appType = AppTypesModel::where('id', $appTypeId)->first();
+        // if (!$appType) {
+        //     return response()->json(['message' => 'Invalid app type value.'], 422);
+        // }
+        $tokenResponse = $this->generateToken();
+        $payload = [
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
+            "br" => $this->partOf['branch'],
+            "acc" => $request->input('acc'),
+            "appType" => $request->input('appType')
+        ];
+        $apiUrl = $this->partOf['apiURL'] . "/accountEnquiry";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['auth_data'],
+        ])->post($apiUrl, $payload);
+        if ($response->successful()) {
+            return response()->json([
+                'message' => 'Fetching account is success!',
+                'data' => $response->json()
+            ], 200);
         } else {
-            return response()->json(['error' => 'Client not found.'], 404);
+            return response()->json(['message' => 'Failed fetching account', 'error' => $response->json()], $response->status());
         }
     }
-    public function showMBWinClientInfo($cid)
-    {
-        $clientInfo = MBWinClientInfoModel::with('address', 'relation')->find($cid);
-        if (!$clientInfo) {
-            return response()->json(['error' => 'Client not found'], 404);
+    public function accountTransactionHistory (Request $request) {
+        $tokenResponse = $this->generateToken();
+        $payload = [
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
+            "br" => $this->partOf['branch'],
+            "acc" => '52000022',
+            "filterType"=>"1", // 1=By date, 2=By recid, 3 = By seqRef
+            "startDate"=> "2024-01-01",
+            "endDate"=> "2024-12-31",
+            // "acc" => $request->input('acc'),
+            // "startDate"=> $request->input('startDate'),
+            // "endDate"=> $request->input('endDate'),
+            // "page"=>  2,
+            // "trnPerPage"=>  15,
+            // "orderType"=>  1,
+            // "showFinTrn"=>"1"
+        ];
+        $apiUrl = $this->partOf['apiURL'] . "/accountTransactionHistory";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['auth_data'],
+        ])->post($apiUrl, $payload);
+        if ($response->successful()) {
+            return response()->json([
+                'message' => 'Fetching account history is success!',
+                'data' => $response->json()
+            ], 200);
+        } else {
+            return response()->json(['message' => 'Failed fetching account history', 'error' => $response->json()], $response->status());
         }
-        return response()->json($clientInfo);
-    }
-    public function getClientImage($filename)
-    {
-        $path = storage_path('app/' . $filename);
-        if (!File::exists($path)) {
-            return response()->json(['message' => 'Image not found.'], 404);
-        }
-        $file = File::get($path);
-        $type = File::mimeType($path);
-        $response = Response::make($file, 200);
-        $response->header("Content-Type", $type);
-        return $response;
     }
     public function addNewClient(Request $request)
     {
@@ -305,10 +263,11 @@ class ClientInfoController extends Controller
         }
         date_default_timezone_set('Asia/Manila');
         $currentDate = date("Y-m-d");
+        $tokenResponse = $this->generateToken();
         $customerData = $request->all();
         $customerData = [
-            "messageId" => $this->messageId,
-            "token" => $this->token,
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "cid" => "",
             "cidType" => $type->type_code,
@@ -335,7 +294,7 @@ class ClientInfoController extends Controller
                     "line1" => "Brgy. " . $request->input('address_line1'),
                     "line2" => $request->input('address_line2') . " City",
                     "line3" => $request->input('address_line3'),
-                    "line4" => "Philippines",
+                    "line4" => $this->partOf['line4'],
                     "postalCode" => $request->input('postal_code'),
                     "phone1" => $request->input('telephone'),
                     "primary" => $this->partOf['primary'],
@@ -349,24 +308,23 @@ class ClientInfoController extends Controller
             "ccCode3" => $employment->employment_id,
             "locationCode" => $this->partOf['locationCode'],
             "regDate" => $currentDate,
-            "relation" => [
-                [
-                    "cid" => $request->input('rel_cid'),
-                    "relationType" => $relationship->relationship_id,
-                ]
-            ],
+            // "relation" => [
+            //     [
+            //         "cid" => $request->input('rel_cid'),
+            //         "relationType" => $relationship->relationship_id,
+            //     ]
+            // ],
         ];
         $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['authorization'],
+            'Authorization' => $this->partOf['auth_data'],
         ])->post($apiUrl, $customerData);
         if ($response->successful()) {
             $responseData = $response->json();
             try {
                 $newCID = $responseData['cid'];
                 $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
-
                 DB::transaction(function () use ($request, $newCID, $filePath) {
                     ClientInfoModel::create([
                         'cid' => $newCID,
@@ -393,9 +351,7 @@ class ClientInfoController extends Controller
                         'employment' => $request->input('employment'),
                         'tax_code' => $this->partOf['taxCode'],
                         'image_file' => $filePath,
-                        'branch' => $this->partOf['branch'],
-                        'message_id' => $this->messageId,
-                        'token' => $this->token,
+                        'branch' => $this->partOf['branch']
                     ]);
                 });
                 DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {
@@ -405,7 +361,7 @@ class ClientInfoController extends Controller
                         'line1' => $request->input('address_line1'),
                         'line2' => $request->input('address_line2'),
                         'line3' => $request->input('address_line3'),
-                        'line4' => "Philippines",
+                        'line4' => $this->partOf['line4'],
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
                         'fax' => $request->input('fax'),
@@ -433,6 +389,96 @@ class ClientInfoController extends Controller
         } else {
             return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
         }
+    }
+
+    public function checkClientInfo_MBWIN(Request $request)
+    {
+        try {
+            $exists = MBWinClientInfoModel::where('Name2', $request->input('first_name'))
+                ->where('Name3', $request->input('middle_name'))
+                ->where('Name1', $request->input('last_name'))
+                ->exists();
+            return response()->json(['exists' => $exists]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function checkClientInfo_PHPMYADMIN(Request $request)
+    {
+        try {
+            $exists = ClientInfoModel::where('first_name', $request->input('first_name'))
+                ->where('middle_name', $request->input('middle_name'))
+                ->where('last_name', $request->input('last_name'))
+                ->exists();
+            return response()->json(['exists' => $exists]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function getClientInfo_search_PHPMYADMIN(Request $request)
+    {
+        try {
+            $search = $request->query('search');
+            $clients = ClientInfoModel::where('cid', 'LIKE', "%{$search}%")
+                ->orWhere('last_name', 'LIKE', "%{$search}%")
+                ->orderBy('cid')
+                ->get();
+            return response()->json($clients);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function getClientInfo_FILTERED_PHPMYADMIN($cid, $last_name)
+    {
+        $client = ClientInfoModel::select(
+            't_cif.*',
+            't_cif_types.type',
+            't_cif_titles.title',
+            't_cif_client_status.client_status',
+            't_cif_gender.gender',
+            't_cif_civil_status.civil_status',
+            't_cif_institution.institution',
+            't_cif_entity.entity',
+            't_cif_employment.employment',
+            't_cif_tax_code.tax_code'
+        )
+            ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
+            ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
+            ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
+            ->leftJoin('t_cif_gender', 't_cif.gender', '=', 't_cif_gender.id')
+            ->leftJoin('t_cif_civil_status', 't_cif.civil_status', '=', 't_cif_civil_status.id')
+            ->leftJoin('t_cif_institution', 't_cif.institution', '=', 't_cif_institution.id')
+            ->leftJoin('t_cif_entity', 't_cif.entity', '=', 't_cif_entity.id')
+            ->leftJoin('t_cif_employment', 't_cif.employment', '=', 't_cif_employment.id')
+            ->leftJoin('t_cif_tax_code', 't_cif.tax_code', '=', 't_cif_tax_code.id')
+            ->where('t_cif.cid', $cid)
+            ->where('t_cif.last_name', $last_name)
+            ->first();
+        if ($client) {
+            return response()->json($client);
+        } else {
+            return response()->json(['error' => 'Client not found.'], 404);
+        }
+    }
+    public function getClientInfo_FILTERED_MBWIN($cid)
+    {
+        $clientInfo = MBWinClientInfoModel::with('address', 'relation')->find($cid);
+        if (!$clientInfo) {
+            return response()->json(['error' => 'Client not found'], 404);
+        }
+        return response()->json($clientInfo);
+    }
+    public function getClientImage($filename)
+    {
+        $path = storage_path('app/' . $filename);
+        if (!File::exists($path)) {
+            return response()->json(['message' => 'Image not found.'], 404);
+        }
+        $file = File::get($path);
+        $type = File::mimeType($path);
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+        return $response;
     }
 
     // public function updateClient(Request $request)
@@ -672,4 +718,13 @@ class ClientInfoController extends Controller
     //         return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
     //     }
     // }
+    public function getMBWinClientInfo()
+    {
+        try {
+            $data = MBWinClientInfoModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
