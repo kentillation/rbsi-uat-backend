@@ -46,7 +46,7 @@ class ClientInfoController extends Controller
         'auth_data' => 'Basic aWJjbGllbnQ6MTIzNA==',
         
     ];
-    // for APIs
+    // APIs
     public function generateToken()
     {
         try {
@@ -164,10 +164,10 @@ class ClientInfoController extends Controller
             'mobile2' => 'nullable|string',
             'email' => 'required|string|email',
             'nationality' => 'required|string',
-            'address_line1' => 'required|string',
-            'address_line2' => 'required|string',
-            'address_line3' => 'required|string',
-            'address_line4' => 'nullable|string',
+            'line1' => 'required|string',
+            'line2' => 'required|string',
+            'line3' => 'required|string',
+            'line4' => 'nullable|string',
             'postal_code' => 'required|string',
             'address_type' => 'required|string',
             'telephone' => 'nullable|string',
@@ -291,9 +291,9 @@ class ClientInfoController extends Controller
             "address" => [
                 [
                     "addressType" => $address_type->address_code,
-                    "line1" => "Brgy. " . $request->input('address_line1'),
-                    "line2" => $request->input('address_line2') . " City",
-                    "line3" => $request->input('address_line3'),
+                    "line1" => "Brgy. " . $request->input('line1'),
+                    "line2" => $request->input('line2') . " City",
+                    "line3" => $request->input('line3'),
                     "line4" => $this->partOf['line4'],
                     "postalCode" => $request->input('postal_code'),
                     "phone1" => $request->input('telephone'),
@@ -358,9 +358,9 @@ class ClientInfoController extends Controller
                     AddressModel::create([
                         'cid' => $newCID,
                         'address_type' => $request->input('address_type'),
-                        'line1' => $request->input('address_line1'),
-                        'line2' => $request->input('address_line2'),
-                        'line3' => $request->input('address_line3'),
+                        'line1' => $request->input('line1'),
+                        'line2' => $request->input('line2'),
+                        'line3' => $request->input('line3'),
                         'line4' => $this->partOf['line4'],
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
@@ -391,6 +391,7 @@ class ClientInfoController extends Controller
         }
     }
 
+    // DATABASE
     public function checkClientInfo_MBWIN(Request $request)
     {
         try {
@@ -432,6 +433,7 @@ class ClientInfoController extends Controller
     {
         $client = ClientInfoModel::select(
             't_cif.*',
+            't_cif_address_type.address_type',
             't_cif_types.type',
             't_cif_titles.title',
             't_cif_client_status.client_status',
@@ -442,6 +444,7 @@ class ClientInfoController extends Controller
             't_cif_employment.employment',
             't_cif_tax_code.tax_code'
         )
+            ->leftJoin('t_cif_address_type', 't_cif.address_type', '=', 't_cif_address_type.id')
             ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
             ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
             ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
@@ -502,10 +505,10 @@ class ClientInfoController extends Controller
     //         'mobile2' => 'nullable|string',
     //         'email' => 'required|string|email',
     //         'nationality' => 'required|string',
-    //         'address_line1' => 'required|string',
-    //         'address_line2' => 'required|string',
-    //         'address_line3' => 'required|string',
-    //         'address_line4' => 'nullable|string',
+    //         'line1' => 'required|string',
+    //         'line2' => 'required|string',
+    //         'line3' => 'required|string',
+    //         'line4' => 'nullable|string',
     //         'postal_code' => 'required|string',
     //         'address_type' => 'required|string',
     //         'telephone' => 'nullable|string',
@@ -628,9 +631,9 @@ class ClientInfoController extends Controller
     //         "address" => [
     //             [
     //                 "addressType" => $address_type->address_code,
-    //                 "line1" => "Brgy. " . $request->input('address_line1'),
-    //                 "line2" => $request->input('address_line2') . " City",
-    //                 "line3" => $request->input('address_line3'),
+    //                 "line1" => "Brgy. " . $request->input('line1'),
+    //                 "line2" => $request->input('line2') . " City",
+    //                 "line3" => $request->input('line3'),
     //                 "line4" => "Philippines",
     //                 "postalCode" => $request->input('postal_code'),
     //                 "phone1" => $request->input('telephone'),
@@ -691,9 +694,9 @@ class ClientInfoController extends Controller
     //                 AddressModel::update([
     //                     'cid' => $newCID,
     //                     'address_type' => $request->input('address_type'),
-    //                     'line1' => $request->input('address_line1'),
-    //                     'line2' => $request->input('address_line2'),
-    //                     'line3' => $request->input('address_line3'),
+    //                     'line1' => $request->input('line1'),
+    //                     'line2' => $request->input('line2'),
+    //                     'line3' => $request->input('line3'),
     //                     'line4' => "Philippines",
     //                     'postal_code' => $request->input('postal_code'),
     //                     'telephone' => $request->input('telephone'),
