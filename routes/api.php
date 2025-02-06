@@ -6,21 +6,24 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientInfoController;
 use App\Http\Controllers\ClientInfoRelationController;
 use App\Http\Controllers\WatchListController;
+use App\Http\Controllers\API_TransactionController;
 use App\Http\Controllers\CustomerController;
 
+// Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
 Route::middleware('auth:sanctum')->get('users', function (Request $request) {
   return $request->user();
 });
 Route::post('admin-register', [AuthController::class, 'register']);
 Route::post('admin-login', [AuthController::class, 'login']);
-Route::post('generate-token', [ClientInfoController::class, 'generateToken']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->post('new_client_info', [ClientInfoController::class, 'addNewClient']);
 Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
-Route::post('account_enquiry', [ClientInfoController::class, 'accountEnquiry']);
-Route::post('account_transaction_history', [ClientInfoController::class, 'accountTransactionHistory']);
-// Route::post('create-customer', [CustomerController::class, 'createCustomer']); //testing
-// Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
+
+// MBWIN API
+Route::post('generate-token', [API_TransactionController::class, 'generateToken']);
+Route::post('account_enquiry', [API_TransactionController::class, 'accountEnquiry']);
+Route::post('account_transaction_history', [API_TransactionController::class, 'accountTransactionHistory']);
+Route::middleware('auth:sanctum')->post('new_client_info', [API_TransactionController::class, 'addNewClient']);
+
 Route::middleware('auth:sanctum')->get('show_mbwin_client_info/{cid}', [ClientInfoController::class, 'getClientInfo_FILTERED_MBWIN']);
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkClientInfo_MBWIN']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo_search_PHPMYADMIN']);
