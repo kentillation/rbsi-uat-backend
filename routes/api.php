@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [Cl
 Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkClientInfo_PHPMYADMIN']);
 Route::middleware('auth:sanctum')->get('client_image/{filename}', [ClientInfoController::class, 'getClientImage']);
 Route::middleware('auth:sanctum')->get('suffixes', [ClientInfoRelationController::class, 'getSuffixes']);
+Route::middleware('auth:sanctum')->get('app_types', [ClientInfoRelationController::class, 'getAppTypes']);
 Route::middleware('auth:sanctum')->get('types', [ClientInfoRelationController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [ClientInfoRelationController::class, 'getTitles']);
 Route::middleware('auth:sanctum')->get('client_status', [ClientInfoRelationController::class, 'getClientStatus']);

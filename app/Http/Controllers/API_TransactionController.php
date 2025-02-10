@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MBWinClientInfoModel;
 use App\Models\ClientInfoModel;
+use App\Models\AppTypesModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\SuffixesModel;

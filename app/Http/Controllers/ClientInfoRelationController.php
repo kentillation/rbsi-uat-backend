@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\SuffixesModel;
+use App\Models\AppTypesModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
@@ -21,6 +22,16 @@ class ClientInfoRelationController extends Controller
     {
         try {
             $data = SuffixesModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getAppTypes()
+    {
+        try {
+            $data = AppTypesModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
