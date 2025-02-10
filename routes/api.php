@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoC
 
 // MBWIN API
 Route::post('generate-token', [API_TransactionController::class, 'generateToken']);
+Route::middleware('auth:sanctum')->post('account_list/{cid}', [API_TransactionController::class, 'accountList']);
 Route::post('account_enquiry', [API_TransactionController::class, 'accountEnquiry']);
 Route::post('account_transaction_history', [API_TransactionController::class, 'accountTransactionHistory']);
 Route::middleware('auth:sanctum')->post('new_client_info', [API_TransactionController::class, 'addNewClient']);

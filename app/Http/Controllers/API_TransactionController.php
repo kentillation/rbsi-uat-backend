@@ -79,6 +79,36 @@ class API_TransactionController extends Controller
             ], 500);
         }
     }
+    public function accountList($cid) {
+        $tokenResponse = $this->generateToken();
+        $payload = [
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
+            "br" => $this->partOf['branch'],
+            "cid" => $cid,
+            "appType" => "*",
+            "includeRelatedAccTF"  => "T",
+            "includeClosedAccTF"  => "T"
+        ];
+        $apiUrl = $this->partOf['apiURL'] . "/accountList";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['auth_data'],
+        ])->post($apiUrl, $payload);
+        if ($response->successful()) {
+            return response()->json([
+                'message' => 'Fetching account is success!',
+                'data' => $response->json()
+            ], 200);
+        }
+        else {
+            return response()->json([
+                'message' => 'Failed fetching account',
+                'error' => $response->json()
+            ], $response->status());
+        }
+    }
+    
     public function accountEnquiry (Request $request) {
         // $appTypeId = $request->input('appType');
         // $appType = AppTypesModel::where('id', $appTypeId)->first();

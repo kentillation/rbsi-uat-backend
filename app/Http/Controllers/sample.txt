@@ -1,0 +1,18 @@
+{
+  "messageId":"4c74bbc4281a477b81e6e1a7c15341b9a5a5aak",
+  "token":"86256b6c34ed47ff871c799074c64fae",
+  "br":"000001",
+  "cid":"010561", //Generated
+  "appType":"1", // T_SVACC & T_RELACC
+  "prType":"51", // T_SVACC
+  "ownershipType":"010", // T_RELACC
+  "remark":"test remak", ?
+  "contractAmt":  12, // T_SVACC
+  "maturityDate":"2016-03-01", // T_SVACC
+  "glCode":"11", // T_SVACC
+  "mailTF":"T", // T_SVACC
+  "accCode1":"001",
+  "signCode":"001",
+  "signRule":"sdfsd",
+  "nextCapDate":"2016-03-01",
+}
