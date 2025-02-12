@@ -80,6 +80,45 @@ class API_TransactionController extends Controller
             ], 500);
         }
     }
+    public function createAccount (Request $request) {
+        $tokenResponse = $this->generateToken();
+        $payload = [
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
+            "br" => $this->partOf['branch'],
+            // "cid" => $request->input('cid'),
+            // "appType" => $request->input('appType'),
+            // "prType" => $request->input('prType'),
+            // "ownershipType" => $request->input('ownershipType'),
+            // "maturityDate" => $request->input('maturityDate'),
+            // "glCode" => $request->input('glCode'),
+            // "accCode1" => $request->input('accCode1'),
+            // "signCode" => $request->input('signCode'),
+            // "signRule" => $request->input('signRule')
+            "cid" => "000006",
+            "appType" => "1",
+            "prType" => "51",
+            "ownershipType" => "010",
+            "maturityDate" => "2099-01-01",
+            "glCode" => "51",
+            "accCode1" => "000",
+            "signCode" => "001",
+            "signRule" => "empty"
+        ];
+        $apiUrl = $this->partOf['apiURL'] . "/createAccount";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['auth_data'],
+        ])->post($apiUrl, $payload);
+        if ($response->successful()) {
+            return response()->json([
+                'message' => 'New account has been created successfully!',
+                'data' => $response->json()
+            ], 200);
+        } else {
+            return response()->json(['message' => 'Failed creating account', 'error' => $response->json()], $response->status());
+        }
+    }
     public function accountList($cid) {
         $tokenResponse = $this->generateToken();
         $payload = [
@@ -111,11 +150,6 @@ class API_TransactionController extends Controller
     }
     
     public function accountEnquiry (Request $request) {
-        // $appTypeId = $request->input('appType');
-        // $appType = AppTypesModel::where('id', $appTypeId)->first();
-        // if (!$appType) {
-        //     return response()->json(['message' => 'Invalid app type value.'], 422);
-        // }
         $tokenResponse = $this->generateToken();
         $payload = [
             "messageId" => $tokenResponse['messageId'],
@@ -144,17 +178,10 @@ class API_TransactionController extends Controller
             "messageId" => $tokenResponse['messageId'],
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
-            "acc" => '52000022',
+            "acc" => $request->input('acc'),
             "filterType"=>"1", // 1=By date, 2=By recid, 3 = By seqRef
-            "startDate"=> "2024-01-01",
-            "endDate"=> "2024-12-31",
-            // "acc" => $request->input('acc'),
-            // "startDate"=> $request->input('startDate'),
-            // "endDate"=> $request->input('endDate'),
-            // "page"=>  2,
-            // "trnPerPage"=>  15,
-            // "orderType"=>  1,
-            // "showFinTrn"=>"1"
+            "startDate"=> $request->input('startDate'),
+            "endDate"=> $request->input('endDate'),
         ];
         $apiUrl = $this->partOf['apiURL'] . "/accountTransactionHistory";
         $response = Http::withHeaders([
