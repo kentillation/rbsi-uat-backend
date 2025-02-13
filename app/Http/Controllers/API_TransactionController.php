@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 
 use App\Models\MBWinClientInfoModel;
 use App\Models\ClientInfoModel;
-use App\Models\AppTypesModel;
+use App\Models\AppTypeModel;
+use App\Models\ProductTypeModel;
+use App\Models\OwnershipTypeModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\SuffixesModel;
@@ -82,24 +84,31 @@ class API_TransactionController extends Controller
     }
     public function createAccount (Request $request) {
         $tokenResponse = $this->generateToken();
+
+        $appTypeId = $request->input('app_type');
+        $productTypeId = $request->input('product_type');
+        $ownershipTypeId = $request->input('ownership_type');
+        $appType = AppTypeModel::where('id', $appTypeId)->first();
+        $productType = ProductTypeModel::where('id', $productTypeId)->first();
+        $ownershipType = OwnershipTypeModel::where('id', $ownershipTypeId)->first();
+        if (!$appType) {
+            return response()->json(['message' => 'Invalid application type value.'], 422);
+        }
+        if (!$productType) {
+            return response()->json(['message' => 'Invalid product type value.'], 422);
+        }
+        if (!$ownershipType) {
+            return response()->json(['message' => 'Invalid ownership type value.'], 422);
+        }
         $payload = [
             "messageId" => $tokenResponse['messageId'],
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
-            // "cid" => $request->input('cid'),
-            // "appType" => $request->input('appType'),
-            // "prType" => $request->input('prType'),
-            // "ownershipType" => $request->input('ownershipType'),
-            // "maturityDate" => $request->input('maturityDate'),
-            // "glCode" => $request->input('glCode'),
-            // "accCode1" => $request->input('accCode1'),
-            // "signCode" => $request->input('signCode'),
-            // "signRule" => $request->input('signRule')
-            "cid" => "000006",
-            "appType" => "1",
-            "prType" => "51",
-            "ownershipType" => "010",
-            "maturityDate" => "2099-01-01",
+            "cid" => $request->input('cid'),
+            "appType" => $appType->app_type_code,
+            "prType" => $productType->product_type_code,
+            "ownershipType" => $ownershipType->ownership_type_code,
+            "maturityDate" => $request->input('maturity_date'),
             "glCode" => "51",
             "accCode1" => "000",
             "signCode" => "001",
@@ -147,8 +156,7 @@ class API_TransactionController extends Controller
                 'error' => $response->json()
             ], $response->status());
         }
-    }
-    
+    }    
     public function accountEnquiry (Request $request) {
         $tokenResponse = $this->generateToken();
         $payload = [
@@ -165,7 +173,7 @@ class API_TransactionController extends Controller
         ])->post($apiUrl, $payload);
         if ($response->successful()) {
             return response()->json([
-                'message' => 'Fetching account is success!',
+                'message' => 'Fetching account success!',
                 'data' => $response->json()
             ], 200);
         } else {

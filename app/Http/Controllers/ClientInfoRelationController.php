@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\SuffixesModel;
-use App\Models\AppTypesModel;
+use App\Models\AppTypeModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\ClientStatusModel;
@@ -14,6 +14,8 @@ use App\Models\EmploymentModel;
 use App\Models\AddressTypeModel;
 use App\Models\TaxCodeModel;
 use App\Models\RelationshipModel;
+use App\Models\ProductTypeModel;
+use App\Models\OwnershipTypeModel;
 
 class ClientInfoRelationController extends Controller
 {
@@ -27,17 +29,6 @@ class ClientInfoRelationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    public function getAppTypes()
-    {
-        try {
-            $data = AppTypesModel::all();
-            return response()->json($data);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
     public function getTypes()
     {
         try {
@@ -125,6 +116,35 @@ class ClientInfoRelationController extends Controller
     {
         try {
             $data = RelationshipModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function getAppTypes()
+    {
+        try {
+            $data = AppTypeModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getProductTypes()
+    {
+        try {
+            $data = ProductTypeModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getOwnershipTypes()
+    {
+        try {
+            $data = OwnershipTypeModel::all();
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

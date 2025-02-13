@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoC
 
 // MBWIN API
 Route::post('generate-token', [API_TransactionController::class, 'generateToken']);
-Route::post('create_account', [API_TransactionController::class, 'createAccount']);
+Route::middleware('auth:sanctum')->post('create_account', [API_TransactionController::class, 'createAccount']);
 Route::middleware('auth:sanctum')->post('account_list/{cid}', [API_TransactionController::class, 'accountList']);
 Route::middleware('auth:sanctum')->post('account_enquiry', [API_TransactionController::class, 'accountEnquiry']);
 Route::middleware('auth:sanctum')->post('account_transaction_history', [API_TransactionController::class, 'accountTransactionHistory']);
@@ -31,7 +31,6 @@ Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [Cl
 Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkClientInfo_PHPMYADMIN']);
 Route::middleware('auth:sanctum')->get('client_image/{filename}', [ClientInfoController::class, 'getClientImage']);
 Route::middleware('auth:sanctum')->get('suffixes', [ClientInfoRelationController::class, 'getSuffixes']);
-Route::middleware('auth:sanctum')->get('app_types', [ClientInfoRelationController::class, 'getAppTypes']);
 Route::middleware('auth:sanctum')->get('types', [ClientInfoRelationController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [ClientInfoRelationController::class, 'getTitles']);
 Route::middleware('auth:sanctum')->get('client_status', [ClientInfoRelationController::class, 'getClientStatus']);
@@ -42,4 +41,7 @@ Route::middleware('auth:sanctum')->get('entity', [ClientInfoRelationController::
 Route::middleware('auth:sanctum')->get('employment', [ClientInfoRelationController::class, 'getEmployment']);
 Route::middleware('auth:sanctum')->get('address_type', [ClientInfoRelationController::class, 'getAddressType']);
 Route::middleware('auth:sanctum')->get('relationship', [ClientInfoRelationController::class, 'getRelationship']);
+Route::middleware('auth:sanctum')->get('app_type', [ClientInfoRelationController::class, 'getAppTypes']);
+Route::middleware('auth:sanctum')->get('product_type', [ClientInfoRelationController::class, 'getProductTypes']);
+Route::middleware('auth:sanctum')->get('ownership_type', [ClientInfoRelationController::class, 'getOwnershipTypes']);
 Route::middleware('auth:sanctum')->get('watchlist', [WatchListController::class, 'watchList']);

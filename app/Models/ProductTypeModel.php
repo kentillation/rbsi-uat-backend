@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AppTypesModel extends Model
+class ProductTypeModel extends Model
 {
     use HasFactory;
-    protected $table = 't_cif_app_types';
+    protected $table = 't_cif_product_type';
     protected $guarded = [];
 }
