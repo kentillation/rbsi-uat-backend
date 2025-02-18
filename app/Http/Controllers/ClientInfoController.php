@@ -21,6 +21,7 @@ use App\Models\RelationshipModel;
 use App\Models\MBWinAddressModel;
 use App\Models\AddressModel;
 use App\Models\RelatedCIDModel;
+use App\Models\MBWinClientAccModel;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -463,6 +464,29 @@ class ClientInfoController extends Controller
         } else {
             return response()->json(['error' => 'Client not found.'], 404);
         }
+    }
+    public function getClientCID_FILTERED_MBWIN()
+    {
+        $CID = MBWinClientInfoModel::max('CID');
+        if (!$CID) {
+            return response()->json(['error' => 'CID not found'], 404);
+        }
+        return response()->json($CID);
+    }
+    public function getClientACC_FILTERED_MBWIN()
+    {
+        $accountNumber = MBWinClientAccModel::max('ACC');
+        $Chd = MBWinClientAccModel::max('Chd');
+        if (!$accountNumber) {
+            return response()->json(['error' => 'Account number not found'], 404);
+        }
+        if (!$Chd) {
+            return response()->json(['error' => 'Check deposit not found'], 404);
+        }
+        return response()->json([
+            'ACC' => $accountNumber,
+            'Chd' => $Chd
+        ]);
     }
     public function getClientInfo_FILTERED_MBWIN($cid)
     {
