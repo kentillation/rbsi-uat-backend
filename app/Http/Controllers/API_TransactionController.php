@@ -359,7 +359,7 @@ class API_TransactionController extends Controller
             "prType" => $productType->product_type_code,
             "ownershipType" => $ownershipType->ownership_type_code,
             "maturityDate" => $request->input('maturity_date'),
-            "glCode" => "51", // 51 & 52 = Savings, 25 = Current
+            "glCode" => $request->input('gl_code'),
             "accCode1" => "000",
             "signCode" => "001",
             "signRule" => "empty"

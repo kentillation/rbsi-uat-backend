@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 04, 2024 at 08:46 AM
+-- Generation Time: Feb 19, 2025 at 08:53 AM
 -- Server version: 8.0.31
 -- PHP Version: 7.4.33
 
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `personal_access_tokens`
@@ -165,7 +165,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (87, 'App\\Models\\User', 1, 'auth_token', 'f0a15fdb97bc358261368ddd2edd35e9893255f8e17de7445e52847187ee0e0c', '[\"*\"]', '2024-09-17 01:14:37', '2024-09-16 16:31:33', '2024-09-17 01:14:37'),
 (88, 'App\\Models\\User', 1, 'auth_token', 'e89a2c022da35a6b49b4c9848da11f162d949070cb21792b7c966a2b7fecbc1b', '[\"*\"]', '2024-09-17 19:01:21', '2024-09-17 16:27:27', '2024-09-17 19:01:21'),
 (89, 'App\\Models\\User', 1, 'auth_token', 'fe60164a91dd9b52c01320ecefb2cd7bfa0729606ea16a56fb1fbe0eb07fb9fe', '[\"*\"]', '2024-09-17 22:55:42', '2024-09-17 19:02:58', '2024-09-17 22:55:42'),
-(90, 'App\\Models\\User', 1, 'auth_token', '545cdd3eb7b117465ece9b168ef290d0fe494d315e76959451021baa54c28d7b', '[\"*\"]', '2024-09-19 17:42:25', '2024-09-17 21:40:22', '2024-09-19 17:42:25'),
+(90, 'App\\Models\\User', 1, 'auth_token', '545cdd3eb7b117465ece9b168ef290d0fe494d315e76959451021baa54c28d7b', '[\"*\"]', '2025-01-24 02:30:34', '2024-09-17 21:40:22', '2025-01-24 02:30:34'),
 (91, 'App\\Models\\User', 1, 'auth_token', 'bb7074ea88ff3d9294c1b1253db978dbf1537d6f97016fa784ce79e0da49d34e', '[\"*\"]', NULL, '2024-09-18 17:14:08', '2024-09-18 17:14:08'),
 (92, 'App\\Models\\User', 1, 'auth_token', '2de6e52659bad93b08971868b05fc15008a8e7a150a536171398d727418e8340', '[\"*\"]', '2024-09-18 22:54:48', '2024-09-18 19:46:22', '2024-09-18 22:54:48'),
 (93, 'App\\Models\\User', 1, 'auth_token', 'd354a77ef6edd81561cc3bf982e67d549761795ebc7f910f023c8e7e99d8843f', '[\"*\"]', NULL, '2024-09-19 17:04:30', '2024-09-19 17:04:30'),
@@ -183,7 +183,28 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (106, 'App\\Models\\User', 1, 'auth_token', 'ed13cc1ff9f01e4f62e04a09a826e2f2170d20f0ee68d4da4088d18ccb73774d', '[\"*\"]', '2024-10-30 23:55:32', '2024-10-30 20:03:23', '2024-10-30 23:55:32'),
 (107, 'App\\Models\\User', 1, 'auth_token', 'aef7883e3768c89acb77c686d7d94c6c5e9b14c2c0ec0089593641b84593890e', '[\"*\"]', '2024-11-03 20:02:58', '2024-11-03 16:18:34', '2024-11-03 20:02:58'),
 (108, 'App\\Models\\User', 1, 'auth_token', 'a029f9033468dc0e3863360e9226395c74a0c9305871241b9cc9b1b8852d5dc1', '[\"*\"]', '2024-11-03 23:37:45', '2024-11-03 21:31:13', '2024-11-03 23:37:45'),
-(109, 'App\\Models\\User', 1, 'auth_token', 'e4b574d903c662ff27683b791859849115c496a02e2e3421d6a715fa38c9e813', '[\"*\"]', '2024-11-04 00:44:17', '2024-11-03 23:39:21', '2024-11-04 00:44:17');
+(109, 'App\\Models\\User', 1, 'auth_token', 'e4b574d903c662ff27683b791859849115c496a02e2e3421d6a715fa38c9e813', '[\"*\"]', '2024-11-04 00:44:17', '2024-11-03 23:39:21', '2024-11-04 00:44:17'),
+(110, 'App\\Models\\User', 1, 'auth_token', '37da75db94ad6372d502d54edca98d00919a0749eedd4dbdfdc5a5447c2c24dc', '[\"*\"]', '2024-11-12 19:17:10', '2024-11-12 18:50:37', '2024-11-12 19:17:10'),
+(112, 'App\\Models\\User', 1, 'auth_token', '7f5a2d6607ac62ff90640f6279ebcff8a9ef9ce674af95d326e21d410458384e', '[\"*\"]', '2024-11-13 22:14:49', '2024-11-13 22:14:09', '2024-11-13 22:14:49'),
+(113, 'App\\Models\\User', 1, 'auth_token', 'de6c32e9ad44705644fe7c63793aa6dae519da3015f792f29b635bac9f470668', '[\"*\"]', '2024-11-13 22:29:44', '2024-11-13 22:28:21', '2024-11-13 22:29:44'),
+(114, 'App\\Models\\User', 1, 'auth_token', '74fd4c280b4dc41c428e593cbd7d9bfde1672220cc363225bb87729ff9a93639', '[\"*\"]', '2024-11-17 17:26:52', '2024-11-17 16:52:24', '2024-11-17 17:26:52'),
+(115, 'App\\Models\\User', 1, 'auth_token', 'e8bb15c12c4c65779dd6d70fe547d6409bab5cdb95779eb2d1173963ecc4f979', '[\"*\"]', '2024-12-26 00:10:57', '2024-12-25 23:33:00', '2024-12-26 00:10:57'),
+(116, 'App\\Models\\User', 1, 'auth_token', '24e738d5cda5babcb5d4d1ea04c0f1a4c96efc511aff816e69fcf0ecbc7d0b87', '[\"*\"]', '2025-01-02 02:06:58', '2025-01-02 00:42:57', '2025-01-02 02:06:58'),
+(117, 'App\\Models\\User', 1, 'auth_token', 'a64b1e7acec199b4b1ec27541b4141c383561f76a7b01d99398e1c5cccbf7ee8', '[\"*\"]', '2025-01-02 22:44:05', '2025-01-02 22:05:17', '2025-01-02 22:44:05'),
+(118, 'App\\Models\\User', 1, 'auth_token', '0675b4093e49f826fe63d1e39f0473d6c0d8dd1f96266ceec82a04b739807e7f', '[\"*\"]', '2025-01-06 18:15:45', '2025-01-06 17:13:58', '2025-01-06 18:15:45'),
+(119, 'App\\Models\\User', 1, 'auth_token', '67b5dd06e3f44e63918f564ace8d92f81135e623dafb6ac7e15c418b44ccbe75', '[\"*\"]', '2025-01-30 17:40:41', '2025-01-30 17:04:35', '2025-01-30 17:40:41'),
+(120, 'App\\Models\\User', 1, 'auth_token', '6f46b936fcba0d8b823ce2588b87d3af2674e9afc0dbd5bf43e6c8c18e0016d0', '[\"*\"]', '2025-01-30 21:32:40', '2025-01-30 21:15:24', '2025-01-30 21:32:40'),
+(122, 'App\\Models\\User', 1, 'auth_token', 'd7f1765d9a1a1f9f07f34f515087100e8aa755649dbaca6ad5693cb5739bd342', '[\"*\"]', '2025-02-02 18:29:17', '2025-02-02 18:16:27', '2025-02-02 18:29:17'),
+(123, 'App\\Models\\User', 1, 'auth_token', 'c2585d9f2644e6029514efa11fe1e363470faed0e613f2b192ebd742b917cbf3', '[\"*\"]', '2025-02-03 23:13:44', '2025-02-03 17:30:45', '2025-02-03 23:13:44'),
+(124, 'App\\Models\\User', 1, 'auth_token', '2951f9c0465ac746386649ccd8b2ab0348eff2d1775e3a4435d99924ffda691d', '[\"*\"]', '2025-02-05 23:52:35', '2025-02-05 23:22:47', '2025-02-05 23:52:35'),
+(125, 'App\\Models\\User', 1, 'auth_token', '2d3332f465e78b68799a7448c1295596d0dc5a949e5f72f68648b38af36e345e', '[\"*\"]', '2025-02-10 01:41:56', '2025-02-09 16:54:05', '2025-02-10 01:41:56'),
+(126, 'App\\Models\\User', 1, 'auth_token', '69373f63e2e5fa11132fc7aa1fef8c09006e331b0e93a14af5676479706449f6', '[\"*\"]', '2025-02-10 18:05:07', '2025-02-10 16:16:23', '2025-02-10 18:05:07'),
+(127, 'App\\Models\\User', 1, 'auth_token', 'd58a4bb050a4e00e7ae390bb8635ba4512e10a28387b12a3d1b9bfa304c98cea', '[\"*\"]', '2025-02-11 23:46:40', '2025-02-11 18:58:01', '2025-02-11 23:46:40'),
+(128, 'App\\Models\\User', 1, 'auth_token', '31d8f0e9c434bbb0f8723796388d234ed104dd6be7ba1bd9681a02fb82f56827', '[\"*\"]', '2025-02-13 00:09:03', '2025-02-12 18:31:08', '2025-02-13 00:09:03'),
+(129, 'App\\Models\\User', 1, 'auth_token', '69ae74776586acc5eec03d53a3bd9a07025dfa02675fa0e98a83fc77402c9f65', '[\"*\"]', '2025-02-14 01:09:39', '2025-02-13 19:58:38', '2025-02-14 01:09:39'),
+(130, 'App\\Models\\User', 1, 'auth_token', 'fd1e52307840bf03056f9af7f2abe25278406d67892d41382447cdb9a68105c0', '[\"*\"]', '2025-02-17 00:48:09', '2025-02-16 20:58:00', '2025-02-17 00:48:09'),
+(132, 'App\\Models\\User', 1, 'auth_token', 'cbadc1dc7f2dd33acd54028c9193fc642891d884c27081b8a9ba52e961002f74', '[\"*\"]', '2025-02-18 03:25:53', '2025-02-18 02:24:37', '2025-02-18 03:25:53'),
+(133, 'App\\Models\\User', 1, 'auth_token', '9167159a71390a0bf60350a445bcfa0f3fd9e9713882e1990e0d434989fd2fa8', '[\"*\"]', '2025-02-19 00:46:57', '2025-02-18 16:38:36', '2025-02-19 00:46:57');
 
 -- --------------------------------------------------------
 
@@ -195,6 +216,7 @@ DROP TABLE IF EXISTS `t_cif`;
 CREATE TABLE IF NOT EXISTS `t_cif` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `address_type` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `type` varchar(3) NOT NULL,
   `title` varchar(3) NOT NULL,
   `client_status` varchar(3) NOT NULL,
@@ -219,19 +241,44 @@ CREATE TABLE IF NOT EXISTS `t_cif` (
   `tax_code` varchar(3) NOT NULL,
   `image_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `branch` varchar(6) NOT NULL,
-  `message_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `token` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `created_at` timestamp NOT NULL,
   `updated_at` timestamp NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `t_cif`
 --
 
-INSERT INTO `t_cif` (`id`, `cid`, `type`, `title`, `client_status`, `first_name`, `middle_name`, `last_name`, `suffix`, `initial`, `display_name`, `staff_or_not`, `tin`, `gender`, `civil_status`, `birthdate`, `mobile1`, `mobile2`, `email`, `nationality`, `institution`, `entity`, `employment`, `tax_code`, `image_file`, `branch`, `message_id`, `token`, `created_at`, `updated_at`) VALUES
-(8, '000373', '1', '2', '1', 'Chloe', 'Causing', 'Engbino', '7', 'Clue', 'Engbino, Chloe C.', 1, '000', '2', '3', '2020-08-14', '0123456789', '9876543210', 'hasnoclue@gmail.com', 'Filipino', '1', '1', '7', '1', '1730708821.jpg', '000000', '561edb1d84138ed8a5481aa311e3fca27540b25a', '83797b17811fab9c79d28c174e6e1e91f83ddd72', '2024-11-04 00:27:04', '2024-11-04 00:27:04');
+INSERT INTO `t_cif` (`id`, `cid`, `address_type`, `type`, `title`, `client_status`, `first_name`, `middle_name`, `last_name`, `suffix`, `initial`, `display_name`, `staff_or_not`, `tin`, `gender`, `civil_status`, `birthdate`, `mobile1`, `mobile2`, `email`, `nationality`, `institution`, `entity`, `employment`, `tax_code`, `image_file`, `branch`, `created_at`, `updated_at`) VALUES
+(2, '000005', '1', '1', '1', '1', 'Kent Anthony', 'Causing', 'Engbino', '7', 'Toto', 'Engbino, Kent Anthony C.', 1, NULL, '1', '3', '1995-07-03', '0123456789', '987654321', 'sample@sample.com', 'Filipino', '1', '1', '7', '001', '1738287144.jpg', '000000', '2025-01-31 01:32:26', '2025-01-31 01:32:26'),
+(3, '000006', '1', '1', '1', '1', 'Bibor', 'Causing', 'Engbino', '7', 'Borbor', 'Engbino, Bibor C.', 1, NULL, '1', '3', '2020-09-14', '0123456789', '987654321', 'bibor@gmail.com', 'Filipino', '1', '1', '7', '001', '1738287641.jpg', '000000', '2025-01-31 01:41:17', '2025-01-31 01:41:17'),
+(15, '000024', '1', '1', '1', '1', 'Sparkle', 'Memeng', 'Engbino', '7', 'Spark', 'Engbino, Sparkle M.', 2, NULL, '1', '3', '2023-12-31', '0123456789', '9876543210', 'spark@gmail.com', 'Filipino', '1', '1', '7', '001', '1739869408.jpeg', '000000', '2025-02-18 09:03:29', '2025-02-18 09:03:29'),
+(16, '000025', '1', '1', '1', '1', 'Batman', 'The', 'Baaaat', '7', 'Batman', 'Baaaat, Batman T.', 2, NULL, '1', '3', '2013-05-07', '0123456789', '03020105064', 'test@gmail.com', 'Filipino', '1', '1', '7', '001', '1739874580.png', '000000', '2025-02-18 10:29:41', '2025-02-18 10:29:41');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_account_type`
+--
+
+DROP TABLE IF EXISTS `t_cif_account_type`;
+CREATE TABLE IF NOT EXISTS `t_cif_account_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `account_type_code` varchar(3) NOT NULL,
+  `account_type` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_account_type`
+--
+
+INSERT INTO `t_cif_account_type` (`id`, `account_type_code`, `account_type`) VALUES
+(1, '000', 'Regular'),
+(2, '009', 'Student'),
+(3, '010', 'Employee'),
+(4, '011', 'Pension');
 
 -- --------------------------------------------------------
 
@@ -243,10 +290,10 @@ DROP TABLE IF EXISTS `t_cif_address`;
 CREATE TABLE IF NOT EXISTS `t_cif_address` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cid` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `address_type` varchar(3) NOT NULL,
-  `line1` varchar(35) NOT NULL,
-  `line2` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `line3` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `address_type` varchar(3) DEFAULT NULL,
+  `address_line1` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `address_line2` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `address_line3` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `line4` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `postal_code` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `telephone` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -258,14 +305,17 @@ CREATE TABLE IF NOT EXISTS `t_cif_address` (
   `created_at` timestamp NOT NULL,
   `updated_at` timestamp NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `t_cif_address`
 --
 
-INSERT INTO `t_cif_address` (`id`, `cid`, `address_type`, `line1`, `line2`, `line3`, `line4`, `postal_code`, `telephone`, `fax`, `branch`, `addr_recid`, `message_id`, `token`, `created_at`, `updated_at`) VALUES
-(7, '000373', '1', 'Prk. Paghidaet', 'Brgy. Paraiso', 'Sagay City', 'Negros Island Region', '6123', '12301', '32103', '000000', '2400', '561edb1d84138ed8a5481aa311e3fca27540b25a', '83797b17811fab9c79d28c174e6e1e91f83ddd72', '2024-11-04 00:27:04', '2024-11-04 00:27:04');
+INSERT INTO `t_cif_address` (`id`, `cid`, `address_type`, `address_line1`, `address_line2`, `address_line3`, `line4`, `postal_code`, `telephone`, `fax`, `branch`, `addr_recid`, `message_id`, `token`, `created_at`, `updated_at`) VALUES
+(11, '000005', NULL, 'Paraiso', 'Sagay', 'Negros Island Region', 'Philippines', '6122', '00112233', '030201', '000000', '5', NULL, NULL, '2025-01-31 01:32:26', '2025-01-31 01:32:26'),
+(12, '000006', NULL, 'Paraiso', 'Sagay', 'Negros Island Region', 'Philippines', '6122', '00112233', '030201', '000000', '6', NULL, NULL, '2025-01-31 01:41:17', '2025-01-31 01:41:17'),
+(23, '000024', '1', 'Paraiso', 'Sagay', 'Negros Occidental', 'Philippines', '6122', '010203', '030201', '000000', '24', NULL, NULL, '2025-02-18 09:03:29', '2025-02-18 09:03:29'),
+(24, '000025', '1', 'Poblacion 1', 'Sagay', 'Negros Occidental', 'Philippines', '6122', '010203', '030201', '000000', '25', NULL, NULL, '2025-02-18 10:29:41', '2025-02-18 10:29:41');
 
 -- --------------------------------------------------------
 
@@ -289,6 +339,29 @@ INSERT INTO `t_cif_address_type` (`id`, `address_code`, `address_type`) VALUES
 (1, '001', 'Home'),
 (2, '002', 'Business'),
 (3, '009', 'Others');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_app_types`
+--
+
+DROP TABLE IF EXISTS `t_cif_app_types`;
+CREATE TABLE IF NOT EXISTS `t_cif_app_types` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `app_type_code` int NOT NULL,
+  `app_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `gl_code` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_app_types`
+--
+
+INSERT INTO `t_cif_app_types` (`id`, `app_type_code`, `app_type`, `gl_code`) VALUES
+(1, 1, 'Savings', 51),
+(2, 2, 'Current', 25);
 
 -- --------------------------------------------------------
 
@@ -509,6 +582,115 @@ INSERT INTO `t_cif_institution` (`id`, `institution_id`, `institution`) VALUES
 (21, '023', 'Light Rail Transit Authority (LRTA)'),
 (22, '024', 'National Food Authority (FDA)'),
 (23, '031', 'Government Institution - Other');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_ownership_type`
+--
+
+DROP TABLE IF EXISTS `t_cif_ownership_type`;
+CREATE TABLE IF NOT EXISTS `t_cif_ownership_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ownership_type_code` varchar(3) NOT NULL,
+  `ownership_type` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_ownership_type`
+--
+
+INSERT INTO `t_cif_ownership_type` (`id`, `ownership_type_code`, `ownership_type`) VALUES
+(1, '010', 'Single'),
+(2, '011', 'Joint \"AND\"'),
+(3, '012', 'Joint \"OR\"'),
+(4, '013', 'In Trust For'),
+(5, '014', 'And Spouse'),
+(6, '015', 'BY');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_product_type`
+--
+
+DROP TABLE IF EXISTS `t_cif_product_type`;
+CREATE TABLE IF NOT EXISTS `t_cif_product_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_type_code` int NOT NULL,
+  `product_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `gl_code` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_product_type`
+--
+
+INSERT INTO `t_cif_product_type` (`id`, `product_type_code`, `product_type`, `gl_code`) VALUES
+(1, 51, 'Regular Savings (Basic)', 51),
+(2, 52, 'Regular Savings', 51),
+(3, 20, 'Current Account (Corporate)', 25),
+(4, 25, 'Current Account (Personal)', 25);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_relationship`
+--
+
+DROP TABLE IF EXISTS `t_cif_relationship`;
+CREATE TABLE IF NOT EXISTS `t_cif_relationship` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `relationship_id` varchar(3) NOT NULL,
+  `relationship` varchar(55) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_relationship`
+--
+
+INSERT INTO `t_cif_relationship` (`id`, `relationship_id`, `relationship`) VALUES
+(1, '051', 'Director or Sr. Officer'),
+(2, '052', 'ShareHolder'),
+(3, '053', 'Promoter'),
+(4, '061', 'Spouse'),
+(5, '062', 'Family'),
+(6, '063', 'Other Relative'),
+(7, '300', 'Group'),
+(8, '301', 'Group Leader'),
+(9, '310', 'Sub-group'),
+(10, '320', 'Sub Sub-group'),
+(11, '499', 'Loan Officer'),
+(12, '900', 'Group Member');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_cif_rel_cid`
+--
+
+DROP TABLE IF EXISTS `t_cif_rel_cid`;
+CREATE TABLE IF NOT EXISTS `t_cif_rel_cid` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `cid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `rel_cid` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `relationship_id` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL,
+  `updated_at` timestamp NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `t_cif_rel_cid`
+--
+
+INSERT INTO `t_cif_rel_cid` (`id`, `cid`, `rel_cid`, `relationship_id`, `created_at`, `updated_at`) VALUES
+(1, '000006', '000005', '6', '2025-01-31 01:41:17', '2025-01-31 01:41:17'),
+(9, '000024', NULL, NULL, '2025-02-18 09:03:29', '2025-02-18 09:03:29'),
+(10, '000025', NULL, NULL, '2025-02-18 10:29:41', '2025-02-18 10:29:41');
 
 -- --------------------------------------------------------
 
@@ -1480,6 +1662,66 @@ INSERT INTO `_location_code` (`id`, `level_number`, `location_code`, `short_desc
 (774, 2, 'Reg8D', 'NorthSamar', 'Northern Samar', '000000', '2024-09-11 00:05:52', '2024-09-11 00:05:52'),
 (775, 2, 'Reg8E', 'Samar', 'Samar', '000000', '2024-09-11 00:05:52', '2024-09-11 00:05:52'),
 (776, 2, 'Reg8F', 'SoLeyte', 'Southern Leyte', '000000', '2024-09-11 00:05:52', '2024-09-11 00:05:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `_savings_bal_req`
+--
+
+DROP TABLE IF EXISTS `_savings_bal_req`;
+CREATE TABLE IF NOT EXISTS `_savings_bal_req` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `maintaining` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `to_earn_int` varchar(10) NOT NULL,
+  `opening_deposit` varchar(10) NOT NULL,
+  `product_type_code` varchar(2) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `_savings_bal_req`
+--
+
+INSERT INTO `_savings_bal_req` (`id`, `maintaining`, `to_earn_int`, `opening_deposit`, `product_type_code`) VALUES
+(1, '100', '5000', '200', '51'),
+(2, '100', '5000', '200', '52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `_savings_rules`
+--
+
+DROP TABLE IF EXISTS `_savings_rules`;
+CREATE TABLE IF NOT EXISTS `_savings_rules` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `rules` text NOT NULL,
+  `product_type_code` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `_savings_rules`
+--
+
+INSERT INTO `_savings_rules` (`id`, `rules`, `product_type_code`) VALUES
+(1, 'No Interest on UC Chqs', '51'),
+(2, 'No-book deposit allowed', '51'),
+(3, 'No Acrlnt when Closed', '51'),
+(4, 'No-book Dep/Wdl allowed', '51'),
+(5, 'Passbook Maintained', '51'),
+(6, 'Dormant Acc are charged', '51'),
+(7, 'Withdrawals are allowed', '51'),
+(8, 'No Interest on UC Chqs', '52'),
+(9, 'No-book deposit allowed', '52'),
+(10, 'No Acrlnt when Closed', '52'),
+(11, 'No-book Dep/Wdl allowed', '52'),
+(12, 'Passbook Maintained', '52'),
+(13, 'Dormant Acc are charged', '52'),
+(14, 'Withdrawals are allowed', '52'),
+(15, 'Charge ledger fee', '52'),
+(16, 'No interest on hold', '52');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
