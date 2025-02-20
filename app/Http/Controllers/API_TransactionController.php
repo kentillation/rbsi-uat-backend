@@ -334,7 +334,9 @@ class API_TransactionController extends Controller
     }
     public function createAccount (Request $request) {
         $tokenResponse = $this->generateToken();
-
+        $date = new \DateTime('now', new \DateTimeZone('Asia/Manila'));
+        $date->modify('+2 years');
+        $formattedDate = $date->format('Y-m-d');
         $appTypeId = $request->input('app_type');
         $productTypeId = $request->input('product_type');
         $ownershipTypeId = $request->input('ownership_type');
@@ -350,7 +352,7 @@ class API_TransactionController extends Controller
         if (!$ownershipType) {
             return response()->json(['message' => 'Invalid ownership type value.'], 422);
         }
-        $payload = [
+        $basePayload = [
             "messageId" => $tokenResponse['messageId'],
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
@@ -358,12 +360,23 @@ class API_TransactionController extends Controller
             "appType" => $appType->app_type_code,
             "prType" => $productType->product_type_code,
             "ownershipType" => $ownershipType->ownership_type_code,
-            "maturityDate" => $request->input('maturity_date'),
-            "glCode" => $request->input('gl_code'),
-            "accCode1" => "000",
+            "maturityDate" => $formattedDate,
             "signCode" => "001",
             "signRule" => "empty"
         ];
+        switch ($productType->product_type_code) {
+            case 25:
+                $basePayload["glCode"] = $request->input('gl_code');
+                break;
+            case 20:
+                $basePayload["glCode"] = $productType->product_type_code;
+                break;
+            default:
+                throw new \Exception("Unsupported product type code: " . $productType->product_type_code);
+        }
+        
+        $payload = $basePayload;
+
         $apiUrl = $this->partOf['apiURL'] . "/createAccount";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
