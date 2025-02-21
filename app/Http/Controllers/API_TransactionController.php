@@ -427,7 +427,8 @@ class API_TransactionController extends Controller
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "acc" => $request->input('acc'),
-            "appType" => $request->input('appType')
+            "appType" => "1"
+            // "appType" => $request->input('appType')
         ];
         $apiUrl = $this->partOf['apiURL'] . "/accountEnquiry";
         $response = Http::withHeaders([
@@ -440,7 +441,10 @@ class API_TransactionController extends Controller
                 'data' => $response->json()
             ], 200);
         } else {
-            return response()->json(['message' => 'Failed fetching account', 'error' => $response->json()], $response->status());
+            return response()->json([
+                'message' => 'Failed fetching account', 
+                'error' => $response->json()
+            ], $response->status());
         }
     }
     public function accountTransactionHistory (Request $request) {
