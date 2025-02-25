@@ -37,7 +37,6 @@ Route::middleware('auth:sanctum')->get('client_image/{filename}', [ClientInfoCon
 Route::middleware('auth:sanctum')->get('suffixes', [ClientInfoRelationController::class, 'getSuffixes']);
 Route::middleware('auth:sanctum')->get('types', [ClientInfoRelationController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [ClientInfoRelationController::class, 'getTitles']);
-Route::middleware('auth:sanctum')->get('client_status', [ClientInfoRelationController::class, 'getClientStatus']);
 Route::middleware('auth:sanctum')->get('genders', [ClientInfoRelationController::class, 'getGenders']);
 Route::middleware('auth:sanctum')->get('civil_status', [ClientInfoRelationController::class, 'getCivilStatus']);
 Route::middleware('auth:sanctum')->get('institution', [ClientInfoRelationController::class, 'getInstitution']);

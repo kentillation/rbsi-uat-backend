@@ -48,15 +48,6 @@ class ClientInfoRelationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function getClientStatus()
-    {
-        try {
-            $data = ClientStatusModel::all();
-            return response()->json($data);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
     public function getGenders()
     {
         try {
