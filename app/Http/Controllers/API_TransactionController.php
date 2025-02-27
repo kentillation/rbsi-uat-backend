@@ -121,18 +121,15 @@ class API_TransactionController extends Controller
             $filename = time() . '.' . $image->getClientOriginalExtension();
             $filePath = $image->storeAs($test, $filename);
         }
-        // $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
-        //     ->where('Name2', $request->input('middle_name'))
-        //     ->where('Name3', $request->input('last_name'))
-        //     ->first();
+        $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
+            ->where('Name2', $request->input('middle_name'))
+            ->where('Name3', $request->input('last_name'))
+            ->first();
         $existingMysqlClient = ClientInfoModel::where('first_name', $request->input('first_name'))
             ->where('middle_name', $request->input('middle_name'))
             ->where('last_name', $request->input('last_name'))
             ->first();
-        // if ($existingSqlsrvClient || $existingMysqlClient) {
-        //     return response()->json(['message' => 'Client already exists.'], 409);
-        // }
-        if ($existingMysqlClient) {
+        if ($existingSqlsrvClient || $existingMysqlClient) {
             return response()->json(['message' => 'Client already exists.'], 409);
         }
         $typeId = $request->input('type');
@@ -187,77 +184,76 @@ class API_TransactionController extends Controller
         // if (!$employment) {
         //     return response()->json(['message' => 'Invalid employment value.'], 422);
         // }
-        // date_default_timezone_set('Asia/Manila');
-        // $currentDate = date("Y-m-d");
-        // $tokenResponse = $this->generateToken();
-        // $customerData = $request->all();
-        // $customerData = [
-        //     "messageId" => $tokenResponse['messageId'],
-        //     "token" => $tokenResponse['token'],
-        //     "br" => $this->partOf['branch'],
-        //     "cid" => "",
-        //     "cidType" => $type->type_code,
-        //     "title" => $title->title_code,
-        //     "name1" => $request->input('last_name'),
-        //     "name2" => $request->input('first_name'),
-        //     "name3" => $request->input('middle_name'),
-        //     "name4" => $sufFix->suffix,
-        //     "displayName" => $request->input('display_name'),
-        //     "initials" => $request->input('initial'),
-        //     "mobile1" => $request->input('mobile1'),
-        //     "email1" => $request->input('email'),
-        //     "email2" => $request->input('nationality'), //MBWin bug
-        //     "gender" => $gender->gender_code,
-        //     "civilStatus" => $civil_status->civil_status_code,
-        //     "dob" => $request->input('birthdate'),
-        //     "langType" => $this->partOf['langType'],
-        //     "staff" => $staff,
-        //     "taxCode" => $this->partOf['taxCode'],
-        //     "address" => [
-        //         [
-        //             "addressType" => $address_type->address_code,
-        //             "line1" => "Brgy. " . $request->input('address_line1'),
-        //             "line2" => $request->input('address_line2') . " City",
-        //             "line3" => $this->partOf['line3'],
-        //             "line4" => $this->partOf['line4'],
-        //             "postalCode" => $request->input('postal_code'),
-        //             "phone1" => $request->input('telephone'),
-        //             "primary" => $this->partOf['primary'],
-        //             "mailing" => $this->partOf['mailing'],
-        //             "tempMailing" => $this->partOf['tempMailing'],
-        //             "startDate" => $currentDate
-        //         ]
-        //     ],
-        //     "ccCode1" => "000", // institution_id
-        //     "ccCode2" => "000", // entity_id
-        //     "ccCode3" => "010", // employment_id,
-        //     "locationCode" => $this->partOf['locationCode'],
-        //     "regDate" => $currentDate,
-        // ];
-        // $relationshipId = $request->input('relationship');
-        // if (!empty($relationshipId)) {
-        //     $relationship = RelationshipModel::where('id', $relationshipId)->first();
-        //     if ($relationship) {
-        //         $customerData["relation"] = [
-        //             [
-        //                 "cid" => $request->input('rel_cid',0),
-        //                 "relationType" => $relationship->relationship_id,
-        //             ]
-        //         ];
-        //     }
-        // }
-        // $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
-        // $response = Http::withHeaders([
-        //     'Content-Type' => $this->partOf['contentType'],
-        //     'Authorization' => $this->partOf['auth_data'],
-        // ])->post($apiUrl, $customerData);
-        // if ($response->successful()) {
-        //     $responseData = $response->json();
+        date_default_timezone_set('Asia/Manila');
+        $currentDate = date("Y-m-d");
+        $tokenResponse = $this->generateToken();
+        $customerData = $request->all();
+        $customerData = [
+            "messageId" => $tokenResponse['messageId'],
+            "token" => $tokenResponse['token'],
+            "br" => $this->partOf['branch'],
+            "cid" => "",
+            "cidType" => $type->type_code,
+            "title" => $title->title_code,
+            "name1" => $request->input('last_name'),
+            "name2" => $request->input('first_name'),
+            "name3" => $request->input('middle_name'),
+            "name4" => $sufFix->suffix,
+            "displayName" => $request->input('display_name'),
+            "initials" => $request->input('initial'),
+            "mobile1" => $request->input('mobile1'),
+            "email1" => $request->input('email'),
+            "email2" => $request->input('nationality'), //MBWin bug
+            "gender" => $gender->gender_code,
+            "civilStatus" => $civil_status->civil_status_code,
+            "dob" => $request->input('birthdate'),
+            "langType" => $this->partOf['langType'],
+            "staff" => $staff,
+            "taxCode" => $this->partOf['taxCode'],
+            "address" => [
+                [
+                    "addressType" => $address_type->address_code,
+                    "line1" => "Brgy. " . $request->input('address_line1'),
+                    "line2" => $request->input('address_line2') . " City",
+                    "line3" => $this->partOf['line3'],
+                    "line4" => $this->partOf['line4'],
+                    "postalCode" => $request->input('postal_code'),
+                    "phone1" => $request->input('telephone'),
+                    "primary" => $this->partOf['primary'],
+                    "mailing" => $this->partOf['mailing'],
+                    "tempMailing" => $this->partOf['tempMailing'],
+                    "startDate" => $currentDate
+                ]
+            ],
+            "ccCode1" => "000", // institution_id
+            "ccCode2" => "000", // entity_id
+            "ccCode3" => "010", // employment_id,
+            "locationCode" => $this->partOf['locationCode'],
+            "regDate" => $currentDate,
+        ];
+        $relationshipId = $request->input('relationship');
+        if (!empty($relationshipId)) {
+            $relationship = RelationshipModel::where('id', $relationshipId)->first();
+            if ($relationship) {
+                $customerData["relation"] = [
+                    [
+                        "cid" => $request->input('rel_cid',0),
+                        "relationType" => $relationship->relationship_id,
+                    ]
+                ];
+            }
+        }
+        $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
+        $response = Http::withHeaders([
+            'Content-Type' => $this->partOf['contentType'],
+            'Authorization' => $this->partOf['auth_data'],
+        ])->post($apiUrl, $customerData);
+        if ($response->successful()) {
+            $responseData = $response->json();
             try {
-                // $newCID = $responseData['cid'];
-                $newCID = "000026";
+                $newCID = $responseData['cid'];
                 $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
-                DB::transaction(function () use ($request, $newCID, $filePath) {
+                DB::transaction(function () use ($request, $newCID, $staff, $filePath) {
                     ClientInfoModel::create([
                         'cid' => $newCID,
                         'type' => $request->input('type'),
@@ -308,8 +304,8 @@ class API_TransactionController extends Controller
                     ]);
                 });
                 return response()->json([
-                    'message' => 'Client has been saved successfully.',
-                    // 'data' => $responseData
+                    'message' => 'New client has been saved successfully.',
+                    'data' => $responseData
                 ], 200);
             } catch (\Exception $e) {
                 return response()->json([
@@ -317,9 +313,9 @@ class API_TransactionController extends Controller
                     'trace' => $e->getTraceAsString()
                 ], 500);
             }
-        // } else {
-        //     return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
-        // }
+        } else {
+            return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
+        }
     }
     public function createAccount (Request $request) {
         $tokenResponse = $this->generateToken();
@@ -354,6 +350,14 @@ class API_TransactionController extends Controller
             "signRule" => "empty"
         ];
         switch ($productType->product_type_code) {
+            case 51:
+                $basePayload["glCode"] = $request->input('gl_code');
+                $basePayload["accCode1"] = "000";
+                break;
+            case 52:
+                    $basePayload["glCode"] = $request->input('gl_code');
+                    $basePayload["accCode1"] = "000";
+                    break;
             case 25:
                 $basePayload["glCode"] = $request->input('gl_code');
                 break;
@@ -416,8 +420,7 @@ class API_TransactionController extends Controller
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "acc" => $request->input('acc'),
-            "appType" => "1"
-            // "appType" => $request->input('appType')
+            "appType" => $request->input('appType')
         ];
         $apiUrl = $this->partOf['apiURL'] . "/accountEnquiry";
         $response = Http::withHeaders([
