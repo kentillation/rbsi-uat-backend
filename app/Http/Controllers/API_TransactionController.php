@@ -11,13 +11,9 @@ use App\Models\OwnershipTypeModel;
 use App\Models\TypesModel;
 use App\Models\TitlesModel;
 use App\Models\SuffixesModel;
-use App\Models\ClientStatusModel;
 use App\Models\GendersModel;
 use App\Models\CivilStatusModel;
 use App\Models\AddressTypeModel;
-use App\Models\InstitutionModel;
-use App\Models\EntityModel;
-use App\Models\EmploymentModel;
 use App\Models\RelationshipModel;
 use App\Models\MBWinAddressModel;
 use App\Models\AddressModel;
@@ -40,8 +36,7 @@ class API_TransactionController extends Controller
         'mailing' => 'T',
         'tempMailing' => 'F',
         'locationCode' => 'OthrR00001',
-        'line3' => 'Negros Island Region',
-        'line4' => 'Philippines',
+        'line4' => 'Negros Island Region',
         'apiURL' => 'http://localhost:6500/datasnap/rest/client',
         'auth_data' => 'Basic aWJjbGllbnQ6MTIzNA==',
         
@@ -95,15 +90,15 @@ class API_TransactionController extends Controller
             'initial' => 'nullable|string',
             'display_name' => 'required|string',
             'staff_or_not' => 'required|in:1,2',
-            'tin' => 'nullable|string',
             'gender' => 'required|string',
             'civil_status' => 'required|string',
             'birthdate' => 'required|string',
             'mobile1' => 'required|string',
             'email' => 'required|string|email',
             'nationality' => 'required|string',
-            'address_line1' => 'required|string',
-            'address_line2' => 'required|string',
+            'line1' => 'nullable|string',
+            'line2' => 'nullable|string',
+            'line3' => 'nullable|string',
             'line4' => 'nullable|string',
             'postal_code' => 'required|string',
             'address_type' => 'nullable|string',
@@ -139,18 +134,12 @@ class API_TransactionController extends Controller
         $civil_statusId = $request->input('civil_status');
         $staff_or_not = $request->input('staff_or_not');
         $address_typeId = $request->input('address_type');
-        // $institutionId = $request->input('institution');
-        // $entityId = $request->input('entity');
-        // $employmentId = $request->input('employment');
         $type = TypesModel::where('id', $typeId)->first();
         $title = TitlesModel::where('id', $titleId)->first();
         $sufFix = SuffixesModel::where('id', $suffixesId)->first();
         $gender = GendersModel::where('id', $genderId)->first();
         $civil_status = CivilStatusModel::where('id', $civil_statusId)->first();
         $address_type = AddressTypeModel::where('id', $address_typeId)->first();
-        // $institution = InstitutionModel::where('id', $institutionId)->first();
-        // $entity = EntityModel::where('id', $entityId)->first();
-        // $employment = EmploymentModel::where('id', $employmentId)->first();
         if ($staff_or_not == 1) {
             $staff = 'T';
         }
@@ -175,15 +164,6 @@ class API_TransactionController extends Controller
         if (!$address_type) {
             return response()->json(['message' => 'Invalid address type value.'], 422);
         }
-        // if (!$institution) {
-        //     return response()->json(['message' => 'Invalid institution value.'], 422);
-        // }
-        // if (!$entity) {
-        //     return response()->json(['message' => 'Invalid entity value.'], 422);
-        // }
-        // if (!$employment) {
-        //     return response()->json(['message' => 'Invalid employment value.'], 422);
-        // }
         date_default_timezone_set('Asia/Manila');
         $currentDate = date("Y-m-d");
         $tokenResponse = $this->generateToken();
@@ -213,9 +193,9 @@ class API_TransactionController extends Controller
             "address" => [
                 [
                     "addressType" => $address_type->address_code,
-                    "line1" => "Brgy. " . $request->input('address_line1'),
-                    "line2" => $request->input('address_line2') . " City",
-                    "line3" => $this->partOf['line3'],
+                    "line1" => $request->input('address_line1'),
+                    "line2" => $request->input('address_line2'),
+                    "line3" => $request->input('address_line3'),
                     "line4" => $this->partOf['line4'],
                     "postalCode" => $request->input('postal_code'),
                     "phone1" => $request->input('telephone'),
@@ -267,7 +247,6 @@ class API_TransactionController extends Controller
                         'initial' => $request->input('initial'),
                         'display_name' => $request->input('display_name'),
                         'staff_or_not' => $request->input('staff_or_not'),
-                        'tin' => $request->input('tin'),
                         'gender' => $request->input('gender'),
                         'civil_status' => $request->input('civil_status'),
                         'birthdate' => $request->input('birthdate'),
@@ -286,9 +265,9 @@ class API_TransactionController extends Controller
                     AddressModel::create([
                         'cid' => $newCID,
                         'address_type' => $request->input('address_type'),
-                        'address_line1' => $request->input('address_line1'),
-                        'address_line2' => $request->input('address_line2'),
-                        'address_line3' => $request->input('address_line3'),
+                        'line1' => $request->input('address_line1'),
+                        'line2' => $request->input('address_line2'),
+                        'line3' => $request->input('address_line3'),
                         'line4' => $this->partOf['line4'],
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
