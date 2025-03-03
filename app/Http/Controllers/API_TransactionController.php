@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 class API_TransactionController extends Controller
@@ -109,13 +111,20 @@ class API_TransactionController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 422);
         }
-        $filePath = null;
         if ($request->hasFile('image_file')) {
             $image = $request->file('image_file');
-            $test = '';
-            $filename = time() . '.' . $image->getClientOriginalExtension();
-            $filePath = $image->storeAs($test, $filename);
+            $lastName = $request->input('last_name');
+            $firstName = $request->input('first_name');
+            $middleName = $request->input('middle_name');
+            $folderName = $lastName . ", " .$firstName . " " .$middleName[0];
+            $folderPath = 'client_files/' . $folderName;
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            if (!File::exists($folderPath)) {
+                File::makeDirectory($folderPath, 0777, true, true);
+            }
+            $image->move($folderPath, $fileName);
         }
+        
         $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
             ->where('Name2', $request->input('middle_name'))
             ->where('Name3', $request->input('last_name'))
@@ -223,68 +232,70 @@ class API_TransactionController extends Controller
                 ];
             }
         }
-        $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
-        $response = Http::withHeaders([
-            'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $customerData);
-        if ($response->successful()) {
-            $responseData = $response->json();
+        // $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
+        // $response = Http::withHeaders([
+        //     'Content-Type' => $this->partOf['contentType'],
+        //     'Authorization' => $this->partOf['auth_data'],
+        // ])->post($apiUrl, $customerData);
+        // if ($response->successful()) {
+            // $responseData = $response->json();
             try {
-                $newCID = $responseData['cid'];
-                $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
-                DB::transaction(function () use ($request, $newCID, $staff, $filePath) {
-                    ClientInfoModel::create([
-                        'cid' => $newCID,
-                        'type' => $request->input('type'),
-                        'address_type' => $request->input('address_type'),
-                        'title' => $request->input('title'),
-                        'client_status' => "1",
-                        'first_name' => $request->input('first_name'),
-                        'middle_name' => $request->input('middle_name'),
-                        'last_name' => $request->input('last_name'),
-                        'suffix' => $request->input('suffix'),
-                        'initial' => $request->input('initial'),
-                        'display_name' => $request->input('display_name'),
-                        'staff_or_not' => $request->input('staff_or_not'),
-                        'gender' => $request->input('gender'),
-                        'civil_status' => $request->input('civil_status'),
-                        'birthdate' => $request->input('birthdate'),
-                        'mobile1' => $request->input('mobile1'),
-                        'email' => $request->input('email'),
-                        'nationality' => $request->input('nationality'),
-                        'institution' => "1",
-                        'entity' => "1",
-                        'employment' => "7",
-                        'tax_code' => $this->partOf['taxCode'],
-                        'image_file' => $filePath,
-                        'branch' => $this->partOf['branch']
-                    ]);
-                });
-                DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {
-                    AddressModel::create([
-                        'cid' => $newCID,
-                        'address_type' => $request->input('address_type'),
-                        'line1' => $request->input('address_line1'),
-                        'line2' => $request->input('address_line2'),
-                        'line3' => $request->input('address_line3'),
-                        'line4' => $this->partOf['line4'],
-                        'postal_code' => $request->input('postal_code'),
-                        'telephone' => $request->input('telephone'),
-                        'branch' => $this->partOf['branch'],
-                        'addr_recid' => $newAddr_Recid,
-                    ]);
-                });
-                DB::transaction(function () use ($request, $newCID) {
-                    RelatedCIDModel::create([
-                        'cid' => $newCID,
-                        'rel_cid' => $request->input('rel_cid'),
-                        'relationship_id' => $request->input('relationship'),
-                    ]);
-                });
+                // $newCID = $responseData['cid'];
+                // $newCID = "000037";
+                // $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
+                // DB::transaction(function () use ($request, $newCID, $staff, $filePath) {
+                //     ClientInfoModel::create([
+                //         'cid' => $newCID,
+                //         'type' => $request->input('type'),
+                //         'address_type' => $request->input('address_type'),
+                //         'title' => $request->input('title'),
+                //         'client_status' => "1",
+                //         'first_name' => $request->input('first_name'),
+                //         'middle_name' => $request->input('middle_name'),
+                //         'last_name' => $request->input('last_name'),
+                //         'suffix' => $request->input('suffix'),
+                //         'initial' => $request->input('initial'),
+                //         'display_name' => $request->input('display_name'),
+                //         'staff_or_not' => $request->input('staff_or_not'),
+                //         'gender' => $request->input('gender'),
+                //         'civil_status' => $request->input('civil_status'),
+                //         'birthdate' => $request->input('birthdate'),
+                //         'mobile1' => $request->input('mobile1'),
+                //         'email' => $request->input('email'),
+                //         'nationality' => $request->input('nationality'),
+                //         'institution' => "1",
+                //         'entity' => "1",
+                //         'employment' => "7",
+                //         'tax_code' => $this->partOf['taxCode'],
+                //         'image_file' => $filePath,
+                //         'branch' => $this->partOf['branch']
+                //     ]);
+                // });
+                // DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {
+                //     AddressModel::create([
+                //         'cid' => $newCID,
+                //         'address_type' => $request->input('address_type'),
+                //         'line1' => $request->input('address_line1'),
+                //         'line2' => $request->input('address_line2'),
+                //         'line3' => $request->input('address_line3'),
+                //         'line4' => $this->partOf['line4'],
+                //         'postal_code' => $request->input('postal_code'),
+                //         'telephone' => $request->input('telephone'),
+                //         'branch' => $this->partOf['branch'],
+                //         'addr_recid' => $newAddr_Recid,
+                //     ]);
+                // });
+                // DB::transaction(function () use ($request, $newCID) {
+                //     RelatedCIDModel::create([
+                //         'cid' => $newCID,
+                //         'rel_cid' => $request->input('rel_cid'),
+                //         'relationship_id' => $request->input('relationship'),
+                //     ]);
+                // });
+
                 return response()->json([
                     'message' => 'New client has been saved successfully.',
-                    'data' => $responseData
+                    // 'data' => $responseData
                 ], 200);
             } catch (\Exception $e) {
                 return response()->json([
@@ -292,9 +303,9 @@ class API_TransactionController extends Controller
                     'trace' => $e->getTraceAsString()
                 ], 500);
             }
-        } else {
-            return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
-        }
+        // } else {
+        //     return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
+        // }
     }
     public function createAccount (Request $request) {
         $tokenResponse = $this->generateToken();
