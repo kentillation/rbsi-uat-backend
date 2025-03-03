@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -76,27 +77,21 @@ class ClientInfoController extends Controller
     {
         $client = ClientInfoModel::select(
             't_cif.*',
-            't_cif_address_type.address_type',
+            't_cif_suffixes.suffix',
             't_cif_types.type',
             't_cif_titles.title',
             't_cif_client_status.client_status',
             't_cif_gender.gender',
             't_cif_civil_status.civil_status',
-            't_cif_institution.institution',
-            't_cif_entity.entity',
-            't_cif_employment.employment',
-            't_cif_tax_code.tax_code'
+            't_cif_address_type.address_type'
         )
-            ->leftJoin('t_cif_address_type', 't_cif.address_type', '=', 't_cif_address_type.id')
+            ->leftJoin('t_cif_suffixes', 't_cif.suffix', '=', 't_cif_suffixes.id')
             ->leftJoin('t_cif_types', 't_cif.type', '=', 't_cif_types.id')
             ->leftJoin('t_cif_titles', 't_cif.title', '=', 't_cif_titles.id')
             ->leftJoin('t_cif_client_status', 't_cif.client_status', '=', 't_cif_client_status.id')
             ->leftJoin('t_cif_gender', 't_cif.gender', '=', 't_cif_gender.id')
             ->leftJoin('t_cif_civil_status', 't_cif.civil_status', '=', 't_cif_civil_status.id')
-            ->leftJoin('t_cif_institution', 't_cif.institution', '=', 't_cif_institution.id')
-            ->leftJoin('t_cif_entity', 't_cif.entity', '=', 't_cif_entity.id')
-            ->leftJoin('t_cif_employment', 't_cif.employment', '=', 't_cif_employment.id')
-            ->leftJoin('t_cif_tax_code', 't_cif.tax_code', '=', 't_cif_tax_code.id')
+            ->leftJoin('t_cif_address_type', 't_cif.address_type', '=', 't_cif_address_type.id')
             ->where('t_cif.cid', $cid)
             ->where('t_cif.last_name', $last_name)
             ->first();
@@ -156,14 +151,14 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function getClientImage($filename)
+    public function getClientImage($folderName, $imageFileName)
     {
-        $path = storage_path('app/' . $filename);
-        if (!File::exists($path)) {
+        $folderPath = 'client_files/' . $folderName . '/' . $imageFileName;
+        if (!File::exists($folderPath)) {
             return response()->json(['message' => 'Image not found.'], 404);
         }
-        $file = File::get($path);
-        $type = File::mimeType($path);
+        $file = File::get($folderPath);
+        $type = File::mimeType($folderPath);
         $response = Response::make($file, 200);
         $response->header("Content-Type", $type);
         return $response;

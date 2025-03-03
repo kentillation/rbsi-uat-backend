@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoCon
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo_search_PHPMYADMIN']);
 Route::middleware('auth:sanctum')->get('show_client_info/{cid}/{last_name}', [ClientInfoController::class, 'getClientInfo_FILTERED_PHPMYADMIN']);
 Route::middleware('auth:sanctum')->get('check_new_db_client_info', [ClientInfoController::class, 'checkClientInfo_PHPMYADMIN']);
-Route::middleware('auth:sanctum')->get('client_image/{filename}', [ClientInfoController::class, 'getClientImage']);
+Route::middleware('auth:sanctum')->get('client_image/{folderName}/{imageFileName}', [ClientInfoController::class, 'getClientImage']);
 Route::middleware('auth:sanctum')->get('suffixes', [ClientInfoRelationController::class, 'getSuffixes']);
 Route::middleware('auth:sanctum')->get('types', [ClientInfoRelationController::class, 'getTypes']);
 Route::middleware('auth:sanctum')->get('titles', [ClientInfoRelationController::class, 'getTitles']);
