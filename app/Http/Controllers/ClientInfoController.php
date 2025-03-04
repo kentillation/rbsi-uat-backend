@@ -141,6 +141,33 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    public function getAcc_MBWIN(Request $request)
+    {
+        try {
+            $search = $request->query('search');
+            $acc = MBWinClientAccModel::where('ACC', $search)->get();
+            return response()->json($acc);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    public function getAcc_Chd_MBWIN(Request $request)
+    {
+        try {
+            $acc = $request->query('acc');
+            $chd = $request->query('chd');
+            $account = MBWinClientAccModel::where('ACC', $acc)
+                    ->where('Chd', $chd)
+                    ->first();
+            if ($account) {
+                return response()->json($account);
+            } else {
+                return response()->json(['message' => 'Account not found!'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     public function getSearch_CID_MBWIN(Request $request)
     {
         try {

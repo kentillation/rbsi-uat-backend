@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->get('get_mbwin_client_cid', [ClientInfoContro
 Route::middleware('auth:sanctum')->get('get_mbwin_client_account_number', [ClientInfoController::class, 'getClientACC_FILTERED_MBWIN']);
 Route::middleware('auth:sanctum')->get('show_mbwin_client_info/{cid}', [ClientInfoController::class, 'getClientInfo_FILTERED_MBWIN']);
 Route::middleware('auth:sanctum')->get('get_cid_mbwin/{cid}', [ClientInfoController::class, 'getCID_MBWIN']);
+Route::middleware('auth:sanctum')->get('get_acc_mbwin', [ClientInfoController::class, 'getAcc_MBWIN']);
+Route::middleware('auth:sanctum')->get('get_acc_chd_mbwin', [ClientInfoController::class, 'getAcc_Chd_MBWIN']);
 Route::middleware('auth:sanctum')->get('get_search_cid_mbwin', [ClientInfoController::class, 'getSearch_CID_MBWIN']);
 Route::middleware('auth:sanctum')->get('check_mbwin_client_info', [ClientInfoController::class, 'checkClientInfo_MBWIN']);
 Route::middleware('auth:sanctum')->get('client_info', [ClientInfoController::class, 'getClientInfo_search_PHPMYADMIN']);
