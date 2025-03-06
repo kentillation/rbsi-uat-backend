@@ -67,6 +67,7 @@ class ClientInfoController extends Controller
             $clients = ClientInfoModel::where('cid', 'LIKE', "%{$search}%")
                 ->orWhere('last_name', 'LIKE', "%{$search}%")
                 ->orderBy('cid')
+                ->with('address')
                 ->get();
             return response()->json($clients);
         } catch (\Exception $e) {

@@ -11,4 +11,8 @@ class ClientInfoModel extends Model
     protected $connection = 'mysql';
     protected $table = 't_cif';
     protected $guarded = [];
+    public function address()
+    {
+        return $this->hasMany(AddressModel::class, 'cid', 'cid');
+    }
 }
