@@ -20,7 +20,7 @@ class CorsMiddleware
         $allowedOrigins = [
             'http://localhost:8080',
             'http://localhost:8081',
-            // Add your IP Address here
+            'http://192.168.1.29:8080', // Frontend URL
         ];
 
         if (in_array($request->header('Origin'), $allowedOrigins)) {
