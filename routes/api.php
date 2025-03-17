@@ -7,7 +7,6 @@ use App\Http\Controllers\ClientInfoController;
 use App\Http\Controllers\ClientInfoRelationController;
 use App\Http\Controllers\WatchListController;
 use App\Http\Controllers\API_TransactionController;
-use App\Http\Controllers\CustomerController;
 
 // Route::middleware('auth:sanctum')->get('mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
 Route::post('admin-register', [AuthController::class, 'register']);
@@ -17,7 +16,7 @@ Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logou
 Route::middleware('auth:sanctum')->post('update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
 
 // MBWIN API
-Route::post('generate-token', [API_TransactionController::class, 'generateToken']);
+Route::middleware('auth:sanctum')->post('generate-token', [API_TransactionController::class, 'generateToken']);
 Route::middleware('auth:sanctum')->post('create_account', [API_TransactionController::class, 'createAccount']);
 Route::middleware('auth:sanctum')->post('account_list/{cid}', [API_TransactionController::class, 'accountList']);
 Route::middleware('auth:sanctum')->post('account_enquiry', [API_TransactionController::class, 'accountEnquiry']);

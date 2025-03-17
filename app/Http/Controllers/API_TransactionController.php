@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\MBWinClientInfoModel;
 use App\Models\ClientInfoModel;
 use App\Models\AppTypeModel;
@@ -64,10 +63,10 @@ class API_TransactionController extends Controller
                 $payload
             );
             if ($response->successful()) {
-                return[
+                return [
                     'success'    => true,
                     'token'      => $response->json('data.token'),
-                    'messageId'  => $messageId,
+                    'messageId'  => $messageId, // Correctly return messageId
                 ];
             } else {
                 throw new \Exception($response->json('message', 'Failed to generate token'));
@@ -80,6 +79,7 @@ class API_TransactionController extends Controller
             ], 500);
         }
     }
+
     public function addNewClient(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -176,9 +176,12 @@ class API_TransactionController extends Controller
         date_default_timezone_set('Asia/Manila');
         $currentDate = date("Y-m-d");
         $tokenResponse = $this->generateToken();
+        if (!$tokenResponse['success']) {
+            return response()->json(['message' => 'Failed to generate token'], 500);
+        }
         $customerData = $request->all();
         $customerData = [
-            "messageId" => $tokenResponse['messageId'],
+            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "cid" => "",
@@ -307,8 +310,12 @@ class API_TransactionController extends Controller
             return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
         }
     }
+
     public function createAccount (Request $request) {
         $tokenResponse = $this->generateToken();
+        if (!$tokenResponse['success']) {
+            return response()->json(['message' => 'Failed to generate token'], 500);
+        }
         $date = new \DateTime('now', new \DateTimeZone('Asia/Manila'));
         $date->modify('+2 years');
         $formattedDate = $date->format('Y-m-d');
@@ -328,7 +335,7 @@ class API_TransactionController extends Controller
             return response()->json(['message' => 'Invalid ownership type value.'], 422);
         }
         $basePayload = [
-            "messageId" => $tokenResponse['messageId'],
+            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "cid" => $request->input('cid'),
@@ -359,7 +366,7 @@ class API_TransactionController extends Controller
         }
         
         $payload = $basePayload;
-
+        Log::info(json_encode($payload));
         $apiUrl = $this->partOf['apiURL'] . "/createAccount";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
@@ -374,10 +381,14 @@ class API_TransactionController extends Controller
             return response()->json(['message' => 'Failed creating account', 'error' => $response->json()], $response->status());
         }
     }
+
     public function accountList($cid) {
         $tokenResponse = $this->generateToken();
+        if (!$tokenResponse['success']) {
+            return response()->json(['message' => 'Failed to generate token'], 500);
+        }
         $payload = [
-            "messageId" => $tokenResponse['messageId'],
+            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "cid" => $cid,
@@ -403,10 +414,14 @@ class API_TransactionController extends Controller
             ], $response->status());
         }
     }    
+
     public function accountEnquiry (Request $request) {
         $tokenResponse = $this->generateToken();
+        if (!$tokenResponse['success']) {
+            return response()->json(['message' => 'Failed to generate token'], 500);
+        }
         $payload = [
-            "messageId" => $tokenResponse['messageId'],
+            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "acc" => $request->input('acc'),
@@ -429,10 +444,14 @@ class API_TransactionController extends Controller
             ], $response->status());
         }
     }
+
     public function accountTransactionHistory (Request $request) {
         $tokenResponse = $this->generateToken();
+        if (!$tokenResponse['success']) {
+            return response()->json(['message' => 'Failed to generate token'], 500);
+        }
         $payload = [
-            "messageId" => $tokenResponse['messageId'],
+            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
             "br" => $this->partOf['branch'],
             "acc" => $request->input('acc'),
