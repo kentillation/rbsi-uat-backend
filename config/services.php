@@ -19,8 +19,10 @@ return [
         'auth_url' => env('MBWIN_AUTH_URL'),
         'auth_port' => env('MBWIN_AUTH_PORT'),
         'auth_last_repo' => env('MBWIN_AUTH_LAST_REPO'),
-        'branch' => env('MBWIN_BRANCH'),
+        'api_url' => env('MBWIN_API_URL'),
+        'auth_data' => env('MBWIN_AUTH_DATA'),
         'api_content_type' => env('MBWIN_API_CONTENT_TYPE'),
+        'branch' => env('MBWIN_BRANCH'),
     ],
 
     'mailgun' => [

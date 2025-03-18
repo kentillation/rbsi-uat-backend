@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\Log;
 class API_TransactionController extends Controller
 {
     protected $partOf = [
-        'branch' => '000000',
         'contentType' => 'application/json',
         'langType' => '001',
         'taxCode' => '001',
@@ -38,21 +37,19 @@ class API_TransactionController extends Controller
         'tempMailing' => 'F',
         'locationCode' => 'OthrR00001',
         'line4' => 'Negros Island Region',
-        'apiURL' => 'http://localhost:6500/datasnap/rest/client',
-        'auth_data' => 'Basic aWJjbGllbnQ6MTIzNA==',
         
     ];
 
     public function generateToken()
     {
         try {
-            $authkey = config('services.mbwin.auth_key');
+            $authKey = config('services.mbwin.auth_key');
             $authURL = config('services.mbwin.auth_url');
             $authPort = config('services.mbwin.auth_port');
             $authLastRepo = config('services.mbwin.auth_last_repo');
             $messageId = str_replace('-', '', Str::uuid()->toString());
             $headers = [
-                'Authorization' => 'Basic ' . $authkey,
+                'Authorization' => 'Basic ' . $authKey,
                 'Content-Type'  => $this->partOf['contentType'],
             ];
             $payload = [
@@ -66,7 +63,7 @@ class API_TransactionController extends Controller
                 return [
                     'success'    => true,
                     'token'      => $response->json('data.token'),
-                    'messageId'  => $messageId, // Correctly return messageId
+                    'messageId'  => $messageId,
                 ];
             } else {
                 throw new \Exception($response->json('message', 'Failed to generate token'));
@@ -82,6 +79,8 @@ class API_TransactionController extends Controller
 
     public function addNewClient(Request $request)
     {
+        $branch = config('services.mbwin.branch');
+        $authData = config('services.mbwin.auth_data');
         $validator = Validator::make($request->all(), [
             'type' => 'required|string',
             'title' => 'required|string',
@@ -183,7 +182,7 @@ class API_TransactionController extends Controller
         $customerData = [
             "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
-            "br" => $this->partOf['branch'],
+            "br" => $branch,
             "cid" => "",
             "cidType" => $type->type_code,
             "title" => $title->title_code,
@@ -235,18 +234,19 @@ class API_TransactionController extends Controller
                 ];
             }
         }
-        $apiUrl = $this->partOf['apiURL'] . "/createCustomer";
+        $apiURL = config('services.mbwin.api_url');
+        $apiEndPoint = $apiURL . "/createCustomer";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $customerData);
+            'Authorization' => 'Basic ' . $authData,
+        ])->post($apiEndPoint, $customerData);
         if ($response->successful()) {
             $responseData = $response->json();
             try {
                 $newCID = $responseData['cid'];
                 $newCID = "000037";
                 $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
-                DB::transaction(function () use ($request, $newCID, $fileName) {
+                DB::transaction(function () use ($request, $branch, $newCID, $fileName) {
                     ClientInfoModel::create([
                         'cid' => $newCID,
                         'type' => $request->input('type'),
@@ -271,10 +271,10 @@ class API_TransactionController extends Controller
                         'employment' => "7",
                         'tax_code' => $this->partOf['taxCode'],
                         'image_file' => $fileName,
-                        'branch' => $this->partOf['branch']
+                        'branch' => $branch
                     ]);
                 });
-                DB::transaction(function () use ($request, $newCID, $newAddr_Recid) {
+                DB::transaction(function () use ($request, $branch, $newCID, $newAddr_Recid) {
                     AddressModel::create([
                         'cid' => $newCID,
                         'address_type' => $request->input('address_type'),
@@ -284,7 +284,7 @@ class API_TransactionController extends Controller
                         'line4' => $this->partOf['line4'],
                         'postal_code' => $request->input('postal_code'),
                         'telephone' => $request->input('telephone'),
-                        'branch' => $this->partOf['branch'],
+                        'branch' => $branch,
                         'addr_recid' => $newAddr_Recid,
                     ]);
                 });
@@ -312,6 +312,8 @@ class API_TransactionController extends Controller
     }
 
     public function createAccount (Request $request) {
+        $branch = config('services.mbwin.branch');
+        $authData = config('services.mbwin.auth_data');
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
@@ -337,7 +339,7 @@ class API_TransactionController extends Controller
         $basePayload = [
             "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
-            "br" => $this->partOf['branch'],
+            "br" => $branch,
             "cid" => $request->input('cid'),
             "appType" => $appType->app_type_code,
             "prType" => $productType->product_type_code,
@@ -367,11 +369,12 @@ class API_TransactionController extends Controller
         
         $payload = $basePayload;
         Log::info(json_encode($payload));
-        $apiUrl = $this->partOf['apiURL'] . "/createAccount";
+        $apiURL = config('services.mbwin.api_url');
+        $apiEndPoint = $apiURL . "/createAccount";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $payload);
+            'Authorization' => 'Basic ' . $authData,
+        ])->post($apiEndPoint, $payload);
         if ($response->successful()) {
             return response()->json([
                 'message' => 'New account has been created successfully!',
@@ -383,6 +386,9 @@ class API_TransactionController extends Controller
     }
 
     public function accountList($cid) {
+        $branch = config('services.mbwin.branch');
+        $apiURL = config('services.mbwin.api_url');
+        $authData = config('services.mbwin.auth_data');
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
@@ -390,17 +396,17 @@ class API_TransactionController extends Controller
         $payload = [
             "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
-            "br" => $this->partOf['branch'],
+            "br" => $branch,
             "cid" => $cid,
             "appType" => "*",
             "includeRelatedAccTF"  => "T",
             "includeClosedAccTF"  => "T"
         ];
-        $apiUrl = $this->partOf['apiURL'] . "/accountList";
+        $apiEndPoint = $apiURL . "/accountList";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $payload);
+            'Authorization' => 'Basic ' . $authData,
+        ])->post($apiEndPoint, $payload);
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Fetching account is success!',
@@ -416,22 +422,26 @@ class API_TransactionController extends Controller
     }    
 
     public function accountEnquiry (Request $request) {
-        $tokenResponse = $this->generateToken();
+        $branch = config('services.mbwin.branch');
+        $apiURL = config('services.mbwin.api_url');
+        $authData = config('services.mbwin.auth_data');
+        $token = $this->generateToken();
+        $tokenResponse = json_decode($token, true);
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
         }
         $payload = [
-            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
+            "messageId" => $tokenResponse['messageId'],
             "token" => $tokenResponse['token'],
-            "br" => $this->partOf['branch'],
+            "br" => $branch,
             "acc" => $request->input('acc'),
             "appType" => $request->input('appType')
         ];
-        $apiUrl = $this->partOf['apiURL'] . "/accountEnquiry";
+        $apiEndPoint = $apiURL . "/accountEnquiry";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $payload);
+            'Authorization' => 'Basic ' . $authData,
+        ])->post($apiEndPoint, $payload);
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Fetching account success!',
@@ -446,6 +456,9 @@ class API_TransactionController extends Controller
     }
 
     public function accountTransactionHistory (Request $request) {
+        $branch = config('services.mbwin.branch');
+        $apiURL = config('services.mbwin.api_url');
+        $authData = config('services.mbwin.auth_data');
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
@@ -453,17 +466,17 @@ class API_TransactionController extends Controller
         $payload = [
             "messageId" => $tokenResponse['messageId'], // Correctly access messageId
             "token" => $tokenResponse['token'],
-            "br" => $this->partOf['branch'],
+            "br" => $branch,
             "acc" => $request->input('acc'),
             "filterType"=>"1", // 1=By date, 2=By recid, 3 = By seqRef
             "startDate"=> $request->input('startDate'),
             "endDate"=> $request->input('endDate'),
         ];
-        $apiUrl = $this->partOf['apiURL'] . "/accountTransactionHistory";
+        $apiEndPoint = $apiURL . "/accountTransactionHistory";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
-            'Authorization' => $this->partOf['auth_data'],
-        ])->post($apiUrl, $payload);
+            'Authorization' => 'Basic ' . $authData,
+        ])->post($apiEndPoint, $payload);
         if ($response->successful()) {
             return response()->json([
                 'message' => 'Fetching account history is success!',
