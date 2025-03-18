@@ -40,23 +40,33 @@ class API_TransactionController extends Controller
         
     ];
 
+    private function getServiceConfig()
+    {
+        return [
+            'authKey' => config('services.mbwin.auth_key'),
+            'authURL' => config('services.mbwin.auth_url'),
+            'authPort' => config('services.mbwin.auth_port'),
+            'authLastRepo' => config('services.mbwin.auth_last_repo'),
+            'branch' => config('services.mbwin.branch'),
+            'authData' => config('services.mbwin.auth_data'),
+            'apiURL' => config('services.mbwin.api_url'),
+        ];
+    }
+
     public function generateToken()
     {
         try {
-            $authKey = config('services.mbwin.auth_key');
-            $authURL = config('services.mbwin.auth_url');
-            $authPort = config('services.mbwin.auth_port');
-            $authLastRepo = config('services.mbwin.auth_last_repo');
+            $config = $this->getServiceConfig();
             $messageId = str_replace('-', '', Str::uuid()->toString());
             $headers = [
-                'Authorization' => 'Basic ' . $authKey,
+                'Authorization' => 'Basic ' . $config['authKey'],
                 'Content-Type'  => $this->partOf['contentType'],
             ];
             $payload = [
                 'message_id' => $messageId,
             ];
             $response = Http::withHeaders($headers)->post(
-                $authURL . ':' . $authPort . $authLastRepo,
+                $config['authURL'] . ':' . $config['authPort'] . $config['authLastRepo'],
                 $payload
             );
             if ($response->successful()) {
@@ -79,8 +89,9 @@ class API_TransactionController extends Controller
 
     public function addNewClient(Request $request)
     {
-        $branch = config('services.mbwin.branch');
-        $authData = config('services.mbwin.auth_data');
+        $config = $this->getServiceConfig();
+        $branch = $config['branch'];
+        $authData = $config['authData'];
         $validator = Validator::make($request->all(), [
             'type' => 'required|string',
             'title' => 'required|string',
@@ -234,7 +245,7 @@ class API_TransactionController extends Controller
                 ];
             }
         }
-        $apiURL = config('services.mbwin.api_url');
+        $apiURL = $config['apiURL'];
         $apiEndPoint = $apiURL . "/createCustomer";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
@@ -312,8 +323,9 @@ class API_TransactionController extends Controller
     }
 
     public function createAccount (Request $request) {
-        $branch = config('services.mbwin.branch');
-        $authData = config('services.mbwin.auth_data');
+        $config = $this->getServiceConfig();
+        $branch = $config['branch'];
+        $authData = $config['authData'];
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
@@ -369,7 +381,7 @@ class API_TransactionController extends Controller
         
         $payload = $basePayload;
         Log::info(json_encode($payload));
-        $apiURL = config('services.mbwin.api_url');
+        $apiURL = $config['apiURL'];
         $apiEndPoint = $apiURL . "/createAccount";
         $response = Http::withHeaders([
             'Content-Type' => $this->partOf['contentType'],
@@ -386,9 +398,10 @@ class API_TransactionController extends Controller
     }
 
     public function accountList($cid) {
-        $branch = config('services.mbwin.branch');
-        $apiURL = config('services.mbwin.api_url');
-        $authData = config('services.mbwin.auth_data');
+        $config = $this->getServiceConfig();
+        $branch = $config['branch'];
+        $apiURL = $config['apiURL'];
+        $authData = $config['authData'];
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
@@ -422,11 +435,11 @@ class API_TransactionController extends Controller
     }    
 
     public function accountEnquiry (Request $request) {
-        $branch = config('services.mbwin.branch');
-        $apiURL = config('services.mbwin.api_url');
-        $authData = config('services.mbwin.auth_data');
-        $token = $this->generateToken();
-        $tokenResponse = json_decode($token, true);
+        $config = $this->getServiceConfig();
+        $branch = $config['branch'];
+        $apiURL = $config['apiURL'];
+        $authData = $config['authData'];
+        $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);
         }
@@ -456,9 +469,10 @@ class API_TransactionController extends Controller
     }
 
     public function accountTransactionHistory (Request $request) {
-        $branch = config('services.mbwin.branch');
-        $apiURL = config('services.mbwin.api_url');
-        $authData = config('services.mbwin.auth_data');
+        $config = $this->getServiceConfig();
+        $branch = $config['branch'];
+        $apiURL = $config['apiURL'];
+        $authData = $config['authData'];
         $tokenResponse = $this->generateToken();
         if (!$tokenResponse['success']) {
             return response()->json(['message' => 'Failed to generate token'], 500);

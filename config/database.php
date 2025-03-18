@@ -58,7 +58,7 @@ return [
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_SQLSRV_HOST', 'http://192.168.10.254\SQL2017MBWIN'),
+            'host' => env('DB_SQLSRV_HOST', 'KENTPC\SQL2017MBWIN'),
             'port' => env('DB_SQLSRV_PORT', '1433'),
             'database' => env('DB_SQLSRV_DATABASE', 'Middleware_UAT'),
             'username' => env('DB_SQLSRV_USERNAME', 'sa'),
