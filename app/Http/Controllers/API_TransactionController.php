@@ -53,7 +53,7 @@ class API_TransactionController extends Controller
         ];
     }
 
-    private function generateToken()
+    public function generateToken()
     {
         try {
             $config = $this->getServiceConfig();
@@ -63,24 +63,25 @@ class API_TransactionController extends Controller
             $authKey = $config['authKey'];
             $apiURL = $authURL . ":" . $authPort . $authLastRepo;
             $messageId = str_replace('-', '', Str::uuid()->toString());
-            Log::info("Token Generation Request to: " . $apiURL);
-            $response = Http::withHeaders([
+            $headers = [
                 'Authorization' => 'Basic ' . $authKey,
-                'Content-Type' => 'application/json',
-            ])->timeout(30)->post($apiURL, [
+                'Content-Type'  => $this->partOf['contentType'],
+            ];
+            $payload = [
                 'message_id' => $messageId,
-            ]);
-            Log::info("Token Response: " . $response->body());
+            ];
+            $response = Http::withHeaders($headers)->post(
+                $apiURL,
+                $payload
+            );
             if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'messageId' => $response->json()['messageId'] ?? null,
-                    'token' => $response->json()['token'] ?? null,
+                return[
+                    'success'    => true,
+                    'token'      => $response->json('data.token'),
+                    'messageId'  => $messageId,
                 ];
             } else {
-                Log::error("Failed to generate token. Status: " . $response->status());
-                Log::error("Error Response: " . $response->body());
-                return ['success' => false];
+                throw new \Exception($response->json('message', 'Failed to generate token'));
             }
         } catch (\Exception $e) {
             Log::error("Exception in generateToken(): " . $e->getMessage());
@@ -412,7 +413,7 @@ class API_TransactionController extends Controller
             return response()->json(['message' => 'Failed to generate token'], 500);
         }
         $payload = [
-            "messageId" => $tokenResponse['messageId'], // Correctly access messageId
+            "messageId" => $tokenResponse['messageId'],
             "token" => $tokenResponse['token'],
             "br" => $branch,
             "cid" => $cid,
