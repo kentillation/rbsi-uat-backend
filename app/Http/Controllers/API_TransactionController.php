@@ -37,7 +37,7 @@ class API_TransactionController extends Controller
         'tempMailing' => 'F',
         'locationCode' => 'OthrR00001',
         'line4' => 'Negros Island Region',
-        
+
     ];
 
     private function getServiceConfig()
@@ -53,39 +53,42 @@ class API_TransactionController extends Controller
         ];
     }
 
-    public function generateToken()
+    private function generateToken()
     {
         try {
             $config = $this->getServiceConfig();
+            $authURL = $config['authURL'];
+            $authLastRepo = $config['authLastRepo'];
+            $authPort = $config['authPort'];
+            $authKey = $config['authKey'];
+            $apiURL = $authURL . ":" . $authPort . $authLastRepo;
             $messageId = str_replace('-', '', Str::uuid()->toString());
-            $headers = [
-                'Authorization' => 'Basic ' . $config['authKey'],
-                'Content-Type'  => $this->partOf['contentType'],
-            ];
-            $payload = [
+            Log::info("Token Generation Request to: " . $apiURL);
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . $authKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->post($apiURL, [
                 'message_id' => $messageId,
-            ];
-            $response = Http::withHeaders($headers)->post(
-                $config['authURL'] . ':' . $config['authPort'] . $config['authLastRepo'],
-                $payload
-            );
+            ]);
+            Log::info("Token Response: " . $response->body());
             if ($response->successful()) {
                 return [
-                    'success'    => true,
-                    'token'      => $response->json('data.token'),
-                    'messageId'  => $messageId,
+                    'success' => true,
+                    'messageId' => $response->json()['messageId'] ?? null,
+                    'token' => $response->json()['token'] ?? null,
                 ];
             } else {
-                throw new \Exception($response->json('message', 'Failed to generate token'));
+                Log::error("Failed to generate token. Status: " . $response->status());
+                Log::error("Error Response: " . $response->body());
+                return ['success' => false];
             }
-            
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            Log::error("Exception in generateToken(): " . $e->getMessage());
+            Log::error("Exception Trace: " . $e->getTraceAsString());
+            return ['success' => false];
         }
     }
+
 
     public function addNewClient(Request $request)
     {
@@ -126,7 +129,7 @@ class API_TransactionController extends Controller
             $lastName = $request->input('last_name');
             $firstName = $request->input('first_name');
             $middleName = $request->input('middle_name');
-            $folderName = $lastName . ", " .$firstName . " " .$middleName;
+            $folderName = $lastName . ", " . $firstName . " " . $middleName;
             $folderPath = 'client_files/' . $folderName;
             $fileName = time() . '_' . $image->getClientOriginalName();
             if (!File::exists($folderPath)) {
@@ -134,7 +137,7 @@ class API_TransactionController extends Controller
             }
             $image->move($folderPath, $fileName);
         }
-        
+
         $existingSqlsrvClient = MBWinClientInfoModel::where('Name1', $request->input('first_name'))
             ->where('Name2', $request->input('middle_name'))
             ->where('Name3', $request->input('last_name'))
@@ -239,7 +242,7 @@ class API_TransactionController extends Controller
             if ($relationship) {
                 $customerData["relation"] = [
                     [
-                        "cid" => $request->input('rel_cid',0),
+                        "cid" => $request->input('rel_cid', 0),
                         "relationType" => $relationship->relationship_id,
                     ]
                 ];
@@ -322,7 +325,8 @@ class API_TransactionController extends Controller
         }
     }
 
-    public function createAccount (Request $request) {
+    public function createAccount(Request $request)
+    {
         $config = $this->getServiceConfig();
         $branch = $config['branch'];
         $authData = $config['authData'];
@@ -366,9 +370,9 @@ class API_TransactionController extends Controller
                 $basePayload["accCode1"] = "000";
                 break;
             case 52:
-                    $basePayload["glCode"] = $request->input('gl_code');
-                    $basePayload["accCode1"] = "000";
-                    break;
+                $basePayload["glCode"] = $request->input('gl_code');
+                $basePayload["accCode1"] = "000";
+                break;
             case 25:
                 $basePayload["glCode"] = $request->input('gl_code');
                 break;
@@ -378,7 +382,7 @@ class API_TransactionController extends Controller
             default:
                 throw new \Exception("Unsupported product type code: " . $productType->product_type_code);
         }
-        
+
         $payload = $basePayload;
         Log::info(json_encode($payload));
         $apiURL = $config['apiURL'];
@@ -397,7 +401,8 @@ class API_TransactionController extends Controller
         }
     }
 
-    public function accountList($cid) {
+    public function accountList($cid)
+    {
         $config = $this->getServiceConfig();
         $branch = $config['branch'];
         $apiURL = $config['apiURL'];
@@ -425,16 +430,16 @@ class API_TransactionController extends Controller
                 'message' => 'Fetching account is success!',
                 'data' => $response->json()
             ], 200);
-        }
-        else {
+        } else {
             return response()->json([
                 'message' => 'Failed fetching account',
                 'error' => $response->json()
             ], $response->status());
         }
-    }    
+    }
 
-    public function accountEnquiry (Request $request) {
+    public function accountEnquiry(Request $request)
+    {
         $config = $this->getServiceConfig();
         $branch = $config['branch'];
         $apiURL = $config['apiURL'];
@@ -462,13 +467,14 @@ class API_TransactionController extends Controller
             ], 200);
         } else {
             return response()->json([
-                'message' => 'Failed fetching account', 
+                'message' => 'Failed fetching account',
                 'error' => $response->json()
             ], $response->status());
         }
     }
 
-    public function accountTransactionHistory (Request $request) {
+    public function accountTransactionHistory(Request $request)
+    {
         $config = $this->getServiceConfig();
         $branch = $config['branch'];
         $apiURL = $config['apiURL'];
@@ -482,9 +488,9 @@ class API_TransactionController extends Controller
             "token" => $tokenResponse['token'],
             "br" => $branch,
             "acc" => $request->input('acc'),
-            "filterType"=>"1", // 1=By date, 2=By recid, 3 = By seqRef
-            "startDate"=> $request->input('startDate'),
-            "endDate"=> $request->input('endDate'),
+            "filterType" => "1", // 1=By date, 2=By recid, 3 = By seqRef
+            "startDate" => $request->input('startDate'),
+            "endDate" => $request->input('endDate'),
         ];
         $apiEndPoint = $apiURL . "/accountTransactionHistory";
         $response = Http::withHeaders([
@@ -500,5 +506,4 @@ class API_TransactionController extends Controller
             return response()->json(['message' => 'Failed fetching account history', 'error' => $response->json()], $response->status());
         }
     }
-    
 }
