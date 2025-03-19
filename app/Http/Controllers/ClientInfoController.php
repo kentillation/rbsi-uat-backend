@@ -429,13 +429,13 @@ class ClientInfoController extends Controller
     //         return response()->json(['message' => 'Failed to create customer', 'error' => $response->json()], $response->status());
     //     }
     // }
-    // public function getMBWinClientInfo()
-    // {
-    //     try {
-    //         $data = MBWinClientInfoModel::all();
-    //         return response()->json($data);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
+    public function getMBWinClientInfo()
+    {
+        try {
+            $data = MBWinClientInfoModel::all();
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
