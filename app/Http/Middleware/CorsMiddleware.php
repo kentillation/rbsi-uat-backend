@@ -21,6 +21,7 @@ class CorsMiddleware
             'http://localhost:8080',
             'http://localhost:8081',
             'http://192.168.10.246:8080', // Frontend URL
+            'http://192.168.1.105:8080', // Frontend URL
         ];
 
         if (in_array($request->header('Origin'), $allowedOrigins)) {
