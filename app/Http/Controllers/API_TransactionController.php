@@ -259,7 +259,6 @@ class API_TransactionController extends Controller
             $responseData = $response->json();
             try {
                 $newCID = $responseData['cid'];
-                $newCID = "000037";
                 $newAddr_Recid = MBWinAddressModel::max('Addr_Recid');
                 DB::transaction(function () use ($request, $branch, $newCID, $fileName) {
                     ClientInfoModel::create([
