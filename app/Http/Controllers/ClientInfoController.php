@@ -429,8 +429,11 @@ class ClientInfoController extends Controller
     public function getMBWinClientInfo()
     {
         try {
-            $data = MBWinClientInfoModel::all();
-            return response()->json($data);
+            $clientInfo = MBWinClientInfoModel::with('address', 'relation')->get();
+            if ($clientInfo->isEmpty()) {
+                return response()->json(['error' => 'No client information found'], 404);
+            }
+            return response()->json($clientInfo);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
