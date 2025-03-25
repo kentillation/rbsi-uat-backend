@@ -1,0 +1,7 @@
+Add the following:
+extension=php_pdo_sqlsrv_PHPVERSION_ts_x64.dll
+extension=php_sqlsrv_PHPVERSION_ts_x64.dll
+
+Uncomment the following:
+extension=odbc
+extension=pdo_odbc

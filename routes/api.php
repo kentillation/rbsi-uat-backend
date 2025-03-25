@@ -6,7 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientInfoController;
 use App\Http\Controllers\ClientInfoRelationController;
 use App\Http\Controllers\API_TransactionController;
+use App\Http\Controllers\CheckSQLServerConnectionController;
 
+Route::get('/check-sql-server-connection', [CheckSQLServerConnectionController::class, 'checkConnection']);
 Route::post('admin-register', [AuthController::class, 'register']);
 Route::post('admin-login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->get('users', function (Request $request) { return $request->user();});
