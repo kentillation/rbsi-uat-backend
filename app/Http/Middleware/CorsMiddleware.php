@@ -16,33 +16,27 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // Allowed origins
         $allowedOrigins = [
             'http://localhost:8080',
             'http://localhost:8081',
-            'http://192.168.10.246:8080', // Frontend URL
-            'http://192.168.1.105:8080', // Frontend URL
+            'http://192.168.10.246:8080',
+            'http://192.168.1.105:8080',
         ];
-
-        if (in_array($request->header('Origin'), $allowedOrigins)) {
-            $headers = [
-                'Access-Control-Allow-Origin' => $request->header('Origin'),
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-            ];
-
-            if ($request->getMethod() == "OPTIONS") {
-                return response()->json('OK', 200, $headers);
-            }
-
-            $response = $next($request);
-            foreach ($headers as $key => $value) {
-                $response->header($key, $value);
-            }
-
-            return $response;
+        $origin = $request->header('Origin');
+        $headers = [
+            'Access-Control-Allow-Origin' => in_array($origin, $allowedOrigins) ? $origin : '*',
+            'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+            'Access-Control-Allow-Credentials' => 'false',
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+        ];
+        if ($request->isMethod('OPTIONS')) {
+            return response()->json('OK', 200, $headers);
         }
-
-        return $next($request);
+        $response = $next($request);
+        foreach ($headers as $key => $value) {
+            $response->header($key, $value);
+        }
+        return $response;
     }
 }
