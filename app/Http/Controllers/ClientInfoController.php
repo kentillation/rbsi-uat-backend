@@ -124,17 +124,15 @@ class ClientInfoController extends Controller
     }
     public function getClientACC_FILTERED_MBWIN()
     {
-        $accountNumber = MBWinClientAccModel::max('ACC');
-        $Chd = MBWinClientAccModel::max('Chd');
-        if (!$accountNumber) {
-            return response()->json(['error' => 'Account number not found'], 404);
-        }
-        if (!$Chd) {
-            return response()->json(['error' => 'Check deposit not found'], 404);
+        $account = MBWinClientAccModel::select('ACC', 'Chd')
+        ->orderBy('ACC', 'desc')
+        ->first();
+        if (!$account || !$account->ACC) {
+        return response()->json(['error' => 'Account number not found'], 404);
         }
         return response()->json([
-            'ACC' => $accountNumber,
-            'Chd' => $Chd
+            'ACC' => $account->ACC,
+            'Chd' => $account->Chd
         ]);
     }
     public function getClientInfo_FILTERED_MBWIN($cid)
