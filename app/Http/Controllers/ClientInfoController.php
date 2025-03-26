@@ -78,7 +78,7 @@ class ClientInfoController extends Controller
             $search = $request->query('search');
             $clients = MBWinClientInfoModel::where('CID', 'LIKE', "%{$search}%")
                 ->orWhere('Name1', 'LIKE', "%{$search}%")
-                ->orderBy('CID')
+                // ->orderBy('CID')
                 ->with('address')
                 ->get();
             return response()->json($clients);
@@ -191,6 +191,8 @@ class ClientInfoController extends Controller
     }
     public function getClientImage($folderName, $imageFileName)
     {
+        $folderName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $folderName);
+        $imageFileName = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', $imageFileName);
         $folderPath = 'client_files/' . $folderName . '/' . $imageFileName;
         if (!File::exists($folderPath)) {
             return response()->json(['message' => 'Image not found.'], 404);
