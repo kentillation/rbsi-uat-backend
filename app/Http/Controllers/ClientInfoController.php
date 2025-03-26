@@ -32,7 +32,6 @@ use Illuminate\Support\Str;
 
 class ClientInfoController extends Controller
 {
-    // DATABASE
     public function checkClientInfo_MBWIN(Request $request)
     {
         try {
@@ -71,7 +70,6 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
@@ -125,10 +123,10 @@ class ClientInfoController extends Controller
     public function getClientACC_FILTERED_MBWIN()
     {
         $account = MBWinClientAccModel::select('ACC', 'Chd')
-        ->orderBy('ACC', 'desc')
-        ->first();
+            ->orderBy('ACC', 'desc')
+            ->first();
         if (!$account || !$account->ACC) {
-        return response()->json(['error' => 'Account number not found'], 404);
+            return response()->json(['error' => 'Account number not found'], 404);
         }
         return response()->json([
             'ACC' => $account->ACC,
@@ -168,8 +166,8 @@ class ClientInfoController extends Controller
             $acc = $request->query('acc');
             $chd = $request->query('chd');
             $account = MBWinClientAccModel::where('ACC', $acc)
-                    ->where('Chd', $chd)
-                    ->first();
+                ->where('Chd', $chd)
+                ->first();
             if ($account) {
                 return response()->json($account);
             } else {
