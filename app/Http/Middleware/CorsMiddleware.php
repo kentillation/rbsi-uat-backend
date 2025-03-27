@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CorsMiddleware
 {
@@ -23,17 +24,24 @@ class CorsMiddleware
             'http://192.168.1.105:8080',
         ];
         $origin = $request->header('Origin');
+        \Log::info('CORS Origin:', ['origin' => $origin]);
         $headers = [
             'Access-Control-Allow-Origin' => in_array($origin, $allowedOrigins) ? $origin : '*',
             'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
             'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
-            'Access-Control-Allow-Credentials' => 'false',
+            'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
         if ($request->isMethod('OPTIONS')) {
             return response()->json('OK', 200, $headers);
         }
         $response = $next($request);
+        if ($response instanceof BinaryFileResponse) {
+            foreach ($headers as $key => $value) {
+                $response->headers->set($key, $value);
+            }
+            return $response;
+        }
         foreach ($headers as $key => $value) {
             $response->header($key, $value);
         }
