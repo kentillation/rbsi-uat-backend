@@ -38,6 +38,11 @@ class AuthController extends Controller
         if (!Auth::attempt($credentials)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+
+        if (!in_array($request->ip(), ['192.168.1.13', '192.168.1.105'])) {
+            return response()->json(['message' => 'You do not have permission to this action.'], 403);
+        }
+
         /** @var \App\Models\User $user **/
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
