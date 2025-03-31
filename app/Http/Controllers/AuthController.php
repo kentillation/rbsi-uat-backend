@@ -39,7 +39,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        if (!in_array($request->ip(), ['192.168.1.13', '192.168.1.105'])) {
+        if (!in_array($request->ip(), ['192.168.1.13', '127.0.0.1'])) {
             return response()->json(['message' => 'You do not have permission to this action.'], 403);
         }
 

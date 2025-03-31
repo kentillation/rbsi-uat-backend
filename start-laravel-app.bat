@@ -1,3 +1,3 @@
 @echo off
-cd D:\Kent\Projects\Laravel x Vue\rbsi\backend
-php artisan serve --host 192.168.1.105 --port 8000
+D:\Kent\Projects\Laravel x Vue\rbsi\backend
+php artisan serve --host 127.0.0.1 --port 8000
