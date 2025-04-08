@@ -267,7 +267,7 @@ class ClientInfoController extends Controller
                         ];
                     }
                     });
-                $processedData = array_slice($processedData, 0, 10000);
+                $processedData = array_slice($processedData, 0, 1000);
             if (empty($processedData)) {
                 return response()->json(['error' => 'No client information found'], 404);
             }
