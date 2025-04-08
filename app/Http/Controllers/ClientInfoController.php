@@ -64,7 +64,8 @@ class ClientInfoController extends Controller
                 ->orWhere('last_name', 'LIKE', "%{$search}%")
                 ->with('address')
                 ->get();
-            return response()->json($clients);
+                return response()->json($clients);
+                // return response()->json($clients, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -73,11 +74,47 @@ class ClientInfoController extends Controller
     {
         try {
             $search = $request->query('search');
-            $clients = MBWinClientInfoModel::where('CID', 'LIKE', "%{$search}%")
+            $processedData = [];
+            MBWinClientInfoModel::with('address')
+                ->where('CID', 'LIKE', "%{$search}%")
                 ->orWhere('Name1', 'LIKE', "%{$search}%")
-                ->with('address')
-                ->get();
-            return response()->json($clients);
+                ->chunkById(200, function ($clients) use (&$processedData) {
+                    $processedData = $clients->map(function ($client) {
+                        $addressData = $client->address->map(function ($address) {
+                            return [
+                                'Line1' => $address->Line1,
+                                'Line2' => $address->Line2,
+                                'Line3' => $address->Line3,
+                                'AddressType' => $address->AddressType,
+                                'Phone1' => $address->Phone1,
+                                'PostalCode' => $address->PostalCode,
+                            ];
+                        });
+                        return [
+                            'CID' => $client->CID,
+                            'Name1' => $client->Name1,
+                            'Name2' => $client->Name2,
+                            'Name3' => $client->Name3,
+                            'TitleCode' => $client->TitleCode,
+                            'DisplayName' => $client->DisplayName,
+                            'Initials' => $client->Initials,
+                            'DosriTF' => $client->DosriTF,
+                            'Type' => $client->Type,
+                            'Mobile1' => $client->Mobile1,
+                            'Email1' => $client->Email1,
+                            'Email2' => $client->Email2,
+                            'GenderType' => $client->GenderType,
+                            'CivilStatusCode' => $client->CivilStatusCode,
+                            'BirthDate' => $client->BirthDate,
+                            'address' => $addressData,
+                        ];
+                    });
+                });
+
+            if (empty($processedData)) {
+                return response()->json(['error' => 'No client information found'], 404);
+            }
+            return response()->json($processedData, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -204,11 +241,39 @@ class ClientInfoController extends Controller
     public function getMBWinClientInfo()
     {
         try {
-            $clientInfo = MBWinClientInfoModel::with('address', 'relation')->get();
-            if ($clientInfo->isEmpty()) {
+            $processedData = [];
+            MBWinClientInfoModel::with(['address', 'relation'])
+                ->chunkById(200, function ($clients) use (&$processedData) {
+                    foreach ($clients as $client) {
+                        $processedData[] = [
+                            'CID' => $client->CID,
+                            'Name1' => $client->Name1,
+                            'Name2' => $client->Name2,
+                            'Name3' => $client->Name3,
+                            'TitleCode' => $client->TitleCode,
+                            'DisplayName' => $client->DisplayName,
+                            'StatusType' => $client->StatusType,
+                            'Initials' => $client->Initials,
+                            'DosriTF' => $client->DosriTF,
+                            'Type' => $client->Type,
+                            'Mobile1' => $client->Mobile1,
+                            'Email1' => $client->Email1,
+                            'Email2' => $client->Email2,
+                            'GenderType' => $client->GenderType,
+                            'CivilStatusCode' => $client->CivilStatusCode,
+                            'BirthDate' => $client->BirthDate,
+                            'address' => $client->address,
+                            'LastChangeDate' => $client->LastChangeDate,
+                        ];
+                    }
+                    });
+                $processedData = array_slice($processedData, 0, 10000);
+            if (empty($processedData)) {
                 return response()->json(['error' => 'No client information found'], 404);
             }
-            return response()->json($clientInfo);
+            // return response()->json($processedData);
+            return response()->json($processedData, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
