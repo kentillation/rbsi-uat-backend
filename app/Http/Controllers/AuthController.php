@@ -6,9 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller
 {
+    public function decryptData(Request $request)
+    {
+        try {
+            $decrypted = Crypt::decryptString($request->input('data'));
+            return response()->json(['decrypted' => $decrypted]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid encrypted data'], 400);
+        }
+    }
     public function register(Request $request)
     {
         $request->validate([
