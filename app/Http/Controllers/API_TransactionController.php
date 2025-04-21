@@ -61,7 +61,7 @@ class API_TransactionController extends Controller
             $authLastRepo = $config['authLastRepo'];
             $authPort = $config['authPort'];
             $authKey = $config['authKey'];
-            $apiURL = $authURL . ":" . $authPort . $authLastRepo;
+            $apiAuthURL = $authURL . ":" . $authPort . $authLastRepo;
             $messageId = str_replace('-', '', Str::uuid()->toString());
             $headers = [
                 'Authorization' => 'Basic ' . $authKey,
@@ -71,7 +71,7 @@ class API_TransactionController extends Controller
                 'message_id' => $messageId,
             ];
             $response = Http::withHeaders($headers)->post(
-                $apiURL,
+                $apiAuthURL,
                 $payload
             );
             if ($response->successful()) {
