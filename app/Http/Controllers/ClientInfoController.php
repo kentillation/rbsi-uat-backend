@@ -106,6 +106,7 @@ class ClientInfoController extends Controller
                             'GenderType' => $client->GenderType,
                             'CivilStatusCode' => $client->CivilStatusCode,
                             'BirthDate' => $client->BirthDate,
+                            'LastChangeDate' => $client->LastChangeDate,
                             'address' => $addressData,
                         ];
                     });

@@ -131,7 +131,7 @@ class API_TransactionController extends Controller
             $firstName = $request->input('first_name');
             $middleName = $request->input('middle_name');
             $folderName = $lastName . ", " . $firstName . " " . $middleName;
-            $folderPath = 'client_files/' . $folderName;
+            $folderPath = '../../client_files/' . $folderName;
             $fileName = time() . '_' . $image->getClientOriginalName();
             if (!File::exists($folderPath)) {
                 File::makeDirectory($folderPath, 0777, true, true);
