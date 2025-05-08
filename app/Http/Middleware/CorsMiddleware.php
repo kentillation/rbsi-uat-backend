@@ -17,21 +17,22 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // $allowedOrigins = [
-        //     'http://localhost:8080',
-        //     'http://localhost:8081',
-        //     'http://192.168.10.246:8080',
-        //     'http://192.168.1.105:8080',
-        // ];
-        // $origin = $request->header('Origin');
-        \Log::info('CORS Origin:', ['origin' => 'http://localhost:8080']);
+        $allowedOrigins = [
+            'http://localhost:8080',
+            'http://localhost:8081',
+            'http://192.168.1.25:8080',
+        ];
+    
+        $origin = $request->header('Origin');
         $headers = [
-            'Access-Control-Allow-Origin' => 'http://localhost:8080',
-            'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
+        if (in_array($origin, $allowedOrigins)) {
+            $headers['Access-Control-Allow-Origin'] = $origin;
+        }
         if ($request->isMethod('OPTIONS')) {
             return response()->json('OK', 200, $headers);
         }
