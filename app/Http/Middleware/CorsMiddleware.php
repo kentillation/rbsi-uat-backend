@@ -26,7 +26,7 @@ class CorsMiddleware
         $origin = $request->header('Origin');
         $headers = [
             'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers' => 'Content-Type, Authorization',
+            'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Session-ID, X-Requested-With, X-CSRF-Token',
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];

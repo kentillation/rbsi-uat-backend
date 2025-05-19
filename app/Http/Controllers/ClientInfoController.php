@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use phpseclib3\Crypt\AES;
 use Illuminate\Support\Str;
 
 class ClientInfoController extends Controller
@@ -64,8 +66,8 @@ class ClientInfoController extends Controller
                 ->orWhere('last_name', 'LIKE', "%{$search}%")
                 ->with('address')
                 ->get();
-                return response()->json($clients);
-                // return response()->json($clients, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json($clients);
+            // return response()->json($clients, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -73,51 +75,98 @@ class ClientInfoController extends Controller
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
-            $search = $request->query('search');
-            $processedData = [];
-            MBWinClientInfoModel::with('address')
-                ->where('CID', 'LIKE', "%{$search}%")
-                ->orWhere('Name1', 'LIKE', "%{$search}%")
-                ->chunkById(200, function ($clients) use (&$processedData) {
-                    $processedData = $clients->map(function ($client) {
-                        $addressData = $client->address->map(function ($address) {
-                            return [
-                                'Line1' => $address->Line1,
-                                'Line2' => $address->Line2,
-                                'Line3' => $address->Line3,
-                                'AddressType' => $address->AddressType,
-                                'Phone1' => $address->Phone1,
-                                'PostalCode' => $address->PostalCode,
-                            ];
-                        });
-                        return [
-                            'CID' => $client->CID,
-                            'Name1' => $client->Name1,
-                            'Name2' => $client->Name2,
-                            'Name3' => $client->Name3,
-                            'TitleCode' => $client->TitleCode,
-                            'DisplayName' => $client->DisplayName,
-                            'Initials' => $client->Initials,
-                            'DosriTF' => $client->DosriTF,
-                            'Type' => $client->Type,
-                            'Mobile1' => $client->Mobile1,
-                            'Email1' => $client->Email1,
-                            'Email2' => $client->Email2,
-                            'GenderType' => $client->GenderType,
-                            'CivilStatusCode' => $client->CivilStatusCode,
-                            'BirthDate' => $client->BirthDate,
-                            'LastChangeDate' => $client->LastChangeDate,
-                            'address' => $addressData,
-                        ];
-                    });
+            $sessionId = $request->header('X-Session-ID');
+            if (!$sessionId) {
+                return response()->json(['error' => 'Session ID required'], 400);
+            }
+            $sessionKey = Cache::get('session_key_' . $sessionId);
+            if (!$sessionKey) {
+                return response()->json(['error' => 'Invalid or expired session'], 401);
+            }
+            $encryptedData = $request->input('data');
+            if (!$encryptedData) {
+                return response()->json(['error' => 'Encrypted data required'], 400);
+            }
+            $decodedData = base64_decode($encryptedData);
+            if (strlen($decodedData) < 16) {
+                return response()->json(['error' => 'Invalid encrypted data format'], 400);
+            }
+            $iv = substr($decodedData, 0, 16);
+            $ciphertext = substr($decodedData, 16);
+            $aes = new AES('cbc');
+            $aes->setKey($sessionKey);
+            $aes->setIV($iv);
+            $decrypted = $aes->decrypt($ciphertext);
+            $decodedJson = json_decode($decrypted, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['error' => 'Invalid data format'], 400);
+            }
+            $search = $decodedJson['search'] ?? '';
+            if (empty($search)) {
+                return response()->json(['error' => 'Search parameter required'], 400);
+            }
+            
+            // Process search query
+            $query = MBWinClientInfoModel::with('address')
+                ->where(function ($q) use ($search) {
+                    $q->where('CID', 'LIKE', "%{$search}%")
+                        ->orWhere('Name1', 'LIKE', "%{$search}%");
                 });
 
-            if (empty($processedData)) {
-                return response()->json(['error' => 'No client information found'], 404);
-            }
-            return response()->json($processedData, 200, ['Content-Type' => 'application/json;charset=UTF-8'], JSON_UNESCAPED_UNICODE);
+            // Process data in chunks to handle large datasets
+            $processedData = collect();
+            $query->chunkById(200, function ($clients) use (&$processedData) {
+                $processedData = $processedData->concat($clients->map(function ($client) {
+                    $addressData = $client->address->map(function ($address) {
+                        return [
+                            'Line1' => $address->Line1 ?? null,
+                            'Line2' => $address->Line2 ?? null,
+                            'Line3' => $address->Line3 ?? null,
+                            'AddressType' => $address->AddressType ?? null,
+                            'Phone1' => $address->Phone1 ?? null,
+                            'PostalCode' => $address->PostalCode ?? null,
+                        ];
+                    });
+
+                    return [
+                        'CID' => $client->CID,
+                        'Name1' => $client->Name1,
+                        'Name2' => $client->Name2,
+                        'Name3' => $client->Name3,
+                        'TitleCode' => $client->TitleCode,
+                        'DisplayName' => $client->DisplayName,
+                        'Initials' => $client->Initials,
+                        'DosriTF' => $client->DosriTF,
+                        'Type' => $client->Type,
+                        'Mobile1' => $client->Mobile1,
+                        'Email1' => $client->Email1,
+                        'Email2' => $client->Email2,
+                        'GenderType' => $client->GenderType,
+                        'CivilStatusCode' => $client->CivilStatusCode,
+                        'BirthDate' => $client->BirthDate,
+                        'LastChangeDate' => $client->LastChangeDate,
+                        'address' => $addressData,
+                    ];
+                }));
+            });
+
+            // Prepare response
+            $responseData = $processedData->isEmpty() ? [] : $processedData->toArray();
+
+            $responseIv = random_bytes(16);
+            $aes->setIV($responseIv);
+            $encryptedResponse = $aes->encrypt(json_encode($responseData));
+
+            return response()->json([
+                'data' => base64_encode($responseIv . $encryptedResponse)
+            ]);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error("Client search error - Session: {$sessionId} - " . $e->getMessage());
+            return response()->json([
+                'error' => 'Processing failed',
+                'message' => 'An error occurred while processing your request'
+            ], 500);
         }
     }
     public function getClientInfo_FILTERED_PHPMYADMIN($cid, $last_name)
@@ -267,8 +316,8 @@ class ClientInfoController extends Controller
                             'LastChangeDate' => $client->LastChangeDate,
                         ];
                     }
-                    });
-                $processedData = array_slice($processedData, 0, 1000);
+                });
+            $processedData = array_slice($processedData, 0, 1000);
             if (empty($processedData)) {
                 return response()->json(['error' => 'No client information found'], 404);
             }

@@ -32,35 +32,36 @@ class EncryptionController extends Controller
             if (!$request->has('encryptedKey') || empty($request->encryptedKey)) {
                 return response()->json(['error' => 'Missing encrypted key'], 400);
             }
-
-            // Verify the encrypted key is valid Base64
             if (!base64_decode($request->encryptedKey, true)) {
                 return response()->json(['error' => 'Invalid Base64 encoding'], 400);
             }
-
-            // Decrypt the session key
-            $decrypted = $this->privateKey->decrypt(
-                base64_decode($request->encryptedKey)
+            $privateKey = openssl_pkey_get_private($this->privateKey->toString('PKCS8'));
+            if (!$privateKey) {
+                throw new \Exception("Invalid private key: " . openssl_error_string());
+            }
+            $encryptedData = base64_decode($request->encryptedKey, true);
+            $decryptedData = '';
+            $success = openssl_private_decrypt(
+                $encryptedData,
+                $decryptedData,
+                $privateKey,
+                OPENSSL_PKCS1_PADDING
             );
-
-            if (!$decrypted) {
-                // More detailed error logging
-                $keySize = $this->privateKey->getLength();
-                $inputSize = strlen(base64_decode($request->encryptedKey));
-                \Log::error("Decryption failed. Key size: {$keySize} bits, Input size: {$inputSize} bytes");
-
-                throw new \Exception("Decryption failed - check key sizes and encoding");
+            $sessionKeyBinary = base64_decode($decryptedData);
+            \Log::info("Encrypted data size: " . strlen($encryptedData) . " bytes");
+            \Log::info("Private key size: " . $this->privateKey->getLength() . " bits");
+            if (!$success || strlen($decryptedData) !== 44) {
+                throw new \Exception("Decryption failed. Output size: " . strlen($decryptedData));
             }
-
-            // Verify the decrypted key is valid
-            if (strlen($decrypted) !== 44) { // 32 bytes as Base64 is 44 chars
-                throw new \Exception("Invalid session key length after decryption");
-            }
-
-            // Store session key
             $sessionId = Str::random(40);
-            Cache::put('session_key_' . $sessionId, $decrypted, now()->addMinutes(30));
-
+            Cache::put(
+                'session_key_' . $sessionId, 
+                $sessionKeyBinary, 
+                now()->addMinutes(30));
+            \Log::info("Session key stored for ID: $sessionId", ['key' => $decryptedData]);
+            \Log::info("Decrypted session key size: " . strlen($decryptedData) . " bytes");
+            \Log::info("Decrypted Base64 key: " . $decryptedData); // Should be 44 chars
+            \Log::info("Decoded binary key size: " . strlen($sessionKeyBinary)); // Must be 32 bytes
             return response()->json([
                 'sessionId' => $sessionId,
                 'status' => 'success'

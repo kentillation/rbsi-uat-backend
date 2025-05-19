@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->get('/get_acc_chd_mbwin', [ClientInfoControll
 Route::middleware('auth:sanctum')->get('/get_search_cid_mbwin', [ClientInfoController::class, 'getSearch_CID_MBWIN']);
 Route::middleware('auth:sanctum')->get('/check_mbwin_client_info', [ClientInfoController::class, 'checkClientInfo_MBWIN']);
 Route::middleware('auth:sanctum')->get('/mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
-Route::middleware('auth:sanctum')->get('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
+Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
 
 
 // PHPMYADMIN API
