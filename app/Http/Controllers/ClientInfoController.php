@@ -72,6 +72,20 @@ class ClientInfoController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    private function validateSearchInput($input) {
+        if (!is_string($input)) {
+            throw new \InvalidArgumentException('Invalid search parameter');
+        }
+        
+        // Limit length and allow only certain characters
+        if (strlen($input) > 100 || !preg_match('/^[a-zA-Z0-9\s\-]+$/', $input)) {
+            throw new \InvalidArgumentException('Invalid search format');
+        }
+        
+        return $input;
+    }
+
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
@@ -94,7 +108,7 @@ class ClientInfoController extends Controller
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return response()->json(['error' => 'Invalid data format'], 400);
             }
-            $search = $decodedJson['search'] ?? '';
+            $search = $this->validateSearchInput($decodedJson['search'] ?? '');
             if (empty($search)) {
                 return response()->json(['error' => 'Search parameter required'], 400);
             }
@@ -159,6 +173,32 @@ class ClientInfoController extends Controller
             'file' => $e->getFile(),
         ], 500);
         }
+    }
+
+    private function sanitizeFilename($filename) {
+        return preg_replace('/[^a-zA-Z0-9\-_\.]/', '', $filename);
+    }
+    
+    // public function getClientImage($folderName, $imageFileName)
+    // {
+    //     $folderPath = 'client_files/' . $folderName . '/' . $imageFileName;
+    //     if (!File::exists($folderPath)) {
+    //         return response()->json(['message' => 'Image not found.'], 404);
+    //     }
+    //     return response()->file($folderPath, ['Content-Type' => File::mimeType($folderPath)]);
+
+    // }
+    public function getClientImage($folderName, $imageFileName) {
+        $folderName = $this->sanitizeFilename($folderName);
+        $imageFileName = $this->sanitizeFilename($imageFileName);
+        $folderPath = storage_path('app/client_files/' . $folderName . '/' . $imageFileName);
+        if (!File::exists($folderPath)) {
+            abort(404, 'Image not found');
+        }
+        return response()->file($folderPath, [
+            'Content-Type' => File::mimeType($folderPath),
+            'Content-Disposition' => 'inline'
+        ]);
     }
     public function getClientInfo_FILTERED_PHPMYADMIN($cid, $last_name)
     {
@@ -262,22 +302,6 @@ class ClientInfoController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
-    public function getClientImage($folderName, $imageFileName)
-    {
-        // $folderName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $folderName);
-        // $imageFileName = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', $imageFileName);
-        $folderPath = 'client_files/' . $folderName . '/' . $imageFileName;
-        if (!File::exists($folderPath)) {
-            return response()->json(['message' => 'Image not found.'], 404);
-        }
-        // $file = File::get($folderPath);
-        // $type = File::mimeType($folderPath);
-        // $response = Response::make($file, 200);
-        // $response->header("Content-Type", $type);
-        // return $response;
-        return response()->file($folderPath, ['Content-Type' => File::mimeType($folderPath)]);
-
     }
     public function getMBWinClientInfo()
     {
