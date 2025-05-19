@@ -11,7 +11,7 @@ use App\Http\Controllers\CheckSQLServerConnectionController;
 
 Route::get('/check-sql-server-connection', [CheckSQLServerConnectionController::class, 'checkConnection']);
 Route::post('/admin-register', [AuthController::class, 'register']);
-Route::get('/encryption/init', [EncryptionController::class, 'init']);
+Route::middleware('throttle:20,1')->get('/encryption/init', [EncryptionController::class, 'init']);
 Route::post('/encryption/establish', [EncryptionController::class, 'establish']);
 Route::post('/admin-login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->get('/users', function (Request $request) { return $request->user();});
@@ -36,7 +36,8 @@ Route::middleware('auth:sanctum')->get('/get_acc_chd_mbwin', [ClientInfoControll
 Route::middleware('auth:sanctum')->get('/get_search_cid_mbwin', [ClientInfoController::class, 'getSearch_CID_MBWIN']);
 Route::middleware('auth:sanctum')->get('/check_mbwin_client_info', [ClientInfoController::class, 'checkClientInfo_MBWIN']);
 Route::middleware('auth:sanctum')->get('/mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
-Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
+// Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
+Route::post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
 
 
 // PHPMYADMIN API

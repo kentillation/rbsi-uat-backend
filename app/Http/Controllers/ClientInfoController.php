@@ -75,18 +75,11 @@ class ClientInfoController extends Controller
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
-            $sessionId = $request->header('X-Session-ID');
-            if (!$sessionId) {
-                return response()->json(['error' => 'Session ID required'], 400);
-            }
-            $sessionKey = Cache::get('session_key_' . $sessionId);
-            if (!$sessionKey) {
-                return response()->json(['error' => 'Invalid or expired session'], 401);
-            }
             $encryptedData = $request->input('data');
             if (!$encryptedData) {
                 return response()->json(['error' => 'Encrypted data required'], 400);
             }
+            $user = $request->user();
             $decodedData = base64_decode($encryptedData);
             if (strlen($decodedData) < 16) {
                 return response()->json(['error' => 'Invalid encrypted data format'], 400);
@@ -94,7 +87,7 @@ class ClientInfoController extends Controller
             $iv = substr($decodedData, 0, 16);
             $ciphertext = substr($decodedData, 16);
             $aes = new AES('cbc');
-            $aes->setKey($sessionKey);
+            $aes->setKey($user->session_key);
             $aes->setIV($iv);
             $decrypted = $aes->decrypt($ciphertext);
             $decodedJson = json_decode($decrypted, true);
@@ -105,15 +98,11 @@ class ClientInfoController extends Controller
             if (empty($search)) {
                 return response()->json(['error' => 'Search parameter required'], 400);
             }
-            
-            // Process search query
             $query = MBWinClientInfoModel::with('address')
                 ->where(function ($q) use ($search) {
                     $q->where('CID', 'LIKE', "%{$search}%")
                         ->orWhere('Name1', 'LIKE', "%{$search}%");
                 });
-
-            // Process data in chunks to handle large datasets
             $processedData = collect();
             $query->chunkById(200, function ($clients) use (&$processedData) {
                 $processedData = $processedData->concat($clients->map(function ($client) {
@@ -162,11 +151,13 @@ class ClientInfoController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("Client search error - Session: {$sessionId} - " . $e->getMessage());
+            \Log::error("Client search error - " . $e->getMessage());
             return response()->json([
-                'error' => 'Processing failed',
-                'message' => 'An error occurred while processing your request'
-            ], 500);
+            'error' => 'Processing failed',
+            'message' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+        ], 500);
         }
     }
     public function getClientInfo_FILTERED_PHPMYADMIN($cid, $last_name)
