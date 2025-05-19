@@ -21,9 +21,15 @@ class EncryptionController extends Controller
 
     public function init()
     {
+        $publicKeyPath = storage_path('app/keys/public.key');
+        if (!file_exists($publicKeyPath)) {
+            return response()->json([
+                'message' => 'Public key not found.'
+            ], 500);
+        }
         return response()->json([
-            'publicKey' => file_get_contents(storage_path('app/keys/public.key'))
-        ]);
+            'publicKey' => file_get_contents($publicKeyPath)
+        ])->header('Cache-Control', 'no-store');
     }
 
     public function establish(Request $request)
