@@ -152,18 +152,13 @@ class ClientInfoController extends Controller
                     ];
                 }));
             });
-
-            // Prepare response
             $responseData = $processedData->isEmpty() ? [] : $processedData->toArray();
-
             $responseIv = random_bytes(16);
             $aes->setIV($responseIv);
             $encryptedResponse = $aes->encrypt(json_encode($responseData));
-
             return response()->json([
                 'data' => base64_encode($responseIv . $encryptedResponse)
             ]);
-
         } catch (\Exception $e) {
             \Log::error("Client search error - " . $e->getMessage());
             return response()->json([
