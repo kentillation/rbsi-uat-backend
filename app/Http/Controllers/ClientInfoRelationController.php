@@ -14,24 +14,67 @@ use App\Models\AddressTypeModel;
 use App\Models\RelationshipModel;
 use App\Models\ProductTypeModel;
 use App\Models\OwnershipTypeModel;
+use phpseclib3\Crypt\AES;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ClientInfoRelationController extends Controller
 {
-    //
-    public function getSuffixes()
+    private function getSessionKey(string $sessionId)
+    {
+        $key = Cache::get('session_key_' . $sessionId);
+        if (!$key) {
+            \Log::warning("Session key not found for ID: $sessionId");
+            return null;
+        }
+        \Log::info("Attempting to retrieve key for session: $sessionId");
+        \Log::info("Session key size: " . strlen($key) . " bytes");
+        \Log::info("Retrieved session key size: " . strlen($key) . " bytes");
+        return $key;
+    }
+
+    public function getSuffixes(Request $request)
     {
         try {
+            $sessionId = $request->header('X-Session-ID');
+            $sessionKey = $this->getSessionKey($sessionId);
+            if (!$sessionKey) {
+                return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
+            }
             $data = SuffixesModel::all();
-            return response()->json($data);
+            $iv = random_bytes(16); // Encrypt the response
+            $aes = new AES('cbc');
+            $aes->setKey($sessionKey);
+            $aes->setIV($iv);
+            $encryptedData = $aes->encrypt(json_encode($data));
+            $encryptedResponse = base64_encode($iv . $encryptedData);
+            return response()->json([
+                'data' => $encryptedResponse
+            ]);
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function getTypes()
+    public function getTypes(Request $request)
     {
         try {
+            $sessionId = $request->header('X-Session-ID');
+            $sessionKey = $this->getSessionKey($sessionId);
+            if (!$sessionKey) {
+                return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
+            }
             $data = TypesModel::all();
-            return response()->json($data);
+            $iv = random_bytes(16); // Encrypt the response
+            $aes = new AES('cbc');
+            $aes->setKey($sessionKey);
+            $aes->setIV($iv);
+            $encryptedData = $aes->encrypt(json_encode($data));
+            $encryptedResponse = base64_encode($iv . $encryptedData);
+            return response()->json([
+                'data' => $encryptedResponse
+            ]);
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
