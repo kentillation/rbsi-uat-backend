@@ -60,7 +60,7 @@ class AuthController extends Controller
             \Log::info("Session key (hex): " . ($sessionKey ? bin2hex($sessionKey) : 'null'));
             \Log::info("Session key size: " . ($sessionKey ? strlen($sessionKey) : 0));
             if (!$sessionKey) {
-                return response()->json(['message' => 'Invalid session'], 401);
+                return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
             }
             $encryptedDataB64 = $request->input('data');
             $encryptedData = base64_decode($encryptedDataB64);
