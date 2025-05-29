@@ -34,48 +34,53 @@ class EncryptionController extends Controller
 
     public function establish(Request $request)
     {
+        \Log::info('Establish endpoint hit', ['encryptedKey' => $request->has('encryptedKey')]);
+
         try {
-            if (!$request->has('encryptedKey') || empty($request->encryptedKey)) {
+            if (!$request->has('encryptedKey')) {
+                \Log::error('Missing encrypted key');
                 return response()->json(['error' => 'Missing encrypted key'], 400);
             }
-            if (!base64_decode($request->encryptedKey, true)) {
-                return response()->json(['error' => 'Invalid Base64 encoding'], 400);
-            }
-            $privateKey = openssl_pkey_get_private($this->privateKey->toString('PKCS8'));
+
+            $privateKey = openssl_pkey_get_private(file_get_contents(storage_path('app/keys/private.key')));
             if (!$privateKey) {
+                \Log::error('Private key error: ' . openssl_error_string());
                 throw new \Exception("Invalid private key: " . openssl_error_string());
             }
-            $encryptedData = base64_decode($request->encryptedKey, true);
-            $decryptedData = '';
-            $success = openssl_private_decrypt(
-                $encryptedData,
-                $decryptedData,
-                $privateKey,
-                OPENSSL_PKCS1_PADDING
-            );
-            $sessionKeyBinary = base64_decode($decryptedData);
-            \Log::info("Encrypted data size: " . strlen($encryptedData) . " bytes");
-            \Log::info("Private key size: " . $this->privateKey->getLength() . " bits");
-            if (!$success || strlen($decryptedData) !== 44) {
-                throw new \Exception("Decryption failed. Output size: " . strlen($decryptedData));
+
+            $encryptedData = base64_decode($request->encryptedKey);
+            if ($encryptedData === false) {
+                \Log::error('Base64 decode failed');
+                return response()->json(['error' => 'Invalid Base64 encoding'], 400);
             }
+
+            $decrypted = '';
+            if (!openssl_private_decrypt($encryptedData, $decrypted, $privateKey, OPENSSL_PKCS1_PADDING)) {
+                \Log::error('Decryption failed', ['error' => openssl_error_string()]);
+                throw new \Exception("Decryption failed: " . openssl_error_string());
+            }
+
+            $sessionKeyBinary = base64_decode($decrypted);
+            if ($sessionKeyBinary === false) {
+                \Log::error('Session key decode failed');
+                throw new \Exception("Invalid session key encoding");
+            }
+
             $sessionId = Str::random(40);
-            Cache::put(
-                'session_key_' . $sessionId,
-                $sessionKeyBinary,
-                now()->addMinutes(30)
-            );
-            \Log::info("Session key stored for ID: $sessionId", ['key' => $decryptedData]);
-            \Log::info("Decrypted session key size: " . strlen($decryptedData) . " bytes");
-            \Log::info("Decrypted Base64 key: " . $decryptedData); // Should be 44 chars
-            \Log::info("Decoded binary key size: " . strlen($sessionKeyBinary)); // Must be 32 bytes
+            Cache::put('session_key_' . $sessionId, $sessionKeyBinary, now()->addMinutes(30));
+
+            \Log::info('Session established', [
+                'sessionId' => $sessionId,
+                'keyLength' => strlen($sessionKeyBinary)
+            ]);
+
             return response()->json([
                 'sessionId' => $sessionId,
                 'status' => 'success'
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Establish error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            \Log::error('Establish error: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Key establishment failed',
                 'message' => $e->getMessage()

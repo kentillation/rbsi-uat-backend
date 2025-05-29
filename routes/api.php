@@ -18,6 +18,12 @@ Route::middleware('auth:sanctum')->get('/users', function (Request $request) { r
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->post('/update_client_info/{cid}', [ClientInfoController::class, 'updateClient']);
 
+// Protected routes
+Route::middleware(['auth:sanctum', 'verify.encryption.session'])->group(function () {
+    Route::post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
+    // Add other encrypted endpoints here
+});
+
 // MBWIN PRE-DEFINED API
 Route::middleware('auth:sanctum')->post('/generate-token', [API_TransactionController::class, 'generateToken']);
 Route::middleware('auth:sanctum')->post('/create_account', [API_TransactionController::class, 'createAccount']);
@@ -25,7 +31,7 @@ Route::middleware('auth:sanctum')->post('/account_list/{cid}', [API_TransactionC
 Route::middleware('auth:sanctum')->post('/account_enquiry', [API_TransactionController::class, 'accountEnquiry']);
 Route::middleware('auth:sanctum')->post('/account_transaction_history', [API_TransactionController::class, 'accountTransactionHistory']);
 Route::middleware('auth:sanctum')->post('/new_client_info', [API_TransactionController::class, 'addNewClient']);
-Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
+// Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
 
 // MBWIN API
 Route::middleware('auth:sanctum')->get('/get_mbwin_client_cid', [ClientInfoController::class, 'getClientLastCID_FILTERED_MBWIN']);
