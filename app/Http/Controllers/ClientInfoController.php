@@ -96,12 +96,6 @@ class ClientInfoController extends Controller
                 return response()->json(['error' => 'Session ID missing'], 401);
             }
 
-            $sessionKey = Cache::get('session_key_' . $sessionId);
-            if (!$sessionKey) {
-                \Log::warning("Session key not found for ID: $sessionId");
-                return response()->json(['error' => 'Session key not established'], 401);
-            }
-
             $user = $request->user();
             if (!$user) {
                 \Log::warning("Unauthorized access attempt without user session");
