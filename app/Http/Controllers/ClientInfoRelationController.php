@@ -33,47 +33,43 @@ class ClientInfoRelationController extends Controller
         return $key;
     }
 
-    public function getSuffixes(Request $request)
+    public function getSuffixes()
     {
         try {
-            $sessionId = $request->header('X-Session-ID');
-            $sessionKey = $this->getSessionKey($sessionId);
-            if (!$sessionKey) {
-                return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
-            }
+            // $sessionId = $request->header('X-Session-ID');
+            // $sessionKey = $this->getSessionKey($sessionId);
+            // if (!$sessionKey) {
+            //     return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
+            // }
             $data = SuffixesModel::all();
-            $iv = random_bytes(16); // Encrypt the response
-            $aes = new AES('cbc');
-            $aes->setKey($sessionKey);
-            $aes->setIV($iv);
-            $encryptedData = $aes->encrypt(json_encode($data));
-            $encryptedResponse = base64_encode($iv . $encryptedData);
-            return response()->json([
-                'data' => $encryptedResponse
-            ]);
+            // $iv = random_bytes(16); // Encrypt the response
+            // $aes = new AES('cbc');
+            // $aes->setKey($sessionKey);
+            // $aes->setIV($iv);
+            // $encryptedData = $aes->encrypt(json_encode($data));
+            // $encryptedResponse = base64_encode($iv . $encryptedData);
+            return response()->json($data);
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    public function getTypes(Request $request)
+    public function getTypes()
     {
         try {
-            $sessionId = $request->header('X-Session-ID');
-            $sessionKey = $this->getSessionKey($sessionId);
-            if (!$sessionKey) {
-                return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
-            }
+            // $sessionId = $request->header('X-Session-ID');
+            // $sessionKey = $this->getSessionKey($sessionId);
+            // if (!$sessionKey) {
+            //     return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
+            // }
             $data = TypesModel::all();
-            $iv = random_bytes(16); // Encrypt the response
-            $aes = new AES('cbc');
-            $aes->setKey($sessionKey);
-            $aes->setIV($iv);
-            $encryptedData = $aes->encrypt(json_encode($data));
-            $encryptedResponse = base64_encode($iv . $encryptedData);
-            return response()->json([
-                'data' => $encryptedResponse
-            ]);
+            // $iv = random_bytes(16); // Encrypt the response
+            // $aes = new AES('cbc');
+            // $aes->setKey($sessionKey);
+            // $aes->setIV($iv);
+            // $encryptedData = $aes->encrypt(json_encode($data));
+            // $encryptedResponse = base64_encode($iv . $encryptedData);
+            return response()->json($data);
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -143,7 +139,6 @@ class ClientInfoRelationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function getRelationship()
     {
         try {
@@ -162,7 +157,6 @@ class ClientInfoRelationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function getProductTypes()
     {
         try {
@@ -172,7 +166,6 @@ class ClientInfoRelationController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
     public function getOwnershipTypes()
     {
         try {

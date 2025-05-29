@@ -92,11 +92,10 @@ class ClientInfoController extends Controller
         try {
             // Accept search parameter directly from query string or body
             $search = $request->input('search', $request->query('search', ''));
-            $search = $this->validateSearchInput($search);
-
-            if (empty($search)) {
-                return response()->json(['error' => 'Search parameter required'], 400);
-            }
+            // $search = $this->validateSearchInput($search);
+            // if (empty($search)) {
+            //     return response()->json(['error' => 'Search parameter required'], 400);
+            // }
 
             $query = MBWinClientInfoModel::with('address')
                 ->where(function ($q) use ($search) {
