@@ -57,18 +57,7 @@ class ClientInfoRelationController extends Controller
     public function getTypes()
     {
         try {
-            // $sessionId = $request->header('X-Session-ID');
-            // $sessionKey = $this->getSessionKey($sessionId);
-            // if (!$sessionKey) {
-            //     return response()->json(['message' => 'Invalid session. Refresh the page and try again!'], 401);
-            // }
             $data = TypesModel::all();
-            // $iv = random_bytes(16); // Encrypt the response
-            // $aes = new AES('cbc');
-            // $aes->setKey($sessionKey);
-            // $aes->setIV($iv);
-            // $encryptedData = $aes->encrypt(json_encode($data));
-            // $encryptedResponse = base64_encode($iv . $encryptedData);
             return response()->json($data);
 
         } catch (\Exception $e) {
