@@ -61,9 +61,10 @@ class EncryptionController extends Controller
             }
             $sessionId = Str::random(40);
             Cache::put(
-                'session_key_' . $sessionId, 
-                $sessionKeyBinary, 
-                now()->addMinutes(30));
+                'session_key_' . $sessionId,
+                $sessionKeyBinary,
+                now()->addMinutes(30)
+            );
             \Log::info("Session key stored for ID: $sessionId", ['key' => $decryptedData]);
             \Log::info("Decrypted session key size: " . strlen($decryptedData) . " bytes");
             \Log::info("Decrypted Base64 key: " . $decryptedData); // Should be 44 chars
