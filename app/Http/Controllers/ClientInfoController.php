@@ -89,6 +89,28 @@ class ClientInfoController extends Controller
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
+            $sessionId = $request->header('X-Session-ID');
+            if (!$sessionId) {
+                \Log::warning("Unauthorized access attempt without session ID");
+                return response()->json(['error' => 'Session ID missing'], 401);
+            }
+
+            $sessionKey = Cache::get('session_key_' . $sessionId);
+            if (!$sessionKey) {
+                \Log::warning("Session key not found for ID: $sessionId");
+                return response()->json(['error' => 'Session key not established'], 401);
+            }
+
+            $user = $request->user();
+            if (!$user) {
+                \Log::warning("Unauthorized access attempt without user session");
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            if (!$user->session_key) {
+                \Log::warning("Session key not found for user ID: {$user->id}");
+                return response()->json(['error' => 'Session key not established'], 403);
+            }
+
             $encryptedData = $request->input('data');
             if (!$encryptedData) {
                 return response()->json(['error' => 'Encrypted data required'], 400);

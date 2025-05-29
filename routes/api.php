@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->post('/account_list/{cid}', [API_TransactionC
 Route::middleware('auth:sanctum')->post('/account_enquiry', [API_TransactionController::class, 'accountEnquiry']);
 Route::middleware('auth:sanctum')->post('/account_transaction_history', [API_TransactionController::class, 'accountTransactionHistory']);
 Route::middleware('auth:sanctum')->post('/new_client_info', [API_TransactionController::class, 'addNewClient']);
+Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
 
 // MBWIN API
 Route::middleware('auth:sanctum')->get('/get_mbwin_client_cid', [ClientInfoController::class, 'getClientLastCID_FILTERED_MBWIN']);
@@ -36,9 +37,6 @@ Route::middleware('auth:sanctum')->get('/get_acc_chd_mbwin', [ClientInfoControll
 Route::middleware('auth:sanctum')->get('/get_search_cid_mbwin', [ClientInfoController::class, 'getSearch_CID_MBWIN']);
 Route::middleware('auth:sanctum')->get('/check_mbwin_client_info', [ClientInfoController::class, 'checkClientInfo_MBWIN']);
 Route::middleware('auth:sanctum')->get('/mbwin_client_info', [ClientInfoController::class, 'getMBWinClientInfo']);
-// Route::middleware('auth:sanctum')->post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
-Route::post('/mbwin_client_cid_lastname', [ClientInfoController::class, 'getClientInfo_search_CIDLastname_MBWIN']);
-
 
 // PHPMYADMIN API
 Route::middleware('auth:sanctum')->get('/client_info', [ClientInfoController::class, 'getClientInfo_search_PHPMYADMIN']);
