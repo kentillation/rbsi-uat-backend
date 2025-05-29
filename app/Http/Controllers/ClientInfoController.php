@@ -90,45 +90,14 @@ class ClientInfoController extends Controller
     public function getClientInfo_search_CIDLastname_MBWIN(Request $request)
     {
         try {
-            $sessionId = $request->header('X-Session-ID');
-            if (!$sessionId) {
-                \Log::warning("Unauthorized access attempt without session ID");
-                return response()->json(['error' => 'Session ID missing'], 401);
-            }
+            // Accept search parameter directly from query string or body
+            $search = $request->input('search', $request->query('search', ''));
+            $search = $this->validateSearchInput($search);
 
-            $user = $request->user();
-            if (!$user) {
-                \Log::warning("Unauthorized access attempt without user session");
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
-            if (!$user->session_key) {
-                \Log::warning("Session key not found for user ID: {$user->id}");
-                return response()->json(['error' => 'Session key not established'], 403);
-            }
-
-            $encryptedData = $request->input('data');
-            if (!$encryptedData) {
-                return response()->json(['error' => 'Encrypted data required'], 400);
-            }
-            $user = $request->user();
-            $decodedData = base64_decode($encryptedData);
-            if (strlen($decodedData) < 16) {
-                return response()->json(['error' => 'Invalid encrypted data format'], 400);
-            }
-            $iv = substr($decodedData, 0, 16);
-            $ciphertext = substr($decodedData, 16);
-            $aes = new AES('cbc');
-            $aes->setKey($user->session_key);
-            $aes->setIV($iv);
-            $decrypted = $aes->decrypt($ciphertext);
-            $decodedJson = json_decode($decrypted, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return response()->json(['error' => 'Invalid data format'], 400);
-            }
-            $search = $this->validateSearchInput($decodedJson['search'] ?? '');
             if (empty($search)) {
                 return response()->json(['error' => 'Search parameter required'], 400);
             }
+
             $query = MBWinClientInfoModel::with('address')
                 ->where(function ($q) use ($search) {
                     $q->where('CID', 'LIKE', "%{$search}%")
@@ -169,13 +138,10 @@ class ClientInfoController extends Controller
                     ];
                 }));
             });
+
             $responseData = $processedData->isEmpty() ? [] : $processedData->toArray();
-            $responseIv = random_bytes(16);
-            $aes->setIV($responseIv);
-            $encryptedResponse = $aes->encrypt(json_encode($responseData));
-            return response()->json([
-                'data' => base64_encode($responseIv . $encryptedResponse)
-            ]);
+            return response()->json($responseData);
+
         } catch (\Exception $e) {
             \Log::error("Client search error - " . $e->getMessage());
             return response()->json([
@@ -199,7 +165,6 @@ class ClientInfoController extends Controller
     //         return response()->json(['message' => 'Image not found.'], 404);
     //     }
     //     return response()->file($folderPath, ['Content-Type' => File::mimeType($folderPath)]);
-
     // }
     public function getClientImage($folderName, $imageFileName)
     {

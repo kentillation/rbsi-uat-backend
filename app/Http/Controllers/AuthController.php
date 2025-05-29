@@ -116,7 +116,7 @@ class AuthController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer'
             ];
-            $sessionKey = $this->getSessionKey($sessionId);
+            // $sessionKey = $this->getSessionKey($sessionId);
             if (!$sessionKey) {
                 return response()->json(['message' => 'Session expired'], 401);
             }
