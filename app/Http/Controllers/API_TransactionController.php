@@ -285,7 +285,8 @@ class API_TransactionController extends Controller
                         'employment' => "7",
                         'tax_code' => $this->partOf['taxCode'],
                         'image_file' => $fileName,
-                        'branch' => $branch
+                        'branch' => $branch,
+                        'user_id' => auth()->user()->id,
                     ]);
                 });
                 DB::transaction(function () use ($request, $branch, $newCID, $newAddr_Recid) {
