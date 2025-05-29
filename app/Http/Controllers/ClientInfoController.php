@@ -73,16 +73,17 @@ class ClientInfoController extends Controller
         }
     }
 
-    private function validateSearchInput($input) {
+    private function validateSearchInput($input)
+    {
         if (!is_string($input)) {
             throw new \InvalidArgumentException('Invalid search parameter');
         }
-        
+
         // Limit length and allow only certain characters
         if (strlen($input) > 100 || !preg_match('/^[a-zA-Z0-9\s\-]+$/', $input)) {
             throw new \InvalidArgumentException('Invalid search format');
         }
-        
+
         return $input;
     }
 
@@ -184,18 +185,19 @@ class ClientInfoController extends Controller
         } catch (\Exception $e) {
             \Log::error("Client search error - " . $e->getMessage());
             return response()->json([
-            'error' => 'Processing failed',
-            'message' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile(),
-        ], 500);
+                'error' => 'Processing failed',
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
         }
     }
 
-    private function sanitizeFilename($filename) {
+    private function sanitizeFilename($filename)
+    {
         return preg_replace('/[^a-zA-Z0-9\-_\.]/', '', $filename);
     }
-    
+
     // public function getClientImage($folderName, $imageFileName)
     // {
     //     $folderPath = 'client_files/' . $folderName . '/' . $imageFileName;
@@ -205,7 +207,8 @@ class ClientInfoController extends Controller
     //     return response()->file($folderPath, ['Content-Type' => File::mimeType($folderPath)]);
 
     // }
-    public function getClientImage($folderName, $imageFileName) {
+    public function getClientImage($folderName, $imageFileName)
+    {
         $folderName = $this->sanitizeFilename($folderName);
         $imageFileName = $this->sanitizeFilename($imageFileName);
         $folderPath = storage_path('app/client_files/' . $folderName . '/' . $imageFileName);
