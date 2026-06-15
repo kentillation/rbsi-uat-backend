@@ -4,9 +4,7 @@
 /storage/*.key
 /vendor
 /.env.example
-key/*.crt
-key/*.pem
-key/*.xdb
+key/*
 .env
 .env.backup
 .phpunit.result.cache
